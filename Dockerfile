@@ -1,5 +1,5 @@
 FROM ghcr.io/navikt/fp-baseimages/chainguard:jre-25
-LABEL org.opencontainers.image.source=https://github.com/navikt/fpfordel
+LABEL org.opencontainers.image.source=https://github.com/navikt/fpmottak
 
 # Config
 COPY web/target/classes/logback*.xml ./conf/

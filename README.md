@@ -1,29 +1,28 @@
-FP-FORDEL
+FP-MOTTAK
 ===============
-[![Bygg og deploy](https://github.com/navikt/fpfordel/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/navikt/fpfordel/actions/workflows/build.yml)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=navikt_fpfordel)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=coverage)](https://sonarcloud.io/summary/new_code?id=navikt_fpfordel)
+[![Bygg og deploy](https://github.com/navikt/fpmottak/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/navikt/fpmottak/actions/workflows/build.yml)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=navikt_fpmottak)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=coverage)](https://sonarcloud.io/summary/new_code?id=navikt_fpmottak)
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=alert_status)](https://sonarcloud.io/dashboard?id=navikt_fpfordel)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=bugs)](https://sonarcloud.io/dashboard?id=navikt_fpfordel)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=navikt_fpfordel)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=navikt_fpfordel)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=navikt_fpfordel)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpfordel&metric=sqale_index)](https://sonarcloud.io/dashboard?id=navikt_fpfordel)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=alert_status)](https://sonarcloud.io/dashboard?id=navikt_fpmottak)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=bugs)](https://sonarcloud.io/dashboard?id=navikt_fpmottak)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=navikt_fpmottak)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=navikt_fpmottak)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=navikt_fpmottak)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=sqale_index)](https://sonarcloud.io/dashboard?id=navikt_fpmottak)
 
-Dette er kildkode som dekker applikasjonen for fordeling av søknader fra Selvbetjening mellom Gosys, Infotrygd og FPSAK/FPTIBAKE.
+Dette er kildekode som dekker applikasjonen for mottak og fordeling av søknader fra Selvbetjening mellom Gosys, Infotrygd og FPSAK/FPTIBAKE.
 Løsningen prøver å journalføre andre dokumenter også - om det ikke er mulig blir de sendt til manuell journalføring.
 
 ### Struktur
 
-Dette er løsning for fordeling av søknader (og inntektsmeldinger).
+Dette er løsning for mottak og fordeling av søknader (og inntektsmeldinger).
 
 ### Kontekst
 #### Automatisk dokument behandling
-<!-- PlantUml generated from docs/journalføring-diagram.puml. Regenerate Encoded form on https://planttext.com -->
 ![journalføring-diagram](docs/journalføring-diagram-Automatisk_journalføring.png)
 #### Manuell dokument behandling
-![manuell_journalføring-diagram-Manuell_journalføring.png](docs%2Fmanuell_journalf%C3%B8ring-diagram-Manuell_journalføring.png)
+![manuell_journalføring-diagram-Manuell_journalføring.png](docs%2Fmanuell_journalføring-diagram-Manuell_journalføring.png)
 
 ### Utviklingshåndbok
 
@@ -48,7 +47,7 @@ Det er mulig å kalle tjenesten med bruk av følgende tokens
 ```bash
 mvn -B -Dfile.encoding=UTF-8 -DskipTests clean install
 
-docker build -t fpfordel .  
+docker build -t fpmottak .
 ```
 
 ### Protip for å kjøre tester raskere

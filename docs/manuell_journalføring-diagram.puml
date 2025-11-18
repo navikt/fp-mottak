@@ -7,7 +7,7 @@ interface "/oppgaver" as oppgaver
 interface "/detaljer" as detaljer
 actor "Saksbehandler"
 
-node "FP-Fordel" {
+node "FP-Mottak" {
     [Fordel]
 }
 

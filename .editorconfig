@@ -16,9 +16,6 @@ ij_formatter_tags_enabled = false
 ij_smart_tabs = false
 ij_wrap_on_typing = false
 
-[*.json]
-indent_size = 2
-
 [*.md]
 trim_trailing_whitespace = false
 
@@ -272,8 +269,3 @@ ij_java_while_on_new_line = false
 ij_java_wrap_comments = false
 ij_java_wrap_first_method_in_call_chain = false
 ij_java_wrap_long_lines = false
-
-[pom.xml]
-charset = utf-8
-indent_style = space
-indent_size = 4

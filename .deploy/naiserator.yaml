@@ -1,35 +1,31 @@
 kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
-  name: fpfordel
+  name: fpmottak
   namespace: teamforeldrepenger
   labels:
     team: teamforeldrepenger
 spec:
   image: {{image}}
   port: 8080
-  ingresses:
-{{#each ingresses as |url|}}
-    - {{url}}
-{{/each}}
   liveness:
-    path: /fpfordel/internal/health/isAlive
+    path: /fpmottak/internal/health/isAlive
     initialDelay: 10
     periodSeconds: 10
     failureThreshold: 20
     timeout: 3
   readiness:
-    path: /fpfordel/internal/health/isReady
+    path: /fpmottak/internal/health/isReady
     initialDelay: 10
     periodSeconds: 10
     failureThreshold: 20
     timeout: 3
   preStopHook:
     http:
-      path: /fpfordel/internal/health/preStop
+      path: /fpmottak/internal/health/preStop
   prometheus:
     enabled: true
-    path: /fpfordel/internal/metrics/prometheus
+    path: /fpmottak/internal/metrics/prometheus
   replicas:
     min: {{minReplicas}}
     max: {{maxReplicas}}
@@ -54,21 +50,21 @@ spec:
       destinations:
         - id: loki
         - id: elastic
-  vault:
-    enabled: true
-    paths:
-      - mountPath: {{vault.mountPath}}/defaultDSconfig
-        kvPath: {{vault.db.configPath}}
-      - mountPath: {{vault.mountPath}}/defaultDS
-        kvPath: {{vault.db.secretsPath}}
-  env:
-    - name: VAULT_MOUNT_PATH
-      value: "{{vault.mountPath}}"
   tokenx:
     enabled: true
   kafka:
     pool: {{kafkaPool}}
-  azure:
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_17
+        databases:
+          - name: fpmottak
+        tier: {{dbTier}}
+        diskAutoresize: {{dbDiskAutoresize}}
+        highAvailability: {{dbHighAvailability}}
+        pointInTimeRecovery: {{dbPointInTimeRecovery}}
+        collation: nb_NO.UTF8
+    azure:
     application:
       enabled: true
       claims:

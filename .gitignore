@@ -1,22 +1,21 @@
-*.iml
-*.local
-*.localz
+# Compiled class file
+*.class
+
+# Log file
 *.log
-*.versionsBackup
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
 *.zip
-.factorypath
-dep.txt
-.classpath
+*.tar.gz
+*.rar
+
 .idea
-.project
-.settings
-_*.sh
-bin
-es.properties
-es.properties.backup
-es-local.properties
 target
-truststore.jts
-conf
-.mvn/maven.config
-.flattened*
+fp-oversikt.iml
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
