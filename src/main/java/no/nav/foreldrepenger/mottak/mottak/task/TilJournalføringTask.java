@@ -1,0 +1,111 @@
+package no.nav.foreldrepenger.mottak.mottak.task;
+
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.mottak.journalføring.domene.JournalpostId;
+import no.nav.foreldrepenger.mottak.journalføring.oppgave.Journalføringsoppgave;
+import no.nav.foreldrepenger.mottak.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
+import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.mottak.felles.WrappedProsessTaskHandler;
+import no.nav.foreldrepenger.mottak.mottak.journal.ArkivTjeneste;
+import no.nav.foreldrepenger.mottak.mottak.person.PersonInformasjon;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
+
+/**
+ * <p>
+ * ProssessTask som utleder journalføringsbehov og forsøker rette opp disse.
+ * </p>
+ */
+@ApplicationScoped
+@ProsessTask(TilJournalføringTask.TASKNAME)
+public class TilJournalføringTask extends WrappedProsessTaskHandler {
+
+    static final String TASKNAME = "fordeling.tilJournalforing";
+
+    private static final Logger LOG = LoggerFactory.getLogger(TilJournalføringTask.class);
+    private static final String AUTOMATISK_ENHET = "9999";
+    private static final String PROSESSERING_AV_PRECONDITIONS_FOR_S_MANGLER_S_TASK_ID_S = "Prosessering av preconditions for %s mangler %s. TaskId: %s";
+
+    private ArkivTjeneste arkivTjeneste;
+    private PersonInformasjon aktør;
+    private Journalføringsoppgave oppgave;
+
+    public TilJournalføringTask() {
+
+    }
+
+    @Inject
+    public TilJournalføringTask(ProsessTaskTjeneste taskTjeneste, ArkivTjeneste arkivTjeneste, PersonInformasjon aktørConsumer,
+                                Journalføringsoppgave journalføringsOppgave) {
+        super(taskTjeneste);
+        this.arkivTjeneste = arkivTjeneste;
+        this.aktør = aktørConsumer;
+        this.oppgave = journalføringsOppgave;
+    }
+
+    @Override
+    public void precondition(MottakMeldingDataWrapper dataWrapper) {
+        if (dataWrapper.getAktørId().isEmpty()) {
+            throw new TekniskException("FP-941984",
+                String.format(PROSESSERING_AV_PRECONDITIONS_FOR_S_MANGLER_S_TASK_ID_S, TASKNAME, MottakMeldingDataWrapper.AKTØR_ID_KEY,
+                    dataWrapper.getId()));
+        }
+        if (dataWrapper.getSaksnummer().isEmpty()) {
+            throw new TekniskException("FP-941985",
+                String.format(PROSESSERING_AV_PRECONDITIONS_FOR_S_MANGLER_S_TASK_ID_S, TASKNAME, MottakMeldingDataWrapper.SAKSNUMMER_KEY,
+                    dataWrapper.getId()));
+        }
+        if (dataWrapper.getArkivId() == null || dataWrapper.getArkivId().isEmpty()) {
+            throw new TekniskException("FP-941986",
+                String.format(PROSESSERING_AV_PRECONDITIONS_FOR_S_MANGLER_S_TASK_ID_S, TASKNAME, MottakMeldingDataWrapper.ARKIV_ID_KEY,
+                    dataWrapper.getId()));
+        }
+    }
+
+    @Transactional
+    @Override
+    public MottakMeldingDataWrapper doTask(MottakMeldingDataWrapper w) {
+        Optional<String> fnr = w.getAktørId().flatMap(aktør::hentPersonIdentForAktørId);
+        if (fnr.isEmpty()) {
+            throw new TekniskException("FP-254631", String.format("Fant ikke personident for aktørId i task %s.  TaskId: %s", TASKNAME, w.getId()));
+        }
+        var saksnummer = w.getSaksnummer().orElseThrow(() -> new IllegalStateException("Utviklerfeil: Mangler saksnummer"));
+        try {
+            var journalpost = arkivTjeneste.hentArkivJournalpost(w.getArkivId());
+            arkivTjeneste.settTilleggsOpplysninger(journalpost, w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT), false);
+        } catch (Exception e) {
+            LOG.info("FORDEL OPPRETT/FERDIG Feil ved setting av tilleggsopplysninger for journalpostId {}", w.getArkivId());
+        }
+        // Annet dokument fra dokumentmottak (scanning, altinn). Kan skippe
+        // unntakshåndtering. Bør feile.
+        try {
+            var journalpost = arkivTjeneste.hentArkivJournalpost(w.getArkivId());
+            if (journalpost.getSaksnummer().filter(s -> s.equals(saksnummer)).isPresent()) {
+                LOG.info("FORDEL OPPRETT/FERDIG presatt saksnummer {} for journalpost {}", saksnummer, w.getArkivId());
+            } else {
+                arkivTjeneste.oppdaterMedSak(w.getArkivId(), saksnummer, w.getAktørId().orElseThrow());
+            }
+            arkivTjeneste.ferdigstillJournalføring(w.getArkivId(), w.getJournalførendeEnhet().orElse(AUTOMATISK_ENHET));
+        } catch (Exception e) {
+            LOG.warn("FORDEL OPPRETT/FERDIG Feil journaltilstand. Forventet tilstand: endelig, fikk Midlertidig");
+            return w.nesteSteg(TaskType.forProsessTask(OpprettGSakOppgaveTask.class));
+        }
+        try {
+            oppgave.ferdigstillAlleÅpneJournalføringsoppgaverFor(JournalpostId.fra(w.getArkivId()));
+        } catch (Exception e) {
+            LOG.warn("FPMOTTAK JFR-OPPGAVE: feil ved ferdigstilling av åpne oppgaver for journalpostId: {}", w.getArkivId());
+        }
+        return w.nesteSteg(TaskType.forProsessTask(VLKlargjørerTask.class));
+    }
+
+}

@@ -10,7 +10,7 @@ interface "/dokumentforsendelse" as dokforsendelseRest
 
 queue "Journalføring" as journalføringKafka
 
-node "FP-Fordel" {
+node "FP-Mottak" {
     node "Core" {
         [OpprettGSakOppgaveTask] as GosysTask
         [VLKlargjørerTask] as KlargjørTask
