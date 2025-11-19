@@ -16,7 +16,7 @@
     <properties>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-mottak</sonar.projectName>
-        <sonar.projectKey>navikt_fpmottak</sonar.projectKey>
+        <sonar.projectKey>navikt_fp-mottak</sonar.projectKey>
 
         <felles.version>7.6.9</felles.version>
         <prosesstask.version>5.2.1</prosesstask.version>
