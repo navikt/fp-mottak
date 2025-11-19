@@ -30,7 +30,7 @@ public class OpenApiUtils {
         var oas = new OpenAPI()
             .openapi("3.1.1")
             .info(new Info().title(tittel).version(Optional.ofNullable(ENV.imageName()).orElse("1.0")))
-            .addServersItem(new Server().url(ENV.getProperty("context.path", "/fpsoknad")));
+            .addServersItem(new Server().url(ENV.getProperty("context.path", "/fpmottak")));
         var swaggerConfiguration = new SwaggerConfiguration()
             .id(idFra(application))
             .openAPI(oas)
