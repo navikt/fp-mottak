@@ -31,8 +31,8 @@ import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
-@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPSAK)
 @ApplicationScoped
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPSAK)
 public class FagsakKlient implements Fagsak {
 
     private static final String JOURNALPOSTTILKNYTNING_PATH = "/api/fordel/fagsak/knyttJournalpost";

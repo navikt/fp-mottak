@@ -12,9 +12,13 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @Dependent
-@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "sikkerhetsnett.url",
-    endpointDefault = "http://dokarkiv.teamdokumenthandtering/rest/journalpostapi/v1/finnMottatteJournalposter",
-    scopesProperty = "dokarkiv.scopes", scopesDefault = "api://prod-fss.teamdokumenthandtering.dokarkiv/.default")
+@RestClientConfig(
+    tokenConfig = TokenFlow.ADAPTIVE,
+    endpointProperty = "sikkerhetsnett.url",
+    endpointDefault = "https://dokarkiv.prod-fss-pub.nais.io/rest/journalpostapi/v1/finnMottatteJournalposter",
+    scopesProperty = "dokarkiv.scopes",
+    scopesDefault = "api://prod-fss.teamdokumenthandtering.dokarkiv/.default"
+)
 public class SikkerhetsnettKlient {
 
     private final RestClient restKlient;

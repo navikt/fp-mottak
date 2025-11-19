@@ -43,15 +43,11 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
-      destinations:
-        - id: "grafana-lgtm"
-        - id: "elastic-apm"
     logging:
       destinations:
         - id: loki
         - id: elastic
-  tokenx:
-    enabled: true
+        - id: secure_logs
   kafka:
     pool: {{kafkaPool}}
   gcp:
@@ -64,7 +60,7 @@ spec:
         highAvailability: {{dbHighAvailability}}
         pointInTimeRecovery: {{dbPointInTimeRecovery}}
         collation: nb_NO.UTF8
-    azure:
+  azure:
     application:
       enabled: true
       claims:
@@ -75,20 +71,26 @@ spec:
           {{#each groups as |group|}}
           - id: "{{group.uuid}}"
           {{/each}}
-  {{#if AZURE_IAC_RULES}}
   accessPolicy:
     inbound:
       rules:
-      {{#each AZURE_IAC_RULES}}
-      - application: {{app}}
-        namespace: {{namespace}}
-        cluster: {{cluster}}
-        {{#if scopes}}
-        permissions:
-          scopes:
-          {{#each scopes}}
-            - "{{this}}"
-          {{/each}}
-        {{/if}}
-      {{/each}}
-  {{/if}}
+        - application: fp-frontend
+        - application: fp-journalforing
+        - application: fp-swagger
+          namespace: teamforeldrepenger
+          cluster: {{environment}}-gcp
+          permissions:
+            scopes:
+              - swagger
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
+      external:
+        - host: fpsak-api.{{environment}}-fss-pub.nais.io
+        - host: fptilbake.{{environment}}-fss-pub.nais.io
+        - host: fptilgang.{{environment}}-fss-pub.nais.io
+        - host: oppgave.{{environment}}-fss-pub.nais.io
+        - host: pdl-api.{{environment}}-fss-pub.nais.io
+        - host: saf.{{environment}}-fss-pub.nais.io
+        - host: {{dokarkivUrl}}
