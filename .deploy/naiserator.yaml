@@ -55,11 +55,16 @@ spec:
       - type: POSTGRES_17
         databases:
           - name: fpmottak
+            envVarPrefix: DB
         tier: {{dbTier}}
         diskAutoresize: {{dbDiskAutoresize}}
         highAvailability: {{dbHighAvailability}}
         pointInTimeRecovery: {{dbPointInTimeRecovery}}
         collation: nb_NO.UTF8
+        autoBackupHour: 2
+        maintenance:
+          day: 1
+          hour: 4
   azure:
     application:
       enabled: true
