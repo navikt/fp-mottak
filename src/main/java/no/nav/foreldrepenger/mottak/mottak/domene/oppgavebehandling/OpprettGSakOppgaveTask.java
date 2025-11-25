@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.mottak.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.domene.NyOppgave;
 import no.nav.foreldrepenger.mottak.mottak.behandlendeenhet.EnhetsTjeneste;
-import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.ArkivUtil;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -47,25 +46,24 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         this.enhetsTjeneste = enhetsTjeneste;
     }
 
-    private static String lagBeskrivelse(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, ProsessTaskData data) {
+    private static String lagBeskrivelse(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId) {
         if (DokumentTypeId.UDEFINERT.equals(dokumentTypeId)) {
             return BehandlingTema.UDEFINERT.equals(behandlingTema) ? "Journalføring" : "Journalføring " + behandlingTema.getTermNavn();
         }
         String beskrivelse = dokumentTypeId.getTermNavn();
-        if (DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId) && (
-            data.getPropertyValue(MottakMeldingDataWrapper.FØRSTE_UTTAKSDAG_KEY) != null)) {
-            String uttakStart = data.getPropertyValue(MottakMeldingDataWrapper.FØRSTE_UTTAKSDAG_KEY);
-            beskrivelse = beskrivelse + " (" + uttakStart + ")";
-        }
         if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
-            if (data.getPropertyValue(MottakMeldingDataWrapper.INNTEKTSMELDING_YTELSE) != null) {
-                beskrivelse = beskrivelse + " (" + data.getPropertyValue(MottakMeldingDataWrapper.INNTEKTSMELDING_YTELSE) + ")";
-            }
-            if (data.getPropertyValue(MottakMeldingDataWrapper.INNTEKSTMELDING_STARTDATO_KEY) != null) {
-                beskrivelse = beskrivelse + " (" + (data.getPropertyValue(MottakMeldingDataWrapper.INNTEKSTMELDING_STARTDATO_KEY)) + ")";
-            }
+            beskrivelse = beskrivelse + " (" + ytelseFraBehandlingTema(behandlingTema) + ")";
         }
         return beskrivelse;
+    }
+
+    private static String ytelseFraBehandlingTema(BehandlingTema behandlingTema) {
+        return switch (behandlingTema) {
+            case ENGANGSSTØNAD, ENGANGSSTØNAD_FØDSEL, ENGANGSSTØNAD_ADOPSJON -> "Engangsstønad";
+            case FORELDREPENGER, FORELDREPENGER_FØDSEL, FORELDREPENGER_ADOPSJON -> "Foreldrepenger";
+            case SVANGERSKAPSPENGER -> "Svangerskapspenger";
+            default -> "Ukjent";
+        };
     }
 
     @Override
@@ -105,7 +103,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         // oppgitt
         var enhetId = enhetsTjeneste.hentFordelingEnhetId(Optional.ofNullable(enhetInput), prosessTaskData.getAktørId());
 
-        var beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
+        var beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId);
         var saksref = prosessTaskData.getSaksnummer();
 
         var journalpost = JournalpostId.fra(journalpostId);
