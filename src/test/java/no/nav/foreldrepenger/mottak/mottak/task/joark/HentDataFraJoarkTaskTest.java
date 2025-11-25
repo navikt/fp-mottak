@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.mottak.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.DestinasjonsRuter;
-import no.nav.foreldrepenger.mottak.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -132,7 +131,7 @@ class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
                                                                        "testsoknader/inntektsmelding-elektronisk-sample.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, "123"));
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, "123"));
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
@@ -169,7 +168,7 @@ class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport.lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
-        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, "123"));
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, "123"));
         dataWrapper.setBehandlingTema(BehandlingTema.UDEFINERT);
         dataWrapper.setTema(Tema.UDEFINERT);
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
@@ -256,7 +255,7 @@ class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport.lagJArkivJournalpostKlageMedSaksnummer("VL");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
-        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, "VL"));
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, "VL"));
 
         BehandlingTema actualBehandlingTema = BehandlingTema.UDEFINERT;
         dataWrapper.setSaksnummer("VL");

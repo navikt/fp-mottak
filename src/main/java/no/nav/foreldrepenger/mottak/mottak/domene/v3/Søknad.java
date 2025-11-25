@@ -74,7 +74,6 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
             if (fp.getAnnenForelder() instanceof AnnenForelderMedNorskIdent a) {
                 dataWrapper.setAnnenPartId(a.getAktoerId());
             }
-            Optional.ofNullable(fp.getRettigheter()).filter(r -> r.isHarAnnenForelderRett()).ifPresent(r -> dataWrapper.setAnnenPartHarRett(true));
 
         }
     }

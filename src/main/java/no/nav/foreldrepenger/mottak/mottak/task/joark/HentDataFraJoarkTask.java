@@ -38,8 +38,8 @@ import no.nav.foreldrepenger.mottak.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.ArkivUtil;
+import no.nav.foreldrepenger.mottak.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.DestinasjonsRuter;
-import no.nav.foreldrepenger.mottak.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.AvsenderMottaker;
@@ -140,11 +140,9 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             w.setEksternReferanseId(journalpost.getEksternReferanseId());
         }
 
-        Optional.ofNullable(journalpost.getKanal()).ifPresent(w::setKanal);
         w.setForsendelseMottattTidspunkt(Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now));
         w.setDokumentTypeId(journalpost.getHovedtype());
         w.setBehandlingTema(ArkivUtil.behandlingTemaFraDokumentTypeSet(w.getBehandlingTema(), journalpost.getAlleTyper()));
-        w.setDokumentKategori(ArkivUtil.utledKategoriFraDokumentType(journalpost.getHovedtype()));
         var aktørIdFraJournalpost = finnAktørId(journalpost);
         aktørIdFraJournalpost.ifPresent(w::setAktørId);
         journalpost.getJournalfoerendeEnhet().ifPresent(w::setJournalførendeEnhet);
@@ -245,7 +243,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         var destinasjon = vurderVLSaker.bestemDestinasjon(w);
         LOG.info("FPMOTTAK HentFraArkiv destinasjon {} journalpost {} kanal {} dokumenttype {} saksnummer {}", destinasjon, w.getArkivId(),
             journalpost.getKanal(), journalpost.getHovedtype(), journalpost.getSaksnummer());
-        if (ForsendelseStatus.GOSYS.equals(destinasjon.system())) {
+        if (Destinasjon.ForsendelseStatus.GOSYS.equals(destinasjon.system())) {
             LOG.info("FPMOTTAK HentFraArkiv destinasjon GOSYS journalpost {} kanal {} dokumenttype {}", journalpost.getJournalpostId(),
                 journalpost.getKanal(), journalpost.getHovedtype());
             return w.nesteSteg(TASK_GOSYS);

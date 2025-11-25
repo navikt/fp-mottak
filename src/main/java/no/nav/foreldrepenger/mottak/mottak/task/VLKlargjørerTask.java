@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.felles.WrappedProsessTaskHandler;
+import no.nav.foreldrepenger.mottak.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.VLKlargjører;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -54,7 +54,7 @@ public class VLKlargjørerTask extends WrappedProsessTaskHandler {
         String saksnummer = w.getSaksnummer().orElseThrow(() -> new IllegalStateException("Skulle allerede vært sjekket i precondition(...)"));
         String arkivId = w.getArkivId();
         var dokumenttypeId = w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
-        var dokumentKategori = w.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
+        var dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumenttypeId);
         String journalEnhet = w.getJournalførendeEnhet().orElse(null);
         String eksternReferanseId = w.getEksternReferanseId().orElse(null);
         var behandlingsTema = w.getBehandlingTema();

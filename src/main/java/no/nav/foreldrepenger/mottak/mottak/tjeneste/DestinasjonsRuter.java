@@ -11,14 +11,12 @@ import java.util.stream.Stream;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.fordel.konfig.KonfigVerdier;
-import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.mottak.klient.VurderFagsystemResultat;
-import no.nav.foreldrepenger.mottak.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.konfig.Tid;
 
 /**
@@ -59,8 +57,8 @@ public class DestinasjonsRuter {
     }
 
     public static boolean erKlageEllerAnke(MottakMeldingDataWrapper data) {
-        return (KLAGE_DOKUMENT.equals(data.getDokumentTypeId().orElse(UDEFINERT)) || KLAGE_ELLER_ANKE.equals(
-            data.getDokumentKategori().orElse(DokumentKategori.UDEFINERT)));
+        return KLAGE_DOKUMENT.equals(data.getDokumentTypeId().orElse(UDEFINERT)) ||
+            KLAGE_ELLER_ANKE.equals(ArkivUtil.utledKategoriFraDokumentType(data.getDokumentTypeId().orElse(UDEFINERT)));
     }
 
     public Destinasjon bestemDestinasjon(MottakMeldingDataWrapper w) {
@@ -69,7 +67,7 @@ public class DestinasjonsRuter {
 
         res.getSaksnummer().ifPresent(w::setSaksnummer);
         if (VurderFagsystemResultat.SendTil.FPSAK.equals(res.destinasjon()) && res.getSaksnummer().isPresent()) {
-            return new Destinasjon(ForsendelseStatus.FPSAK, res.getSaksnummer().orElseThrow());
+            return new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, res.getSaksnummer().orElseThrow());
         }
         if (skalBehandlesEtterTidligereRegler(w)) {
             return Destinasjon.GOSYS;

@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrappe
 import static no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY;
 import static no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY;
 import static no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper.JOURNAL_ENHET;
-import static no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper.RETRY_KEY;
 import static no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper.TEMA_KEY;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -94,7 +93,6 @@ class OpprettGSakOppgaveTjenesteTaskTest {
         taskData.setProperty(TEMA_KEY, Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getKode());
         taskData.setProperty(BEHANDLINGSTEMA_KEY, BehandlingTema.FORELDREPENGER.getKode());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getKode());
-        taskData.setProperty(RETRY_KEY, "J");
         var arkivId = DokumentArkivTestUtil.JOURNALPOST_ID;
         taskData.setProperty(ARKIV_ID_KEY, arkivId);
 
@@ -112,7 +110,6 @@ class OpprettGSakOppgaveTjenesteTaskTest {
         taskData.setProperty(TEMA_KEY, Tema.FORELDRE_OG_SVANGERSKAPSPENGER.getKode());
         taskData.setProperty(BEHANDLINGSTEMA_KEY, BehandlingTema.FORELDREPENGER.getKode());
         taskData.setProperty(DOKUMENTTYPE_ID_KEY, DokumentTypeId.ANNET.getKode());
-        taskData.setProperty(RETRY_KEY, "J");
         var arkivId = DokumentArkivTestUtil.JOURNALPOST_ID;
         taskData.setProperty(ARKIV_ID_KEY, arkivId);
 

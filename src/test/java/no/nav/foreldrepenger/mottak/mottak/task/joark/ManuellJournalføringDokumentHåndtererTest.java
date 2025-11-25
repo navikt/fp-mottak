@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.mottak.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.DestinasjonsRuter;
-import no.nav.foreldrepenger.mottak.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
@@ -90,7 +89,7 @@ class ManuellJournalføringDokumentHåndtererTest {
         var metadata = joarkTestsupport.lagJArkivJournalpostUstrukturert(DokumentTypeId.ANNET);
         doReturn(metadata).when(arkivTjeneste).hentArkivJournalpost(ARKIV_ID);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
-        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(ForsendelseStatus.FPSAK, "123"));
+        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, "123"));
 
         MottakMeldingDataWrapper result = joarkTaskTestobjekt.doTask(dataWrapper);
 

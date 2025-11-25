@@ -15,8 +15,8 @@ import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.mottak.klient.VurderFagsystemResultat;
+import no.nav.foreldrepenger.mottak.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.DestinasjonsRuter;
-import no.nav.foreldrepenger.mottak.mottak.tjeneste.dokumentforsendelse.dto.ForsendelseStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
@@ -44,7 +44,7 @@ class HentOgVurderVLSakTaskTest {
 
         var result = vurder.bestemDestinasjon(dataWrapper);
 
-        assertThat(result.system()).isEqualTo(ForsendelseStatus.FPSAK);
+        assertThat(result.system()).isEqualTo(Destinasjon.ForsendelseStatus.FPSAK);
         assertThat(result.saksnummer()).isEqualTo(saksnummer);
     }
 
@@ -57,7 +57,7 @@ class HentOgVurderVLSakTaskTest {
 
         var result = vurder.bestemDestinasjon(dataWrapper);
 
-        assertThat(result.system()).isEqualTo(ForsendelseStatus.FPSAK);
+        assertThat(result.system()).isEqualTo(Destinasjon.ForsendelseStatus.FPSAK);
         assertThat(result.saksnummer()).isNull();
     }
 
@@ -70,7 +70,7 @@ class HentOgVurderVLSakTaskTest {
 
         var result = vurder.bestemDestinasjon(dataWrapper);
 
-        assertThat(result.system()).isEqualTo(ForsendelseStatus.GOSYS);
+        assertThat(result.system()).isEqualTo(Destinasjon.ForsendelseStatus.GOSYS);
         assertThat(result.saksnummer()).isNull();
     }
 
@@ -79,13 +79,12 @@ class HentOgVurderVLSakTaskTest {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(null, true));
 
         var dataWrapper = lagDataWrapper();
-        dataWrapper.setAnnenPartHarRett(true);
         dataWrapper.setBarnFodselsdato(LocalDate.of(2018, 5, 17));
         var vurder = new DestinasjonsRuter(fagsakRestKlientMock);
 
         var result = vurder.bestemDestinasjon(dataWrapper);
 
-        assertThat(result.system()).isEqualTo(ForsendelseStatus.GOSYS);
+        assertThat(result.system()).isEqualTo(Destinasjon.ForsendelseStatus.GOSYS);
         assertThat(result.saksnummer()).isNull();
     }
 
@@ -94,14 +93,13 @@ class HentOgVurderVLSakTaskTest {
         when(fagsakRestKlientMock.vurderFagsystem(any())).thenReturn(lagFagsystemSvar(saksnummer, true));
 
         var dataWrapper = lagDataWrapper();
-        dataWrapper.setAnnenPartHarRett(true);
         dataWrapper.setBarnFodselsdato(LocalDate.of(2018, 5, 17));
 
         var vurder = new DestinasjonsRuter(fagsakRestKlientMock);
 
         var result = vurder.bestemDestinasjon(dataWrapper);
 
-        assertThat(result.system()).isEqualTo(ForsendelseStatus.FPSAK);
+        assertThat(result.system()).isEqualTo(Destinasjon.ForsendelseStatus.FPSAK);
         assertThat(result.saksnummer()).isEqualTo(saksnummer);
     }
 
@@ -116,7 +114,7 @@ class HentOgVurderVLSakTaskTest {
 
         var result = vurder.bestemDestinasjon(dataWrapper);
 
-        assertThat(result.system()).isEqualTo(ForsendelseStatus.FPSAK);
+        assertThat(result.system()).isEqualTo(Destinasjon.ForsendelseStatus.FPSAK);
         assertThat(result.saksnummer()).isEqualTo(saksnummer);
     }
 
@@ -134,7 +132,7 @@ class HentOgVurderVLSakTaskTest {
 
         var result = vurder.bestemDestinasjon(dataWrapper);
 
-        assertThat(result.system()).isEqualTo(ForsendelseStatus.FPSAK);
+        assertThat(result.system()).isEqualTo(Destinasjon.ForsendelseStatus.FPSAK);
         assertThat(result.saksnummer()).isEqualTo(saksnummer);
     }
 

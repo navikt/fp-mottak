@@ -11,7 +11,6 @@ import java.util.Optional;
 import java.util.Properties;
 
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.Tema;
 import no.nav.vedtak.felles.prosesstask.api.CommonTaskProperties;
@@ -23,23 +22,18 @@ public class MottakMeldingDataWrapper {
     public static final String ARKIV_ID_KEY = "arkivId";
     public static final String AKTØR_ID_KEY = "aktoerId";
     public static final String SAKSNUMMER_KEY = CommonTaskProperties.SAKSNUMMER;
-    public static final String KANAL_KEY = "kanal";
     public static final String TEMA_KEY = "tema";
-    public static final String RETRY_KEY = "retry";
     public static final String BEHANDLINGSTEMA_KEY = "behandlingstema";
     public static final String DOKUMENTTYPE_ID_KEY = "dokumentTypeId";
-    public static final String DOKUMENTKATEGORI_ID_KEY = "dokumentKategori";
     public static final String BARN_TERMINDATO_KEY = "barn.termindato";
     public static final String BARN_TERMINBEKREFTELSEDATO_KEY = "barn.terminbekreftelsedato";
     public static final String BARN_FODSELSDATO_KEY = "barn.fodselsdato";
     public static final String ADOPSJONSBARN_FODSELSDATOER_KEY = "adopsjonsbarn.fodselsdatoer";
     public static final String BARN_OMSORGSOVERTAKELSEDATO_KEY = "barn.omsorgsovertakelsedato";
-    public static final String BARN_ANTALL_KEY = "barn.antall";
     public static final String STRUKTURERT_DOKUMENT = "strukturert.dokument";
     public static final String FORSENDELSE_MOTTATT_TIDSPUNKT_KEY = "forsendelse.mottatt.tidspunkt";
     public static final String JOURNAL_ENHET = "journalforende.enhet";
     public static final String ANNEN_PART_ID_KEY = "annen.part.id";
-    public static final String ANNEN_PART_HAR_RETT_KEY = "annen.part.har.rett";
     public static final String FØRSTE_UTTAKSDAG_KEY = "forste.uttaksdag";
     public static final String VIRKSOMHETSNUMMER = "virksomhetsnummer";
     public static final String ARBEIDSGIVER_AKTØR_ID = "arbeidsgiver.aktoerId";
@@ -129,15 +123,6 @@ public class MottakMeldingDataWrapper {
     }
 
 
-    public Optional<String> getKanal() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(KANAL_KEY));
-    }
-
-    public void setKanal(String kanal) {
-        prosessTaskData.setProperty(KANAL_KEY, kanal);
-    }
-
-
     public String getArkivId() {
         return prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
     }
@@ -162,14 +147,6 @@ public class MottakMeldingDataWrapper {
         prosessTaskData.setProperty(DOKUMENTTYPE_ID_KEY, dokumentTypeId.getKode());
     }
 
-    public Optional<DokumentKategori> getDokumentKategori() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(DOKUMENTKATEGORI_ID_KEY)).map(DokumentKategori::fraKodeDefaultUdefinert);
-    }
-
-    public void setDokumentKategori(DokumentKategori dokumentKategori) {
-        prosessTaskData.setProperty(DOKUMENTKATEGORI_ID_KEY, dokumentKategori.getKode());
-    }
-
     public final LocalDate getForsendelseMottatt() {
         return getForsendelseMottattTidspunkt().map(LocalDateTime::toLocalDate).orElse(null);
     }
@@ -181,14 +158,6 @@ public class MottakMeldingDataWrapper {
 
     public void setForsendelseMottattTidspunkt(LocalDateTime forsendelseMottattTidspunkt) {
         prosessTaskData.setProperty(FORSENDELSE_MOTTATT_TIDSPUNKT_KEY, forsendelseMottattTidspunkt.format(DateTimeFormatter.ISO_DATE_TIME));
-    }
-
-    public Optional<String> getRetryingTask() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(RETRY_KEY));
-    }
-
-    public void setRetryingTask(String suffix) {
-        prosessTaskData.setProperty(RETRY_KEY, suffix);
     }
 
     public Optional<String> getJournalførendeEnhet() {
@@ -239,14 +208,6 @@ public class MottakMeldingDataWrapper {
         prosessTaskData.setProperty(BARN_TERMINDATO_KEY, dato.toString());
     }
 
-    public Optional<LocalDate> getBarnTerminbekreftelsedato() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(BARN_TERMINBEKREFTELSEDATO_KEY)).map(LocalDate::parse);
-    }
-
-    public void setBarnTerminbekreftelsedato(LocalDate dato) {
-        prosessTaskData.setProperty(BARN_TERMINBEKREFTELSEDATO_KEY, dato.toString());
-    }
-
     /**
      * Relevant ved adopsjon
      *
@@ -294,14 +255,6 @@ public class MottakMeldingDataWrapper {
         prosessTaskData.setProperty(BARN_OMSORGSOVERTAKELSEDATO_KEY, dato.toString());
     }
 
-    public Optional<Integer> getAntallBarn() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(BARN_ANTALL_KEY)).map(Integer::parseInt);
-    }
-
-    public void setAntallBarn(int antallBarn) {
-        prosessTaskData.setProperty(BARN_ANTALL_KEY, String.valueOf(antallBarn));
-    }
-
     public Optional<Boolean> erStrukturertDokument() {
         return Optional.ofNullable(prosessTaskData.getPropertyValue(STRUKTURERT_DOKUMENT)).map(Boolean::parseBoolean);
     }
@@ -331,14 +284,6 @@ public class MottakMeldingDataWrapper {
 
     public void setAnnenPartId(String annenPartId) {
         prosessTaskData.setProperty(ANNEN_PART_ID_KEY, annenPartId);
-    }
-
-    public Optional<Boolean> getAnnenPartHarRett() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(ANNEN_PART_HAR_RETT_KEY)).map(Boolean::parseBoolean);
-    }
-
-    public void setAnnenPartHarRett(Boolean annenPartHarRett) {
-        prosessTaskData.setProperty(ANNEN_PART_HAR_RETT_KEY, String.valueOf(annenPartHarRett));
     }
 
     public Optional<LocalDate> getFørsteUttaksdag() {

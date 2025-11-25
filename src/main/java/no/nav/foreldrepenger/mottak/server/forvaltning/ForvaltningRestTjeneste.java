@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.server.forvaltning;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
-import static no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper.RETRY_KEY;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -19,13 +18,13 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.mottak.journalføring.api.FerdigstillJournalføringTjeneste;
 import no.nav.foreldrepenger.mottak.journalføring.api.JournalføringRestTjeneste;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.Status;
-import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
-import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.mottak.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
@@ -67,23 +66,6 @@ public class ForvaltningRestTjeneste {
     }
 
     @POST
-    @Operation(description = "Setter nytt suffix for retry journalføring", tags = "Forvaltning", summary = ("Setter parametere før retry av task"), responses =
-
-        {@ApiResponse(responseCode = "200", description = "Nytt suffix satt")})
-
-    @Path("/retry-suffix")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response setRetrySuffix(@Parameter(description = "Sett kanalreferanse-suffix før restart prosesstask") @NotNull @Valid RetryTaskKanalrefDto dto) {
-        var data = taskTjeneste.finn(dto.getProsessTaskIdDto().getProsessTaskId());
-        if (data == null) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        data.setProperty(RETRY_KEY, dto.getRetrySuffix());
-        taskTjeneste.lagre(data);
-        return Response.ok().build();
-    }
-
-    @POST
     @Operation(description = "Send inntektsmelding til angitt sak (allerede journalført)", tags = "Forvaltning", summary = "Bruker eksisterende task til å sende dokument til VL", responses =
 
         {@ApiResponse(responseCode = "200", description = "Inntektsmelding sendt til VL")})
@@ -99,7 +81,6 @@ public class ForvaltningRestTjeneste {
         var til = fra.nesteSteg(TaskType.forProsessTask(VLKlargjørerTask.class));
         til.setSaksnummer(dto.getSaksnummerDto().saksnummer());
         til.setArkivId(dto.getJournalpostIdDto().journalpostId());
-        til.setRetryingTask(VLKlargjørerTask.REINNSEND);
         fagsak.knyttSakOgJournalpost(new JournalpostKnyttningDto(dto.getSaksnummerDto(), dto.getJournalpostIdDto()));
         taskTjeneste.lagre(til.getProsessTaskData());
         return Response.ok().build();
