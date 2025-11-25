@@ -26,7 +26,6 @@ public class MottakMeldingDataWrapper {
     public static final String BEHANDLINGSTEMA_KEY = "behandlingstema";
     public static final String DOKUMENTTYPE_ID_KEY = "dokumentTypeId";
     public static final String BARN_TERMINDATO_KEY = "barn.termindato";
-    public static final String BARN_TERMINBEKREFTELSEDATO_KEY = "barn.terminbekreftelsedato";
     public static final String BARN_FODSELSDATO_KEY = "barn.fodselsdato";
     public static final String ADOPSJONSBARN_FODSELSDATOER_KEY = "adopsjonsbarn.fodselsdatoer";
     public static final String BARN_OMSORGSOVERTAKELSEDATO_KEY = "barn.omsorgsovertakelsedato";
