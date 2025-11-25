@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.mottak.fordel.kodeverdi;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import no.nav.foreldrepenger.mottak.mottak.klient.FagsakYtelseTypeDto;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import no.nav.foreldrepenger.mottak.mottak.klient.FagsakYtelseTypeDto;
 
 public enum BehandlingTema implements Kodeverdi {
 
@@ -20,13 +20,6 @@ public enum BehandlingTema implements Kodeverdi {
     FORELDREPENGER_ADOPSJON("FORP_ADOP", "ab0072", "Foreldrepenger ved adopsjon"),
 
     SVANGERSKAPSPENGER("SVP", "ab0126", "Svangerskapspenger"),
-
-    OMS("OMS", "ab0271", "Omsorgspenger, Pleiepenger og opplæringspenger"),
-    OMS_OMSORG("OMS_OMSORG", "ab0149", "Omsorgspenger"),
-    OMS_OPP("OMS_OPP", "ab0141", "Opplæringspenger"),
-    OMS_PLEIE_BARN("OMS_PLEIE_BARN", "ab0069", "Pleiepenger sykt barn"),
-    OMS_PLEIE_BARN_NY("OMS_PLEIE_BARN_NY", "ab0320", "Pleiepenger sykt barn ny ordning"),
-    OMS_PLEIE_INSTU("OMS_PLEIE_INSTU", "ab0153", "Pleiepenger ved institusjonsopphold"),
 
     UDEFINERT("-", null, "Ikke definert"),
     ;
