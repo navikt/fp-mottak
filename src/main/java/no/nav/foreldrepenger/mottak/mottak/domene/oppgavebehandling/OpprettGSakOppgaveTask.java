@@ -46,7 +46,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         this.enhetsTjeneste = enhetsTjeneste;
     }
 
-    private static String lagBeskrivelse(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, ProsessTaskData data) {
+    private static String lagBeskrivelse(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId) {
         if (DokumentTypeId.UDEFINERT.equals(dokumentTypeId)) {
             return BehandlingTema.UDEFINERT.equals(behandlingTema) ? "Journalføring" : "Journalføring " + behandlingTema.getTermNavn();
         }
@@ -103,7 +103,7 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
         // oppgitt
         var enhetId = enhetsTjeneste.hentFordelingEnhetId(Optional.ofNullable(enhetInput), prosessTaskData.getAktørId());
 
-        var beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId, prosessTaskData);
+        var beskrivelse = lagBeskrivelse(behandlingTema, dokumentTypeId);
         var saksref = prosessTaskData.getSaksnummer();
 
         var journalpost = JournalpostId.fra(journalpostId);
