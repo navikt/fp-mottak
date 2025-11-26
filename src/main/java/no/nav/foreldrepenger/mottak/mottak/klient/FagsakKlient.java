@@ -11,9 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentKategori;
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.BehandlendeFagsystemDto;
 import no.nav.foreldrepenger.kontrakter.fordel.BrukerRolleDto;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
@@ -23,7 +20,11 @@ import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakV2Dto;
 import no.nav.foreldrepenger.kontrakter.fordel.SakInfoV2Dto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentKategori;
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.mottak.tjeneste.ArkivUtil;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
@@ -106,7 +107,7 @@ public class FagsakKlient implements Fagsak {
         var aktørId = w.getAktørId().orElseThrow();
         boolean strukturertSøknad = w.erStrukturertDokument().orElse(Boolean.FALSE);
         var dokumentTypeId = w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
-        var dokumentKategori = w.getDokumentKategori().orElse(DokumentKategori.UDEFINERT);
+        var dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
         String behandlingTemaString = BehandlingTema.UDEFINERT.equals(w.getBehandlingTema()) ? w.getBehandlingTema().getKode() : w.getBehandlingTema()
             .getOffisiellKode();
 
@@ -133,7 +134,7 @@ public class FagsakKlient implements Fagsak {
         // mottatt søknad til manuell journalføring i fpsak, sender vi her første
         // uttaksdag i et
         // felt som brukes til det samme for inntektsmelding. Kontrakten bør endres
-        if (DokumentKategori.SØKNAD.equals(w.getDokumentKategori().orElse(DokumentKategori.UDEFINERT))) {
+        if (DokumentKategori.SØKNAD.equals(dokumentKategori)) {
             w.getFørsteUttaksdag().ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
         }
         LOG.info("Vurderer resultat");

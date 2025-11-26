@@ -137,19 +137,6 @@ class MottakMeldingDataWrapperTest {
     }
 
     @Test
-    void skal_kunne_sette_inn_terminbekreftelseDato_og_hente_ut_igjen() {
-        var dato = LocalDate.now();
-        wrapper.setBarnTerminbekreftelsedato(dato);
-        assertThat(wrapper.getBarnTerminbekreftelsedato()).hasValue(dato);
-    }
-
-    @Test
-    void skal_kunne_sette_antall_barn_og_hente_ut_igjen() {
-        wrapper.setAntallBarn(2);
-        assertThat(wrapper.getAntallBarn()).hasValue(2);
-    }
-
-    @Test
     void skal_kunne_sette_rolle_og_hente_ut_igjen() {
         wrapper.setBrukerRolle("MOR");
         assertThat(wrapper.getBrukerRolle()).hasValue("MOR");

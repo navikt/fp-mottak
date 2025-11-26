@@ -19,11 +19,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentKategori;
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
@@ -64,7 +63,6 @@ class OpprettSakTaskTest {
         var ptData = new MottakMeldingDataWrapper(prosessTaskData);
         ptData.setArkivId("123");
         ptData.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-        ptData.setDokumentKategori(DokumentKategori.SØKNAD);
         ptData.setAktørId(AKTØR_ID);
 
         ptData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
@@ -87,7 +85,6 @@ class OpprettSakTaskTest {
         ptData.setAktørId(AKTØR_ID);
 
         ptData.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-        ptData.setDokumentKategori(DokumentKategori.SØKNAD);
         ptData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
 
         String saksnummer = "789";
@@ -107,7 +104,6 @@ class OpprettSakTaskTest {
         ptData.setAktørId(AKTØR_ID);
         ptData.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
         ptData.setDokumentTypeId(DokumentTypeId.KLAGE_DOKUMENT);
-        ptData.setDokumentKategori(DokumentKategori.KLAGE_ELLER_ANKE);
 
         assertThrows(IllegalArgumentException.class, () -> vurderVLSaker.opprettSak(ptData));
     }
@@ -125,7 +121,6 @@ class OpprettSakTaskTest {
         ptData.setArkivId("123");
         ptData.setAktørId("9000000000009");
         ptData.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
-        ptData.setDokumentKategori(DokumentKategori.SØKNAD);
 
         ptData.setDokumentTypeId(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
         var soeknadDTO = MeldingXmlParser.unmarshallXml(xml);
@@ -155,7 +150,6 @@ class OpprettSakTaskTest {
         ptData.setArkivId("123");
         ptData.setAktørId(aktørId);
         ptData.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
-        ptData.setDokumentKategori(DokumentKategori.UDEFINERT);
 
         ptData.setDokumentTypeId(DokumentTypeId.INNTEKTSMELDING);
         var imlDto = MeldingXmlParser.unmarshallXml(xml);
