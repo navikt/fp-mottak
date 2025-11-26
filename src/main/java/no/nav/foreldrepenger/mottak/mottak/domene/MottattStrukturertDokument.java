@@ -5,6 +5,7 @@ import java.util.function.Function;
 
 import no.nav.foreldrepenger.mottak.mottak.domene.v1.Inntektsmelding;
 import no.nav.foreldrepenger.mottak.mottak.domene.v3.Søknad;
+import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.exception.TekniskException;
 
@@ -32,19 +33,17 @@ public abstract class MottattStrukturertDokument<S> {
         throw new TekniskException("FP-947143", String.format("Ukjent meldingstype %s", skjema.getClass().getCanonicalName()));
     }
 
-    public final void kopierTilMottakWrapper(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
+    public final DokumentInnhold hentDokumentInnhold(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
         validerSkjemaSemantisk(dataWrapper, aktørIdFinder);
-        kopierVerdier(dataWrapper, aktørIdFinder);
+        return hentUtDokumentInnhold(aktørIdFinder);
     }
 
     /**
      * Les nødvendige felter fra meldingen og kopier til angitt wrapper. Denne
      * kalles etter semantisk validering av skjemaet gjennom
      * <code>validerSkjemaSemantisk()</code>.
-     *
-     * @param dataWrapper data holder som skal populeres med verdier fra skjema
      */
-    protected abstract void kopierVerdier(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder);
+    protected abstract DokumentInnhold hentUtDokumentInnhold(Function<String, Optional<String>> aktørIdFinder);
 
     /**
      * Syntaktisk validering: validering av skjema mot XSD skal allerede være gjort

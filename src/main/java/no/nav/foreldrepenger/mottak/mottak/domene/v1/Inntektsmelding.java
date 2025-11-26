@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.xml.bind.JAXBElement;
 import no.nav.foreldrepenger.mottak.mottak.domene.MottattStrukturertDokument;
+import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
+import no.nav.foreldrepenger.mottak.mottak.felles.InntektsmeldingInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
@@ -17,30 +19,29 @@ import no.seres.xsd.nav.inntektsmelding_m._20180924.Skjemainnhold;
 
 public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM> {
 
-    private static final Logger log = LoggerFactory.getLogger(Inntektsmelding.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Inntektsmelding.class);
 
     public Inntektsmelding(InntektsmeldingM skjema) {
         super(skjema);
     }
 
     @Override
-    protected void kopierVerdier(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
-        kopierAktørTilMottakWrapper(dataWrapper, aktørIdFinder);
-        dataWrapper.setÅrsakTilInnsending(getÅrsakTilInnsending());
-        dataWrapper.setVirksomhetsnummer(getVirksomhetsnummer());
-        getArbeidsforholdsid().ifPresent(dataWrapper::setArbeidsforholdsid);
-        dataWrapper.setFørsteUttakssdag(getStartdatoForeldrepengeperiode());
-        dataWrapper.setInntekstmeldingStartdato(getStartdatoForeldrepengeperiode());
-        dataWrapper.setInntektsmeldingYtelse(getYtelse());
+    protected DokumentInnhold hentUtDokumentInnhold(Function<String, Optional<String>> aktørIdFinder) {
+        var innhold = new InntektsmeldingInnhold(hentBrukerAktørId(aktørIdFinder), getStartdatoForeldrepengeperiode(), null);
+        innhold.setInntektsmeldingYtelse(getYtelse());
+        innhold.setÅrsakTilInnsending(getÅrsakTilInnsending());
+        innhold.setVirksomhetsnummer(getVirksomhetsnummer());
+        getArbeidsforholdsid().ifPresent(innhold::setArbeidsforholdsId);
+        return innhold;
     }
 
-    public void kopierAktørTilMottakWrapper(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
+    public String hentBrukerAktørId(Function<String, Optional<String>> aktørIdFinder) {
         Optional<String> aktørId = aktørIdFinder.apply(getArbeidstakerFnr());
         if (aktørId.isEmpty()) {
-            log.warn(new TekniskException("FP-513732",
+            LOG.warn(new TekniskException("FP-513732",
                 String.format("Finner ikke aktørID for bruker på %s", this.getClass().getSimpleName())).getMessage());
         }
-        aktørId.ifPresent(dataWrapper::setAktørId);
+        return aktørId.orElse(null);
     }
 
     @Override

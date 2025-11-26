@@ -89,7 +89,7 @@ class ManuellJournalføringDokumentHåndtererTest {
         var metadata = joarkTestsupport.lagJArkivJournalpostUstrukturert(DokumentTypeId.ANNET);
         doReturn(metadata).when(arkivTjeneste).hentArkivJournalpost(ARKIV_ID);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
-        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, "123"));
+        when(vurderVLSaker.bestemDestinasjon(any(), any())).thenReturn(new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, "123"));
 
         MottakMeldingDataWrapper result = joarkTaskTestobjekt.doTask(dataWrapper);
 

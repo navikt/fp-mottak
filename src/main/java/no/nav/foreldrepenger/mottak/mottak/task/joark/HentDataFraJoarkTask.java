@@ -30,6 +30,8 @@ import no.nav.foreldrepenger.mottak.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.NAVSkjema;
 import no.nav.foreldrepenger.mottak.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
+import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
+import no.nav.foreldrepenger.mottak.mottak.felles.InntektsmeldingInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.mottak.journal.ArkivJournalpost;
@@ -84,8 +86,8 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         this.arkiv = arkiv;
     }
 
-    private static boolean kreverStartdatoForInntektsmeldingenManuellBehandling(MottakMeldingDataWrapper dataWrapper) {
-        return dataWrapper.getInntektsmeldingStartDato().orElse(TIDENES_BEGYNNELSE).isBefore(ENDRING_BEREGNING_DATO);
+    private static boolean kreverStartdatoForInntektsmeldingenManuellBehandling(DokumentInnhold dokumentInnhold) {
+        return dokumentInnhold instanceof InntektsmeldingInnhold im && im.getFørsteFraværsdato().orElse(TIDENES_BEGYNNELSE).isBefore(ENDRING_BEREGNING_DATO);
     }
 
     @Override
@@ -153,6 +155,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             w.setSaksnummer(s);
         });
 
+        DokumentInnhold dokumentInnhold = null;
         if (journalpost.getInnholderStrukturertInformasjon()) {
             var råPayload = journalpost.getStrukturertPayload();
             if (!MeldingXmlParser.erXmlMedKjentNamespace(råPayload)) {
@@ -170,8 +173,21 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
                 try {
                     var payload = INNTEKTSMELDING.equals(journalpost.getHovedtype()) ? MeldingXmlParser.normaliserInntektsmelding(råPayload) : råPayload;
                     var mottattDokument = MeldingXmlParser.unmarshallXml(payload);
-                    mottattDokument.kopierTilMottakWrapper(w, pdl::hentAktørIdForPersonIdent);
+                    dokumentInnhold = mottattDokument.hentDokumentInnhold(w, pdl::hentAktørIdForPersonIdent);
                     w.setPayload(payload);
+                    if (dokumentInnhold.getAktørId() != null) {
+                        var dokumentAktørId = dokumentInnhold.getAktørId();
+                        if (w.getAktørId().isEmpty()) {
+                            w.setAktørId(dokumentAktørId);
+                        } else if (w.getAktørId().filter(a -> Objects.equals(a, dokumentAktørId)).isEmpty()) {
+                            throw new IllegalStateException("AktørId-mismatch mellom journalpost " + w.getAktørId().orElse(null ) + " og dokumentinnhold " + dokumentAktørId);
+                        }
+                    }
+                    dokumentInnhold.getMottattTidspunkt().ifPresent(mottattTidspunkt -> {
+                        if (w.getForsendelseMottattTidspunkt().isEmpty() || w.getForsendelseMottattTidspunkt().get().isAfter(mottattTidspunkt)) {
+                            w.setForsendelseMottattTidspunkt(mottattTidspunkt);
+                        }
+                    });
                 } catch (VLException vle) {
                     // Mottatt journalpost har annet saksnummer enn den i endringssøknaden.... eller IM har ident-mismatch
                     // Skyldes feil i IM eller spesiell bruk av Gosys. Lag oppgave i dette tilfelle, godta i BehandleDokumentService
@@ -226,11 +242,11 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
         if (erInntektsmelding(journalpost.getHovedtype())) {
             if (MottakKanal.SELVBETJENING.getKode().equals(journalpost.getKanal())) {
-                sjekkInntektsmeldingSelvbetjent(w, journalpost, aktørIdFraJournalpost.orElse(null));
+                sjekkInntektsmeldingSelvbetjent(w, journalpost, aktørIdFraJournalpost.orElse(null), dokumentInnhold);
             } else {
-                oppdaterInntektsmeldingAltinn(w);
+                oppdaterInntektsmeldingAltinn(w, dokumentInnhold);
             }
-            if (kreverInntektsmeldingManuellVurdering(w)) {
+            if (kreverInntektsmeldingManuellVurdering(w, dokumentInnhold)) {
                 LOG.info("FPMOTTAK HentFraArkiv inntektsmelding til manuell vurdering journalpost {}", journalpost.getJournalpostId());
                 return w.nesteSteg(TASK_GOSYS);
             }
@@ -240,7 +256,7 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             return w.nesteSteg(TASK_GOSYS);
         }
 
-        var destinasjon = vurderVLSaker.bestemDestinasjon(w);
+        var destinasjon = vurderVLSaker.bestemDestinasjon(w, dokumentInnhold);
         LOG.info("FPMOTTAK HentFraArkiv destinasjon {} journalpost {} kanal {} dokumenttype {} saksnummer {}", destinasjon, w.getArkivId(),
             journalpost.getKanal(), journalpost.getHovedtype(), journalpost.getSaksnummer());
         if (Destinasjon.ForsendelseStatus.GOSYS.equals(destinasjon.system())) {
@@ -259,8 +275,9 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
     }
 
-    private void oppdaterInntektsmeldingAltinn(MottakMeldingDataWrapper w) {
-        var behandlingTemaFraIM = w.getInntektsmeldingYtelse().map(BehandlingTema::fraTermNavn)
+    private void oppdaterInntektsmeldingAltinn(MottakMeldingDataWrapper w, DokumentInnhold dokumentInnhold) {
+        var ytelseFraIm = dokumentInnhold instanceof InntektsmeldingInnhold im ? im.getInntektsmeldingYtelse().orElse(null) : null;
+        var behandlingTemaFraIM = Optional.ofNullable(ytelseFraIm).map(BehandlingTema::fraTermNavn)
             .orElseThrow(() -> new TekniskException("FP-429673", "Mangler Ytelse på Innteksmelding"));
 
         // Mangler alltid bruker
@@ -270,23 +287,24 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         w.setBehandlingTema(behandlingTemaFraIM);
     }
 
-    private void sjekkInntektsmeldingSelvbetjent(MottakMeldingDataWrapper w, ArkivJournalpost j, String aktørIdJournalpost) {
+    private void sjekkInntektsmeldingSelvbetjent(MottakMeldingDataWrapper w, ArkivJournalpost j, String aktørIdJournalpost, DokumentInnhold dokumentInnhold) {
         if (aktørIdJournalpost == null) {
             throw new TekniskException("FP-429672", "Mangler Bruker på IM-journalpost fra NavNo");
         }
         if (!Set.of(BehandlingTema.FORELDREPENGER, BehandlingTema.SVANGERSKAPSPENGER).contains(j.getBehandlingstema())) {
             throw new TekniskException("FP-429674", "Mangler BehandlingTema på IM-journalpost fra NavNo");
         }
-        var behandlingTemaFraIM = w.getInntektsmeldingYtelse().map(BehandlingTema::fraTermNavn)
+        var ytelseFraIm = dokumentInnhold instanceof InntektsmeldingInnhold im ? im.getInntektsmeldingYtelse().orElse(null) : null;
+        var behandlingTemaFraIM = Optional.ofNullable(ytelseFraIm).map(BehandlingTema::fraTermNavn)
             .orElseThrow(() -> new TekniskException("FP-429673", "Mangler Ytelse på Innteksmelding"));
         if (!Objects.equals(behandlingTemaFraIM, j.getBehandlingstema())) {
             throw new TekniskException("FP-429676", "Avvik BehandlingTema på mellom Journalpost og Innteksmelding fra NavNo");
         }
     }
 
-    private boolean kreverInntektsmeldingManuellVurdering(MottakMeldingDataWrapper w) {
+    private boolean kreverInntektsmeldingManuellVurdering(MottakMeldingDataWrapper w, DokumentInnhold dokumentInnhold) {
         if (gjelderForeldrepenger(w.getBehandlingTema())) {
-            return kreverStartdatoForInntektsmeldingenManuellBehandling(w);
+            return kreverStartdatoForInntektsmeldingenManuellBehandling(dokumentInnhold);
         }
         if (gjelderSvangerskapspenger(w.getBehandlingTema())) {
             return sjekkOmInntektsmeldingGjelderMann(w);

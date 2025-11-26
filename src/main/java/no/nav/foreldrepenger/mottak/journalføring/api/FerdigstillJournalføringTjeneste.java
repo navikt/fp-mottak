@@ -20,6 +20,10 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
+import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakV2Dto;
+import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
@@ -30,13 +34,12 @@ import no.nav.foreldrepenger.mottak.fordel.konfig.KonfigVerdier;
 import no.nav.foreldrepenger.mottak.journalføring.ManuellOpprettSakValidator;
 import no.nav.foreldrepenger.mottak.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.Journalføringsoppgave;
-import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
-import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakV2Dto;
-import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
-import no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.mottak.domene.oppgavebehandling.FerdigstillOppgaveTask;
+import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
+import no.nav.foreldrepenger.mottak.mottak.felles.InntektsmeldingInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.mottak.felles.SøknadInnhold;
 import no.nav.foreldrepenger.mottak.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.mottak.journal.saf.DokumentInfo;
@@ -391,15 +394,15 @@ public class FerdigstillJournalføringTjeneste {
         }
     }
 
-    private static void validerDokumentData(MottakMeldingDataWrapper dataWrapper,
+    private static void validerDokumentData(LocalDate imStartDato,
                                             BehandlingTema behandlingTema,
                                             DokumentTypeId dokumentTypeId,
                                             String imType,
-                                            LocalDate startDato) {
+                                            LocalDate tidligsteDato) {
         if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
             var behandlingTemaFraIM = BehandlingTema.fraTermNavn(imType);
             if (gjelderForeldrepenger(behandlingTemaFraIM)) {
-                if (dataWrapper.getInntektsmeldingStartDato().isEmpty()) { // Kommer ingen vei uten startdato
+                if (imStartDato == null) { // Kommer ingen vei uten startdato
                     throw new FunksjonellException("FP-963076", "Inntektsmelding mangler startdato - kan ikke journalføre",
                         "Be om ny Inntektsmelding med startdato");
 
@@ -413,7 +416,7 @@ public class FerdigstillJournalføringTjeneste {
                     "Be om ny Inntektsmelding for Foreldrepenger");
             }
         }
-        if (gjelderForeldrepenger(behandlingTema) && startDato.isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO)) {
+        if (gjelderForeldrepenger(behandlingTema) && tidligsteDato.isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO)) {
             throw new FunksjonellException("FP-963077", "For tidlig uttak",
                 "Søknad om uttak med oppstart i 2018 skal journalføres mot sak i Infotrygd");
         }
@@ -469,8 +472,9 @@ public class FerdigstillJournalføringTjeneste {
         if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokumentTypeId) && !ikkeSpesifikkHendelse(behandlingTema)) {
             dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
         }
+        DokumentInnhold innhold = null;
         try {
-            mottattDokument.kopierTilMottakWrapper(dataWrapper, pdl::hentAktørIdForPersonIdent);
+            innhold = mottattDokument.hentDokumentInnhold(dataWrapper, pdl::hentAktørIdForPersonIdent);
         } catch (FunksjonellException e) {
             // Her er det "greit" - da har man bestemt seg, men kan lage rot i saken.
             if ("FP-401245".equals(e.getKode()) || "FP-401246".equals(e.getKode())) {
@@ -480,9 +484,12 @@ public class FerdigstillJournalføringTjeneste {
                 throw e;
             }
         }
-        var imType = dataWrapper.getInntektsmeldingYtelse().orElse(null);
-        var startDato = dataWrapper.getOmsorgsovertakelsedato().orElse(dataWrapper.getFørsteUttaksdag().orElse(Tid.TIDENES_ENDE));
-        validerDokumentData(dataWrapper, behandlingTema, dokumentTypeId, imType, startDato);
+        var imType = innhold instanceof InntektsmeldingInnhold im ? im.getInntektsmeldingYtelse().orElse(null) : null;
+        var imStartdato = innhold instanceof InntektsmeldingInnhold im ? im.getFørsteFraværsdato().orElse(null) : null;
+        var tidligsteDato = Optional.ofNullable(innhold)
+            .flatMap(i -> i instanceof SøknadInnhold s && s.getOmsorgsovertakelsesdato().isPresent() ? s.getOmsorgsovertakelsesdato() : i.getFørsteFraværsdato())
+            .orElse(Tid.TIDENES_ENDE);
+        validerDokumentData(imStartdato, behandlingTema, dokumentTypeId, imType, tidligsteDato);
         return xml;
     }
 

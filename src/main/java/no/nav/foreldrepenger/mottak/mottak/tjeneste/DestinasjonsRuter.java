@@ -14,7 +14,10 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.fordel.konfig.KonfigVerdier;
+import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
+import no.nav.foreldrepenger.mottak.mottak.felles.InntektsmeldingInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.mottak.felles.SøknadInnhold;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.mottak.klient.VurderFagsystemResultat;
 import no.nav.vedtak.konfig.Tid;
@@ -45,15 +48,18 @@ public class DestinasjonsRuter {
         this.fagsakRestKlient = fagsakRestKlient;
     }
 
-    private static boolean skalBehandlesEtterTidligereRegler(MottakMeldingDataWrapper dataWrapper) {
-        return tidligsteRelevanteDato(dataWrapper).isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO);
+    private static boolean skalBehandlesEtterTidligereRegler(DokumentInnhold innhold) {
+        return tidligsteRelevanteDato(innhold).isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO);
     }
 
-    private static LocalDate tidligsteRelevanteDato(MottakMeldingDataWrapper w) {
-        return Stream.of(w.getOmsorgsovertakelsedato(), w.getFørsteUttaksdag(), w.getBarnFodselsdato(), w.getBarnTermindato())
-            .flatMap(Optional::stream)
-            .min(Comparator.naturalOrder())
-            .orElse(Tid.TIDENES_ENDE);
+    public static LocalDate tidligsteRelevanteDato(DokumentInnhold innhold) {
+        return switch (innhold) {
+            case InntektsmeldingInnhold inn -> inn.getFørsteFraværsdato().orElse(Tid.TIDENES_ENDE);
+            case SøknadInnhold søk -> Stream.of(søk.getOmsorgsovertakelsesdato(), søk.getFørsteFraværsdato(), søk.getFødselsdato(), søk.getTermindato())
+                .flatMap(Optional::stream)
+                .min(Comparator.naturalOrder())
+                .orElse(Tid.TIDENES_ENDE);
+        };
     }
 
     public static boolean erKlageEllerAnke(MottakMeldingDataWrapper data) {
@@ -61,15 +67,15 @@ public class DestinasjonsRuter {
             KLAGE_ELLER_ANKE.equals(ArkivUtil.utledKategoriFraDokumentType(data.getDokumentTypeId().orElse(UDEFINERT)));
     }
 
-    public Destinasjon bestemDestinasjon(MottakMeldingDataWrapper w) {
+    public Destinasjon bestemDestinasjon(MottakMeldingDataWrapper w, DokumentInnhold innhold) {
 
-        var res = fagsakRestKlient.vurderFagsystem(w);
+        var res = fagsakRestKlient.vurderFagsystem(w, innhold);
 
         res.getSaksnummer().ifPresent(w::setSaksnummer);
         if (VurderFagsystemResultat.SendTil.FPSAK.equals(res.destinasjon()) && res.getSaksnummer().isPresent()) {
             return new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, res.getSaksnummer().orElseThrow());
         }
-        if (skalBehandlesEtterTidligereRegler(w)) {
+        if (skalBehandlesEtterTidligereRegler(innhold)) {
             return Destinasjon.GOSYS;
         }
         if (VurderFagsystemResultat.SendTil.FPSAK.equals(res.destinasjon())) {

@@ -75,7 +75,7 @@ class SøknadTest {
         engangsstønad.setSoekersRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(engangsstønad));
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-        søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
+        søknadXmlWrapper.hentDokumentInnhold(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId()).contains(AKTØR_ID);
 
     }
@@ -88,7 +88,7 @@ class SøknadTest {
         engangsstønad.setSoekersRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(engangsstønad));
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_FØDSEL);
-        søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
+        søknadXmlWrapper.hentDokumentInnhold(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 
@@ -100,7 +100,7 @@ class SøknadTest {
         engangsstønad.setSoekersRelasjonTilBarnet(soekersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(engangsstønad));
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
-        søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
+        søknadXmlWrapper.hentDokumentInnhold(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 
@@ -112,7 +112,7 @@ class SøknadTest {
         engangsstønad.setSoekersRelasjonTilBarnet(soekersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(engangsstønad));
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
-        søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
+        søknadXmlWrapper.hentDokumentInnhold(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 
@@ -120,7 +120,7 @@ class SøknadTest {
     void skal_sjekke_engangs_søknad() {
         søknad.setOmYtelse(mapOmYtelse(new Engangsstønad()));
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD);
-        søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
+        søknadXmlWrapper.hentDokumentInnhold(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId()).contains(AKTØR_ID);
 
     }
@@ -133,7 +133,7 @@ class SøknadTest {
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);
-        søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
+        søknadXmlWrapper.hentDokumentInnhold(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 
@@ -145,7 +145,7 @@ class SøknadTest {
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);
-        søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
+        søknadXmlWrapper.hentDokumentInnhold(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 
@@ -157,7 +157,7 @@ class SøknadTest {
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_ADOPSJON);
-        søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
+        søknadXmlWrapper.hentDokumentInnhold(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 
@@ -169,7 +169,7 @@ class SøknadTest {
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_ADOPSJON);
-        søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
+        søknadXmlWrapper.hentDokumentInnhold(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 
@@ -183,7 +183,7 @@ class SøknadTest {
         foreldrepenger.setRelasjonTilBarnet(søkersRelasjonTilBarnet);
         søknad.setOmYtelse(mapOmYtelse(foreldrepenger));
         test.setBehandlingTema(BehandlingTema.ENGANGSSTØNAD_ADOPSJON);
-        assertThatThrownBy(() -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent)).isInstanceOf(
+        assertThatThrownBy(() -> søknadXmlWrapper.hentDokumentInnhold(test, aktørConsumer::hentAktørIdForPersonIdent)).isInstanceOf(
             TekniskException.class).hasMessageContaining("FP-404782");
     }
 
@@ -198,7 +198,7 @@ class SøknadTest {
         søknad.setOmYtelse(mapOmYtelse(endringssoeknad));
         test.setSaksnummer(SAKSNUMMER);
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER);
-        søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
+        søknadXmlWrapper.hentDokumentInnhold(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getSaksnummer()).hasValue(SAKSNUMMER);
     }
 
@@ -212,7 +212,7 @@ class SøknadTest {
         test.setAktørId("95873742"); // simuler annen aktørId fra metadata
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER_FØDSEL);
         assertTrue(assertThrows(TekniskException.class,
-            () -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent)).getMessage().contains("FP-502574"));
+            () -> søknadXmlWrapper.hentDokumentInnhold(test, aktørConsumer::hentAktørIdForPersonIdent)).getMessage().contains("FP-502574"));
     }
 
     @Test
@@ -229,14 +229,14 @@ class SøknadTest {
         test.setBehandlingTema(BehandlingTema.FORELDREPENGER);
 
         assertTrue(assertThrows(FunksjonellException.class,
-            () -> søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent)).getMessage().contains("FP-401245"));
+            () -> søknadXmlWrapper.hentDokumentInnhold(test, aktørConsumer::hentAktørIdForPersonIdent)).getMessage().contains("FP-401245"));
     }
 
     @Test
     void skal_sjekke_udefinert_søknad() {
         søknad.setOmYtelse(mapOmYtelse(null));
         test.setBehandlingTema(BehandlingTema.UDEFINERT);
-        søknadXmlWrapper.kopierTilMottakWrapper(test, aktørConsumer::hentAktørIdForPersonIdent);
+        søknadXmlWrapper.hentDokumentInnhold(test, aktørConsumer::hentAktørIdForPersonIdent);
         assertThat(test.getAktørId()).contains(AKTØR_ID);
     }
 }

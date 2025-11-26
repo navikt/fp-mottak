@@ -21,9 +21,11 @@ import no.nav.foreldrepenger.kontrakter.fordel.SakInfoV2Dto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.kontrakter.fordel.VurderFagsystemDto;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
+import no.nav.foreldrepenger.mottak.mottak.felles.InntektsmeldingInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.mottak.felles.SøknadInnhold;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.ArkivUtil;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -103,7 +105,7 @@ public class FagsakKlient implements Fagsak {
     }
 
     @Override
-    public VurderFagsystemResultat vurderFagsystem(MottakMeldingDataWrapper w) {
+    public VurderFagsystemResultat vurderFagsystem(MottakMeldingDataWrapper w, DokumentInnhold innhold) {
         var aktørId = w.getAktørId().orElseThrow();
         boolean strukturertSøknad = w.erStrukturertDokument().orElse(Boolean.FALSE);
         var dokumentTypeId = w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
@@ -112,31 +114,30 @@ public class FagsakKlient implements Fagsak {
             .getOffisiellKode();
 
         var dto = new VurderFagsystemDto(w.getArkivId(), strukturertSøknad, aktørId, behandlingTemaString);
-        dto.setAdopsjonsBarnFodselsdatoer(w.getAdopsjonsbarnFodselsdatoer());
-        w.getBarnTermindato().ifPresent(dto::setBarnTermindato);
-        w.getBarnFodselsdato().ifPresent(dto::setBarnFodselsdato);
-        w.getOmsorgsovertakelsedato().ifPresent(dto::setOmsorgsovertakelsedato);
-        w.getÅrsakTilInnsending().ifPresent(dto::setÅrsakInnsendingInntektsmelding);
-        w.getAnnenPartId().ifPresent(dto::setAnnenPart);
         w.getSaksnummer().ifPresent(dto::setSaksnummer);
-        w.getVirksomhetsnummer().ifPresent(dto::setVirksomhetsnummer);
-        w.getArbeidsgiverAktørId().ifPresent(dto::setArbeidsgiverAktørId);
-        w.getArbeidsforholdsid().ifPresent(dto::setArbeidsforholdsid);
-        w.getInntektsmeldingStartDato().ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
+        // VurderFagsystemDto burde hatt et felt for første uttaksdag for søknad. For å
+        // ikke kaste mottatt søknad til manuell journalføring i fpsak, sender vi her første
+        // uttaksdag i et felt som brukes til det samme for inntektsmelding. Kontrakten bør endres
+        innhold.getFørsteFraværsdato().ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
         w.getForsendelseMottattTidspunkt().ifPresent(dto::setForsendelseMottattTidspunkt);
-        w.getBrukerRolle().map(FagsakKlient::mapBrukerRolle).ifPresent(dto::setBrukerRolle);
         dto.setForsendelseMottatt(w.getForsendelseMottatt());
         dto.setDokumentTypeIdOffisiellKode(dokumentTypeId.getOffisiellKode());
         dto.setDokumentKategoriOffisiellKode(dokumentKategori.getOffisiellKode());
 
-        // VurderFagsystemDto burde hatt et felt for første uttaksdag for søknad. For å
-        // ikke kaste
-        // mottatt søknad til manuell journalføring i fpsak, sender vi her første
-        // uttaksdag i et
-        // felt som brukes til det samme for inntektsmelding. Kontrakten bør endres
-        if (DokumentKategori.SØKNAD.equals(dokumentKategori)) {
-            w.getFørsteUttaksdag().ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
+        if (innhold instanceof SøknadInnhold søknadInnhold) {
+            dto.setAdopsjonsBarnFodselsdatoer(søknadInnhold.getAdopsjonsbarnFødselsdatoer());
+            søknadInnhold.getTermindato().ifPresent(dto::setBarnTermindato);
+            søknadInnhold.getFødselsdato().ifPresent(dto::setBarnFodselsdato);
+            søknadInnhold.getOmsorgsovertakelsesdato().ifPresent(dto::setOmsorgsovertakelsedato);
+            søknadInnhold.getAnnenPartAktørId().ifPresent(dto::setAnnenPart);
+            søknadInnhold.getBrukerRolle().map(FagsakKlient::mapBrukerRolle).ifPresent(dto::setBrukerRolle);
+        } else if (innhold instanceof InntektsmeldingInnhold inntektsmelding) {
+            inntektsmelding.getÅrsakTilInnsending().ifPresent(dto::setÅrsakInnsendingInntektsmelding);
+            inntektsmelding.getVirksomhetsnummer().ifPresent(dto::setVirksomhetsnummer);
+            inntektsmelding.getArbeidsgiverAktørId().ifPresent(dto::setArbeidsgiverAktørId);
+            inntektsmelding.getArbeidsforholdsId().ifPresent(dto::setArbeidsforholdsid);
         }
+
         LOG.info("Vurderer resultat");
 
         var brukPath = w.getJournalførendeEnhet()

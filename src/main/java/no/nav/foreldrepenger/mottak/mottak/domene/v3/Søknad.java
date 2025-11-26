@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.mottak.mottak.domene.v3;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,7 +13,9 @@ import java.util.function.Function;
 import jakarta.xml.bind.JAXBElement;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.mottak.domene.MottattStrukturertDokument;
+import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.mottak.felles.SøknadInnhold;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
@@ -58,24 +62,17 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
     }
 
     @Override
-    protected void kopierVerdier(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
-        dataWrapper.setStrukturertDokument(true);
-        dataWrapper.setAktørId(getSkjema().getSoeker().getAktoerId());
-        hentBrukerroller().ifPresent(dataWrapper::setBrukerRolle);
-        hentMottattDato(dataWrapper);
-
-        hentFødselsdato().ifPresent(dataWrapper::setBarnFodselsdato);
-        hentTermindato().ifPresent(dataWrapper::setBarnTermindato);
-        hentOmsorgsovertakelsesdato().ifPresent(dataWrapper::setOmsorgsovertakelsedato);
-        hentFørsteUttaksdag().ifPresent(dataWrapper::setFørsteUttakssdag);
-        dataWrapper.setAdopsjonsbarnFodselsdatoer(hentFødselsdatoForAdopsjonsbarn());
-
-        if (getYtelse() instanceof Foreldrepenger fp) {
-            if (fp.getAnnenForelder() instanceof AnnenForelderMedNorskIdent a) {
-                dataWrapper.setAnnenPartId(a.getAktoerId());
-            }
-
+    protected DokumentInnhold hentUtDokumentInnhold(Function<String, Optional<String>> aktørIdFinder) {
+        var innhold = new SøknadInnhold(getSkjema().getSoeker().getAktoerId(), hentFørsteUttaksdag().orElse(null), hentMottattTidspunkt());
+        hentFødselsdato().ifPresent(innhold::setFødselsdato);
+        hentTermindato().ifPresent(innhold::setTermindato);
+        hentOmsorgsovertakelsesdato().ifPresent(innhold::setOmsorgsovertakelsesdato);
+        innhold.leggTilAdopsjonsbarnFødselsdatoer(hentFødselsdatoForAdopsjonsbarn());
+        hentBrukerroller().ifPresent(innhold::setBrukerRolle);
+        if (getYtelse() instanceof Foreldrepenger fp && fp.getAnnenForelder() instanceof AnnenForelderMedNorskIdent a) {
+            innhold.setAnnenPartAktørId(a.getAktoerId());
         }
+        return innhold;
     }
 
     @Override
@@ -152,6 +149,12 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
                 wrapper.setForsendelseMottattTidspunkt(mdato.atStartOfDay());
             }
         });
+    }
+
+    public LocalDateTime hentMottattTidspunkt() {
+        return Optional.ofNullable(getSkjema().getMottattDato())
+            .map(ld -> LocalDateTime.of(ld, LocalTime.now()))
+            .orElse(null);
     }
 
     public Optional<LocalDate> hentTermindato() {
