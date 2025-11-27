@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.mottak.domene;
 import java.util.Optional;
 import java.util.function.Function;
 
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.mottak.domene.v1.Inntektsmelding;
 import no.nav.foreldrepenger.mottak.mottak.domene.v3.Søknad;
 import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
@@ -33,9 +34,12 @@ public abstract class MottattStrukturertDokument<S> {
         throw new TekniskException("FP-947143", String.format("Ukjent meldingstype %s", skjema.getClass().getCanonicalName()));
     }
 
-    public final DokumentInnhold hentDokumentInnhold(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
-        validerSkjemaSemantisk(dataWrapper, aktørIdFinder);
+    public final DokumentInnhold hentDokumentInnhold(Function<String, Optional<String>> aktørIdFinder) {
         return hentUtDokumentInnhold(aktørIdFinder);
+    }
+
+    public final void validerDokumentInnhold(Optional<String> aktørId, BehandlingTema behandlingTema, Function<String, Optional<String>> aktørIdFinder) {
+        validerSkjemaSemantisk(aktørId, behandlingTema, aktørIdFinder);
     }
 
     /**
@@ -55,10 +59,11 @@ public abstract class MottattStrukturertDokument<S> {
      * <p>
      * Hvis ingen slik validering er nødvendig, kan du bare returne.
      *
-     * @param dataWrapper   data holder som skal populeres med verdier fra skjema
+     * @param aktørId  aktørid fra kontekst
+     * @param behandlingTema  behandlingstema fra kontekst
      * @param aktørIdFinder
      */
-    protected abstract void validerSkjemaSemantisk(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder);
+    protected abstract void validerSkjemaSemantisk(Optional<String> aktørId, BehandlingTema behandlingTema, Function<String, Optional<String>> aktørIdFinder);
 
     public S getSkjema() {
         return skjema;

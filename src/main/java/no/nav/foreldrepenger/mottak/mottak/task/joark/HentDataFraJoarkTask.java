@@ -33,6 +33,7 @@ import no.nav.foreldrepenger.mottak.mottak.domene.oppgavebehandling.OpprettGSakO
 import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.InntektsmeldingInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.mottak.felles.SøknadInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.WrappedProsessTaskHandler;
 import no.nav.foreldrepenger.mottak.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.mottak.journal.ArkivTjeneste;
@@ -43,7 +44,6 @@ import no.nav.foreldrepenger.mottak.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.Destinasjon;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.DestinasjonsRuter;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.exception.VLException;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.AvsenderMottaker;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -155,57 +155,26 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
             w.setSaksnummer(s);
         });
 
-        DokumentInnhold dokumentInnhold = null;
-        if (journalpost.getInnholderStrukturertInformasjon()) {
-            var råPayload = journalpost.getStrukturertPayload();
-            if (!MeldingXmlParser.erXmlMedKjentNamespace(råPayload)) {
-                var jptittel = journalpost.getOriginalJournalpost().tittel();
-                // kast feil for ukjent innhold som antagelig er XML (og vi kanskje bør
-                // håndtere). ignorer andre
-                if (!råPayload.isBlank() && Objects.equals('<', råPayload.trim().charAt(0))) {
-                    var doktittel = journalpost.getOriginalJournalpost().dokumenter().get(0).tittel();
-                    var prefix = råPayload.substring(0, Math.min(40, råPayload.length()));
-                    LOG.warn("FPMOTTAK journalpost med ukjent xml innhold {} {} {}", jptittel, doktittel, prefix);
-                } else {
-                    LOG.info("FPMOTTAK journalpost med non-xml strukturert innhold {}", jptittel);
-                }
-            } else {
-                try {
-                    var payload = INNTEKTSMELDING.equals(journalpost.getHovedtype()) ? MeldingXmlParser.normaliserInntektsmelding(råPayload) : råPayload;
-                    var mottattDokument = MeldingXmlParser.unmarshallXml(payload);
-                    dokumentInnhold = mottattDokument.hentDokumentInnhold(w, pdl::hentAktørIdForPersonIdent);
-                    w.setPayload(payload);
-                    if (dokumentInnhold.getAktørId() != null) {
-                        var dokumentAktørId = dokumentInnhold.getAktørId();
-                        if (w.getAktørId().isEmpty()) {
-                            w.setAktørId(dokumentAktørId);
-                        } else if (w.getAktørId().filter(a -> Objects.equals(a, dokumentAktørId)).isEmpty()) {
-                            throw new IllegalStateException("AktørId-mismatch mellom journalpost " + w.getAktørId().orElse(null ) + " og dokumentinnhold " + dokumentAktørId);
-                        }
-                    }
-                    dokumentInnhold.getMottattTidspunkt().ifPresent(mottattTidspunkt -> {
-                        if (w.getForsendelseMottattTidspunkt().isEmpty() || w.getForsendelseMottattTidspunkt().get().isAfter(mottattTidspunkt)) {
-                            w.setForsendelseMottattTidspunkt(mottattTidspunkt);
-                        }
-                    });
-                } catch (VLException vle) {
-                    // Mottatt journalpost har annet saksnummer enn den i endringssøknaden.... eller IM har ident-mismatch
-                    // Skyldes feil i IM eller spesiell bruk av Gosys. Lag oppgave i dette tilfelle, godta i BehandleDokumentService
-                    if ("FP-401245".equals(vle.getKode())) {
-                        w.setSaksnummer(null);
-                        LOG.warn("FPMOTTAK HentFraArkiv avvik saksnummer for journalpost vs XML journalpostId {} avvik {}",
-                            journalpost.getJournalpostId(), vle.getFeilmelding());
-                        return w.nesteSteg(TASK_GOSYS);
-                    }
-                    if ("FP-401246".equals(vle.getKode())) {
-                        LOG.warn("FPMOTTAK HentFraArkiv avvik person for journalpost vs XML journalpostId {} avvik {}",
-                            journalpost.getJournalpostId(), vle.getFeilmelding());
-                        throw vle;
-                    }
-                    throw vle;
-                }
-            }
+        // Henter ut data fra dokument. Validerer mot journalpost.
+        DokumentInnhold dokumentInnhold = finnDokumentInnholdSettPayload(w, journalpost);
+        var neste = sjekkSaksnummer(w.getSaksnummer().orElse(null), dokumentInnhold);
+        if (neste.isPresent()) {
+            w.setSaksnummer(null);
+            LOG.warn("FPMOTTAK HentFraArkiv avvik saksnummer for journalpost vs XML journalpostId {} sak/journal {} sak/innhold {}",
+                w.getArkivId(), w.getSaksnummer().orElse(null), dokumentInnhold instanceof SøknadInnhold s ? s.getSaksnummer() : null);
+            return w.nesteSteg(neste.get());
         }
+        // Setter payload og data ut fra dokumentet
+        Optional.ofNullable(dokumentInnhold).map(DokumentInnhold::getPayload).ifPresent(w::setPayload);
+        Optional.ofNullable(dokumentInnhold).flatMap(DokumentInnhold::getMottattTidspunkt)
+            .filter(mottatt -> w.getForsendelseMottattTidspunkt().isEmpty() || w.getForsendelseMottattTidspunkt().get().isAfter(mottatt))
+            .ifPresent(w::setForsendelseMottattTidspunkt);
+        Optional.ofNullable(dokumentInnhold).map(DokumentInnhold::getBehandlingTema)
+            .filter(bt -> !BehandlingTema.UDEFINERT.equals(bt))
+            .ifPresent(w::setBehandlingTema);
+        Optional.ofNullable(dokumentInnhold).map(DokumentInnhold::getAktørId)
+            .filter(bt -> w.getAktørId().isEmpty())
+            .ifPresent(w::setAktørId);
 
         // Egen rute for rene ankedokument - journalføringsoppgave Klageinstans
         if (journalpost.getAlleTyper().contains(DokumentTypeId.KLAGE_DOKUMENT) && journalpost.getSaksnummer().isEmpty() && erAnkeRelatert(journalpost)) {
@@ -242,9 +211,9 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
 
         if (erInntektsmelding(journalpost.getHovedtype())) {
             if (MottakKanal.SELVBETJENING.getKode().equals(journalpost.getKanal())) {
-                sjekkInntektsmeldingSelvbetjent(w, journalpost, aktørIdFraJournalpost.orElse(null), dokumentInnhold);
+                sjekkInntektsmeldingSelvbetjent(w, aktørIdFraJournalpost.orElse(null));
             } else {
-                oppdaterInntektsmeldingAltinn(w, dokumentInnhold);
+                oppdaterInntektsmeldingAltinn(w);
             }
             if (kreverInntektsmeldingManuellVurdering(w, dokumentInnhold)) {
                 LOG.info("FPMOTTAK HentFraArkiv inntektsmelding til manuell vurdering journalpost {}", journalpost.getJournalpostId());
@@ -275,30 +244,54 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         }
     }
 
-    private void oppdaterInntektsmeldingAltinn(MottakMeldingDataWrapper w, DokumentInnhold dokumentInnhold) {
-        var ytelseFraIm = dokumentInnhold instanceof InntektsmeldingInnhold im ? im.getInntektsmeldingYtelse().orElse(null) : null;
-        var behandlingTemaFraIM = Optional.ofNullable(ytelseFraIm).map(BehandlingTema::fraTermNavn)
-            .orElseThrow(() -> new TekniskException("FP-429673", "Mangler Ytelse på Innteksmelding"));
+    private Optional<TaskType> sjekkSaksnummer(String fraJournalpost, DokumentInnhold dokumentInnhold) {
+        if (fraJournalpost == null || !(dokumentInnhold instanceof SøknadInnhold søknadInnhold) || søknadInnhold.getSaksnummer() == null) {
+            return Optional.empty();
+        }
+        return Objects.equals(fraJournalpost, søknadInnhold.getSaksnummer()) ? Optional.empty() : Optional.of(TASK_GOSYS);
 
-        // Mangler alltid bruker
-        arkiv.oppdaterBehandlingstemaBruker(w.getArkivId(), INNTEKTSMELDING, behandlingTemaFraIM.getOffisiellKode(),
-            w.getAktørId().orElseThrow(() -> new IllegalStateException("Utviklerfeil: aktørid skal være satt")));
-
-        w.setBehandlingTema(behandlingTemaFraIM);
     }
 
-    private void sjekkInntektsmeldingSelvbetjent(MottakMeldingDataWrapper w, ArkivJournalpost j, String aktørIdJournalpost, DokumentInnhold dokumentInnhold) {
+    private DokumentInnhold finnDokumentInnholdSettPayload(MottakMeldingDataWrapper w, ArkivJournalpost journalpost) {
+        if (!journalpost.getInnholderStrukturertInformasjon()) {
+            return null;
+        }
+        var råPayload = journalpost.getStrukturertPayload();
+        if (!MeldingXmlParser.erXmlMedKjentNamespace(råPayload)) {
+            var jptittel = journalpost.getOriginalJournalpost().tittel();
+            // kast feil for ukjent innhold som antagelig er XML (og vi kanskje bør
+            // håndtere). ignorer andre
+            if (!råPayload.isBlank() && Objects.equals('<', råPayload.trim().charAt(0))) {
+                var doktittel = journalpost.getOriginalJournalpost().dokumenter().get(0).tittel();
+                var prefix = råPayload.substring(0, Math.min(40, råPayload.length()));
+                LOG.warn("FPMOTTAK journalpost med ukjent xml innhold {} {} {}", jptittel, doktittel, prefix);
+            } else {
+                LOG.info("FPMOTTAK journalpost med non-xml strukturert innhold {}", jptittel);
+            }
+            return null;
+        } else {
+            var payload = INNTEKTSMELDING.equals(journalpost.getHovedtype()) ? MeldingXmlParser.normaliserInntektsmelding(råPayload) : råPayload;
+            var mottattDokument = MeldingXmlParser.unmarshallXml(payload);
+            mottattDokument.validerDokumentInnhold(w.getAktørId(), w.getBehandlingTema(), pdl::hentAktørIdForPersonIdent);
+            var innhold = mottattDokument.hentDokumentInnhold(pdl::hentAktørIdForPersonIdent);
+            innhold.setPayload(payload);
+            return innhold;
+        }
+    }
+
+    private void oppdaterInntektsmeldingAltinn(MottakMeldingDataWrapper w) {
+        // Mangler alltid bruker + behandlingstema
+        arkiv.oppdaterBehandlingstemaBruker(w.getArkivId(), INNTEKTSMELDING, w.getBehandlingTema().getOffisiellKode(),
+            w.getAktørId().orElseThrow(() -> new IllegalStateException("Utviklerfeil: aktørid skal være satt")));
+
+    }
+
+    private void sjekkInntektsmeldingSelvbetjent(MottakMeldingDataWrapper w, String aktørIdJournalpost) {
         if (aktørIdJournalpost == null) {
             throw new TekniskException("FP-429672", "Mangler Bruker på IM-journalpost fra NavNo");
         }
-        if (!Set.of(BehandlingTema.FORELDREPENGER, BehandlingTema.SVANGERSKAPSPENGER).contains(j.getBehandlingstema())) {
+        if (!Set.of(BehandlingTema.FORELDREPENGER, BehandlingTema.SVANGERSKAPSPENGER).contains(w.getBehandlingTema())) {
             throw new TekniskException("FP-429674", "Mangler BehandlingTema på IM-journalpost fra NavNo");
-        }
-        var ytelseFraIm = dokumentInnhold instanceof InntektsmeldingInnhold im ? im.getInntektsmeldingYtelse().orElse(null) : null;
-        var behandlingTemaFraIM = Optional.ofNullable(ytelseFraIm).map(BehandlingTema::fraTermNavn)
-            .orElseThrow(() -> new TekniskException("FP-429673", "Mangler Ytelse på Innteksmelding"));
-        if (!Objects.equals(behandlingTemaFraIM, j.getBehandlingstema())) {
-            throw new TekniskException("FP-429676", "Avvik BehandlingTema på mellom Journalpost og Innteksmelding fra NavNo");
         }
     }
 

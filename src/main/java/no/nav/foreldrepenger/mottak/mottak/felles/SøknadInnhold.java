@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
+
 public final class SøknadInnhold extends DokumentInnhold {
 
     private String brukerRolle;
@@ -14,9 +16,10 @@ public final class SøknadInnhold extends DokumentInnhold {
     private LocalDate fødselsdato;
     private LocalDate omsorgsovertakelsesdato;
     private final List<LocalDate> adopsjonsbarnFødselsdatoer;
+    private String saksnummer;
 
-    public SøknadInnhold(String aktørId, LocalDate førsteFraværsdato, LocalDateTime mottattTidspunkt) {
-        super(aktørId, førsteFraværsdato, mottattTidspunkt);
+    public SøknadInnhold(String aktørId, BehandlingTema behandlingTema, LocalDate førsteFraværsdato, LocalDateTime mottattTidspunkt) {
+        super(aktørId, behandlingTema, førsteFraværsdato, mottattTidspunkt);
         this.adopsjonsbarnFødselsdatoer = new ArrayList<>();
     }
 
@@ -66,5 +69,13 @@ public final class SøknadInnhold extends DokumentInnhold {
 
     public void leggTilAdopsjonsbarnFødselsdatoer(List<LocalDate> adopsjonsbarnFødselsdatoer) {
         this.adopsjonsbarnFødselsdatoer.addAll(adopsjonsbarnFødselsdatoer);
+    }
+
+    public String getSaksnummer() {
+        return saksnummer;
+    }
+
+    public void setSaksnummer(String saksnummer) {
+        this.saksnummer = saksnummer;
     }
 }

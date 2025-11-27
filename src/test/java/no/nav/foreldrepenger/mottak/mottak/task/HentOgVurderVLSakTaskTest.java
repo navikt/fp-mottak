@@ -132,7 +132,7 @@ class HentOgVurderVLSakTaskTest {
         var dataWrapper = new MottakMeldingDataWrapper(data);
         dataWrapper.setAktørId(aktørId);
         dataWrapper.setBehandlingTema(BehandlingTema.SVANGERSKAPSPENGER);
-        var innhold = lagDokumentInnhold();
+        var innhold = lagDokumentInnhold(BehandlingTema.SVANGERSKAPSPENGER);
         innhold.setTermindato(termindato);
 
         var vurder = new DestinasjonsRuter(fagsakRestKlientMock);
@@ -152,7 +152,11 @@ class HentOgVurderVLSakTaskTest {
     }
 
     private SøknadInnhold lagDokumentInnhold() {
-        var innhold = new SøknadInnhold(aktørId, null, LocalDateTime.now());
+        return lagDokumentInnhold(BehandlingTema.FORELDREPENGER);
+    }
+
+    private SøknadInnhold lagDokumentInnhold(BehandlingTema behandlingTema) {
+        var innhold = new SøknadInnhold(aktørId, behandlingTema, null, LocalDateTime.now());
         innhold.setTermindato(termindato);
         return innhold;
     }

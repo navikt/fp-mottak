@@ -9,10 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.xml.bind.JAXBElement;
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.InntektsmeldingInnhold;
-import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.seres.xsd.nav.inntektsmelding_m._20181211.Arbeidsforhold;
@@ -32,9 +32,8 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
 
     @Override
     protected DokumentInnhold hentUtDokumentInnhold(Function<String, Optional<String>> aktørIdFinder) {
-        var innhold = new InntektsmeldingInnhold(hentBrukerAktørId(aktørIdFinder), getStartdatoForeldrepengeperiode(),
-            getInnsendingstidspunkt().orElse(null));
-        innhold.setInntektsmeldingYtelse(getYtelse());
+        var innhold = new InntektsmeldingInnhold(hentBrukerAktørId(aktørIdFinder), getBehandlingTema(),
+            getStartdatoForeldrepengeperiode(), getInnsendingstidspunkt().orElse(null));
         innhold.setÅrsakTilInnsending(getÅrsakTilInnsending());
         getVirksomhetsnummer().ifPresent(innhold::setVirksomhetsnummer);
         getArbeidsgiverAktørId(aktørIdFinder).ifPresent(innhold::setArbeidsgiverAktørId);
@@ -61,9 +60,8 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
     }
 
     @Override
-    protected void validerSkjemaSemantisk(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
+    protected void validerSkjemaSemantisk(Optional<String> aktørIdFraJournalpost, BehandlingTema behandlingTema, Function<String, Optional<String>> aktørIdFinder) {
         Optional<String> aktørIdFraSkjema = aktørIdFinder.apply(getArbeidstakerFnr());
-        Optional<String> aktørIdFraJournalpost = dataWrapper.getAktørId();
         if (aktørIdFraJournalpost.isPresent()) {
             if (aktørIdFraSkjema.filter(aktørIdFraJournalpost.get()::equals).isEmpty()) {
                 throw new FunksjonellException("FP-401246", "Ulike personer i journalpost og inntektsmelding.", null);
@@ -91,6 +89,14 @@ public class Inntektsmelding extends MottattStrukturertDokument<InntektsmeldingM
             .map(Skjemainnhold::getArbeidsgiver)
             .map(JAXBElement::getValue)
             .map(Arbeidsgiver::getVirksomhetsnummer);
+    }
+
+    private BehandlingTema getBehandlingTema() {
+        var behandlingTema = BehandlingTema.fraTermNavn(getYtelse());
+        return switch (behandlingTema) {
+            case FORELDREPENGER, SVANGERSKAPSPENGER -> behandlingTema;
+            default -> throw new TekniskException("FP-429673", "Mangler eller feil ytelse på innteksmelding " + behandlingTema.getKode());
+        };
     }
 
     private String getYtelse() {

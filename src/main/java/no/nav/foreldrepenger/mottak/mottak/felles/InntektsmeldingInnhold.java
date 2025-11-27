@@ -4,16 +4,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
+
 public final class InntektsmeldingInnhold extends DokumentInnhold {
 
     private String årsakTilInnsending;
     private String virksomhetsnummer;
     private String arbeidsgiverAktørId;
     private String arbeidsforholdsId;
-    private String inntektsmeldingYtelse;
 
-    public InntektsmeldingInnhold(String aktørId, LocalDate førsteFraværsdato, LocalDateTime mottattTidspunkt) {
-        super(aktørId, førsteFraværsdato, mottattTidspunkt);
+    public InntektsmeldingInnhold(String aktørId, BehandlingTema behandlingTema, LocalDate førsteFraværsdato, LocalDateTime mottattTidspunkt) {
+        super(aktørId, behandlingTema, førsteFraværsdato, mottattTidspunkt);
     }
 
     public Optional<String> getÅrsakTilInnsending() {
@@ -46,13 +47,5 @@ public final class InntektsmeldingInnhold extends DokumentInnhold {
 
     public void setArbeidsforholdsId(String arbeidsforholdsId) {
         this.arbeidsforholdsId = arbeidsforholdsId;
-    }
-
-    public Optional<String> getInntektsmeldingYtelse() {
-        return Optional.ofNullable(inntektsmeldingYtelse);
-    }
-
-    public void setInntektsmeldingYtelse(String inntektsmeldingYtelse) {
-        this.inntektsmeldingYtelse = inntektsmeldingYtelse;
     }
 }

@@ -7,6 +7,8 @@ import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
+
 class SøknadInnholdTest {
 
 
@@ -18,7 +20,7 @@ class SøknadInnholdTest {
         LocalDate dato2 = now.minusMonths(1);
         LocalDate dato3 = now.plusDays(1);
 
-        var søknadInnhold = new SøknadInnhold("123", now, now.atStartOfDay());
+        var søknadInnhold = new SøknadInnhold("123", BehandlingTema.ENGANGSSTØNAD_FØDSEL, now, now.atStartOfDay());
         søknadInnhold.leggTilAdopsjonsbarnFødselsdatoer(Arrays.asList(now, dato1, dato2));
         søknadInnhold.setFødselsdato(dato1);
         søknadInnhold.setTermindato(dato3);
@@ -32,7 +34,7 @@ class SøknadInnholdTest {
 
     @Test
     void skal_kunne_sette_rolle_og_hente_ut_igjen() {
-        var søknadInnhold = new SøknadInnhold("123", LocalDate.now(), null);
+        var søknadInnhold = new SøknadInnhold("123", BehandlingTema.SVANGERSKAPSPENGER, LocalDate.now(), null);
         søknadInnhold.setBrukerRolle("MOR");
         assertThat(søknadInnhold.getBrukerRolle()).hasValue("MOR");
     }
@@ -40,7 +42,7 @@ class SøknadInnholdTest {
 
     @Test
     void skal_returnere_tom_optional_når_inntektsmelding_startdato_ikke_er_satt() {
-        var søknadInnhold = new SøknadInnhold("123", null, null);
+        var søknadInnhold = new SøknadInnhold("123", BehandlingTema.FORELDREPENGER_FØDSEL, null, null);
         assertThat(søknadInnhold.getFørsteFraværsdato()).isEmpty();
     }
 

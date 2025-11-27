@@ -36,9 +36,7 @@ import no.nav.foreldrepenger.mottak.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.mottak.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.mottak.domene.oppgavebehandling.FerdigstillOppgaveTask;
-import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.InntektsmeldingInnhold;
-import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.felles.SøknadInnhold;
 import no.nav.foreldrepenger.mottak.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.mottak.journal.ArkivTjeneste;
@@ -46,7 +44,6 @@ import no.nav.foreldrepenger.mottak.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.mottak.klient.FagsakYtelseTypeDto;
 import no.nav.foreldrepenger.mottak.mottak.person.PersonInformasjon;
-import no.nav.foreldrepenger.mottak.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.mottak.task.xml.MeldingXmlParser;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.VLKlargjører;
@@ -397,10 +394,9 @@ public class FerdigstillJournalføringTjeneste {
     private static void validerDokumentData(LocalDate imStartDato,
                                             BehandlingTema behandlingTema,
                                             DokumentTypeId dokumentTypeId,
-                                            String imType,
+                                            BehandlingTema behandlingTemaFraIM,
                                             LocalDate tidligsteDato) {
         if (DokumentTypeId.INNTEKTSMELDING.equals(dokumentTypeId)) {
-            var behandlingTemaFraIM = BehandlingTema.fraTermNavn(imType);
             if (gjelderForeldrepenger(behandlingTemaFraIM)) {
                 if (imStartDato == null) { // Kommer ingen vei uten startdato
                     throw new FunksjonellException("FP-963076", "Inntektsmelding mangler startdato - kan ikke journalføre",
@@ -449,47 +445,39 @@ public class FerdigstillJournalføringTjeneste {
     private String hentDokumentSettMetadata(String saksnummer, BehandlingTema behandlingTema, String aktørId, ArkivJournalpost journalpost) {
         final var xml = journalpost.getStrukturertPayload();
         if (journalpost.getInnholderStrukturertInformasjon()) {
-            // Bruker eksisterende infrastruktur for å hente ut og validere XML-data.
-            // Tasktype tilfeldig valgt
-            var prosessTaskData = ProsessTaskData.forProsessTask(VLKlargjørerTask.class);
-            var dataWrapper = new MottakMeldingDataWrapper(prosessTaskData);
-            dataWrapper.setBehandlingTema(behandlingTema);
-            dataWrapper.setSaksnummer(saksnummer);
-            dataWrapper.setAktørId(aktørId);
-            return validerXml(dataWrapper, behandlingTema, journalpost.getHovedtype(), xml);
+            return validerXml(journalpost, behandlingTema, saksnummer, aktørId, xml);
         }
         return xml;
     }
 
-    private String validerXml(MottakMeldingDataWrapper dataWrapper, BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId, String xml) {
+    private String validerXml(ArkivJournalpost journalpost, BehandlingTema behandlingTema, String saksnummer, String aktørId, String xml) {
         MottattStrukturertDokument<?> mottattDokument;
         try {
             mottattDokument = MeldingXmlParser.unmarshallXml(xml);
-        } catch (Exception e) {
-            LOG.info("FPMOTTAK RESTJOURNALFØRING: Journalpost med type {} er strukturert men er ikke gyldig XML", dokumentTypeId);
+        } catch (Exception _) {
+            LOG.info("FPMOTTAK RESTJOURNALFØRING: Journalpost med type {} er strukturert men er ikke gyldig XML", journalpost.getHovedtype());
             return null;
         }
-        if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(dokumentTypeId) && !ikkeSpesifikkHendelse(behandlingTema)) {
-            dataWrapper.setBehandlingTema(BehandlingTema.FORELDREPENGER);
+        if (DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.equals(journalpost.getHovedtype()) && !ikkeSpesifikkHendelse(behandlingTema)) {
+            behandlingTema = BehandlingTema.FORELDREPENGER;
         }
-        DokumentInnhold innhold = null;
+        var innhold = mottattDokument.hentDokumentInnhold(pdl::hentAktørIdForPersonIdent);
         try {
-            innhold = mottattDokument.hentDokumentInnhold(dataWrapper, pdl::hentAktørIdForPersonIdent);
-        } catch (FunksjonellException e) {
+            mottattDokument.validerDokumentInnhold(Optional.ofNullable(aktørId), behandlingTema, pdl::hentAktørIdForPersonIdent);
+        } catch (TekniskException|FunksjonellException e) {
             // Her er det "greit" - da har man bestemt seg, men kan lage rot i saken.
-            if ("FP-401245".equals(e.getKode()) || "FP-401246".equals(e.getKode())) {
+            if ("FP-401246".equals(e.getKode())) {
                 var logMessage = e.getMessage();
                 LOG.info("FPMOTTAK RESTJOURNALFØRING: {}", logMessage);
             } else {
                 throw e;
             }
         }
-        var imType = innhold instanceof InntektsmeldingInnhold im ? im.getInntektsmeldingYtelse().orElse(null) : null;
         var imStartdato = innhold instanceof InntektsmeldingInnhold im ? im.getFørsteFraværsdato().orElse(null) : null;
         var tidligsteDato = Optional.ofNullable(innhold)
             .flatMap(i -> i instanceof SøknadInnhold s && s.getOmsorgsovertakelsesdato().isPresent() ? s.getOmsorgsovertakelsesdato() : i.getFørsteFraværsdato())
             .orElse(Tid.TIDENES_ENDE);
-        validerDokumentData(imStartdato, behandlingTema, dokumentTypeId, imType, tidligsteDato);
+        validerDokumentData(imStartdato, behandlingTema, journalpost.getHovedtype(), innhold.getBehandlingTema(), tidligsteDato);
         return xml;
     }
 

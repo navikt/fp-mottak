@@ -14,9 +14,7 @@ import jakarta.xml.bind.JAXBElement;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.mottak.domene.MottattStrukturertDokument;
 import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
-import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.felles.SøknadInnhold;
-import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.Engangsstønad;
@@ -63,7 +61,9 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
 
     @Override
     protected DokumentInnhold hentUtDokumentInnhold(Function<String, Optional<String>> aktørIdFinder) {
-        var innhold = new SøknadInnhold(getSkjema().getSoeker().getAktoerId(), hentFørsteUttaksdag().orElse(null), hentMottattTidspunkt());
+        sjekkNødvendigeFeltEksisterer();
+        var innhold = new SøknadInnhold(getSkjema().getSoeker().getAktoerId(), hentBehandlingTema(),
+            hentFørsteUttaksdag().orElse(null), hentMottattTidspunkt());
         hentFødselsdato().ifPresent(innhold::setFødselsdato);
         hentTermindato().ifPresent(innhold::setTermindato);
         hentOmsorgsovertakelsesdato().ifPresent(innhold::setOmsorgsovertakelsesdato);
@@ -72,30 +72,25 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
         if (getYtelse() instanceof Foreldrepenger fp && fp.getAnnenForelder() instanceof AnnenForelderMedNorskIdent a) {
             innhold.setAnnenPartAktørId(a.getAktoerId());
         }
+        if (getYtelse() instanceof Endringssoeknad endringssoeknad) {
+            innhold.setSaksnummer(endringssoeknad.getSaksnummer());
+        }
         return innhold;
     }
 
     @Override
-    protected void validerSkjemaSemantisk(MottakMeldingDataWrapper dataWrapper, Function<String, Optional<String>> aktørIdFinder) {
+    protected void validerSkjemaSemantisk(Optional<String> aktørId, BehandlingTema behandlingTema, Function<String, Optional<String>> aktørIdFinder) {
         sjekkNødvendigeFeltEksisterer();
-        final BehandlingTema behandlingTema = hentBehandlingTema();
-        final String aktørId = getSkjema().getSoeker().getAktoerId();
-        if (!Objects.equals(dataWrapper.getBehandlingTema().getKode(), behandlingTema.getKode())) {
+        final BehandlingTema behandlingTemaFraInnhold = hentBehandlingTema();
+        final String aktørIdFraInnhold = getSkjema().getSoeker().getAktoerId();
+        if (!Objects.equals(behandlingTema.getKode(), behandlingTemaFraInnhold.getKode())) {
             throw new TekniskException("FP-404782",
-                String.format("Ulik behandlingstemakode i tynnmelding (%s) og søknadsdokument (%s)", dataWrapper.getBehandlingTema().getKode(),
-                    behandlingTema.getKode()));
+                String.format("Ulik behandlingstemakode i tynnmelding (%s) og søknadsdokument (%s)", behandlingTema.getKode(),
+                    behandlingTemaFraInnhold.getKode()));
         }
-        if (!Objects.equals(dataWrapper.getAktørId().orElse(null), aktørId)) {
+        if (!Objects.equals(aktørId.orElse(null), aktørIdFraInnhold)) {
             throw new TekniskException("FP-502574",
-                String.format("Ulik aktørId i tynnmelding (%s) og søknadsdokument (%s)", dataWrapper.getArkivId(), aktørId));
-        }
-        if (getYtelse() instanceof Endringssoeknad endringssoeknad) {
-            final var saksnummer = endringssoeknad.getSaksnummer();
-            if (!Objects.equals(dataWrapper.getSaksnummer().orElse(null), saksnummer)) {
-                throw new FunksjonellException("FP-401245",
-                    String.format("Ulike saksnummer i melding/VL (%s) og endringssøknad (%s).", dataWrapper.getSaksnummer().orElse(null), saksnummer),
-                    null);
-            }
+                String.format("Ulik aktørId i tynnmelding (%s) og søknadsdokument (%s)", aktørId.orElse(null), aktørIdFraInnhold));
         }
     }
 
@@ -141,14 +136,6 @@ public class Søknad extends MottattStrukturertDokument<Soeknad> {
         }
         return BehandlingTema.UDEFINERT;
 
-    }
-
-    public void hentMottattDato(MottakMeldingDataWrapper wrapper) {
-        Optional.ofNullable(getSkjema().getMottattDato()).ifPresent(mdato -> {
-            if (wrapper.getForsendelseMottattTidspunkt().isEmpty() || wrapper.getForsendelseMottatt().isAfter(mdato)) {
-                wrapper.setForsendelseMottattTidspunkt(mdato.atStartOfDay());
-            }
-        });
     }
 
     public LocalDateTime hentMottattTidspunkt() {

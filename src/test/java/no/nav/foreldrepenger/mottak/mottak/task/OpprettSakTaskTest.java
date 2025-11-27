@@ -67,7 +67,7 @@ class OpprettSakTaskTest {
 
         ptData.setDokumentTypeId(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         final MottattStrukturertDokument<?> soeknadDTO = MeldingXmlParser.unmarshallXml(xml);
-        soeknadDTO.hentDokumentInnhold(ptData, aktørConsumer::hentAktørIdForPersonIdent);
+        soeknadDTO.hentDokumentInnhold(aktørConsumer::hentAktørIdForPersonIdent);
 
         String saksnummer = "789";
         var saksnummerDto = new SaksnummerDto(saksnummer);
@@ -124,7 +124,7 @@ class OpprettSakTaskTest {
 
         ptData.setDokumentTypeId(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
         var soeknadDTO = MeldingXmlParser.unmarshallXml(xml);
-        soeknadDTO.hentDokumentInnhold(ptData, aktørConsumer::hentAktørIdForPersonIdent);
+        soeknadDTO.hentDokumentInnhold(aktørConsumer::hentAktørIdForPersonIdent);
 
         String saksnummer = "789";
         var saksnummerDto = new SaksnummerDto(saksnummer);
@@ -153,7 +153,7 @@ class OpprettSakTaskTest {
 
         ptData.setDokumentTypeId(DokumentTypeId.INNTEKTSMELDING);
         var imlDto = MeldingXmlParser.unmarshallXml(xml);
-        imlDto.hentDokumentInnhold(ptData, aktørConsumer::hentAktørIdForPersonIdent);
+        imlDto.hentDokumentInnhold(aktørConsumer::hentAktørIdForPersonIdent);
 
         String saksnummer = "789";
         var saksnummerDto = new SaksnummerDto(saksnummer);
