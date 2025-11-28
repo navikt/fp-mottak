@@ -7,7 +7,6 @@ import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.mottak.domene.v1.Inntektsmelding;
 import no.nav.foreldrepenger.mottak.mottak.domene.v3.Søknad;
 import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
-import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.vedtak.exception.TekniskException;
 
 public abstract class MottattStrukturertDokument<S> {
@@ -55,7 +54,7 @@ public abstract class MottattStrukturertDokument<S> {
      * <p>
      * Semantisk validering: hvis det er ting som må/bør valideres/sjekkes før data
      * sendes videre, gjøres det her. Dette betyr blant annent konsistentsjekk av
-     * data mellom angitt {@link MottakMeldingDataWrapper} og skjema
+     * data mellom angitt input og skjema
      * <p>
      * Hvis ingen slik validering er nødvendig, kan du bare returne.
      *
