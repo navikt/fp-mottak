@@ -1,15 +1,15 @@
 FP-MOTTAK
 ===============
-[![Bygg og deploy](https://github.com/navikt/fpmottak/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/navikt/fpmottak/actions/workflows/build.yml)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=navikt_fpmottak)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=coverage)](https://sonarcloud.io/summary/new_code?id=navikt_fpmottak)
+[![Bygg og deploy](https://github.com/navikt/fp-mottak/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/navikt/fp-mottak/actions/workflows/build.yml)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-mottak&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=navikt_fp-mottak)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-mottak&metric=coverage)](https://sonarcloud.io/summary/new_code?id=navikt_fp-mottak)
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=alert_status)](https://sonarcloud.io/dashboard?id=navikt_fpmottak)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=bugs)](https://sonarcloud.io/dashboard?id=navikt_fpmottak)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=navikt_fpmottak)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=navikt_fpmottak)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=navikt_fpmottak)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=navikt_fpmottak&metric=sqale_index)](https://sonarcloud.io/dashboard?id=navikt_fpmottak)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-mottak&metric=alert_status)](https://sonarcloud.io/dashboard?id=navikt_fp-mottak)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-mottak&metric=bugs)](https://sonarcloud.io/dashboard?id=navikt_fp-mottak)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-mottak&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=navikt_fp-mottak)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-mottak&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=navikt_fp-mottak)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-mottak&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=navikt_fp-mottak)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=navikt_fp-mottak&metric=sqale_index)](https://sonarcloud.io/dashboard?id=navikt_fp-mottak)
 
 Dette er kildekode som dekker applikasjonen for mottak og fordeling av søknader fra Selvbetjening mellom Gosys, Infotrygd og FPSAK/FPTIBAKE.
 Løsningen prøver å journalføre andre dokumenter også - om det ikke er mulig blir de sendt til manuell journalføring.
