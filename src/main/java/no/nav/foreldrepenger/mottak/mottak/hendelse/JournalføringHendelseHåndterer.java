@@ -5,8 +5,10 @@ import static io.confluent.kafka.serializers.KafkaAvroDeserializerConfig.SPECIFI
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
+import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
@@ -17,11 +19,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.hendelse.test.VtpKafkaAvroDeserializer;
 import no.nav.foreldrepenger.mottak.mottak.task.joark.HentDataFraJoarkTask;
@@ -134,8 +136,15 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
             melding.setEksternReferanseId(eksternReferanse);
         }
         var oppdatertTaskdata = melding.getProsessTaskData();
-        oppdatertTaskdata.setNesteKjøringEtter(LocalDateTime.now().plus(delay));
+        oppdatertTaskdata.setNesteKjøringEtter(LocalDateTime.now().plus(delay).plus(deploymentDelay()));
         taskTjeneste.lagre(oppdatertTaskdata);
+    }
+
+    private static Duration deploymentDelay() {
+        if (ENV.isLocal()) {
+            return Duration.ZERO;
+        }
+        return Duration.ofHours(2);
     }
 
     @Override
@@ -144,8 +153,13 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
     }
 
     @Override
-    public String groupId() { // Keep stable (or it will read from autoOffsetReset()
-        return  "fpmottak"; // TODO: Endret fra fpfordel ved navnebytte. VURDER: reset offset? Behold hvis ny consumer skal starte fra siste committed offset under nytt navn.
+    public String groupId() { // Keep stable (or it will read from autoOffsetReset())
+        return "fpmottak";
+    }
+
+    @Override
+    public Optional<OffsetResetStrategy> autoOffsetReset() {
+        return Optional.of(OffsetResetStrategy.LATEST);
     }
 
     @Override
