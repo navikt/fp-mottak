@@ -59,6 +59,7 @@ public class DestinasjonsRuter {
                 .flatMap(Optional::stream)
                 .min(Comparator.naturalOrder())
                 .orElse(Tid.TIDENES_ENDE);
+            case null ->  Tid.TIDENES_ENDE;
         };
     }
 

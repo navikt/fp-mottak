@@ -118,7 +118,7 @@ public class FagsakKlient implements Fagsak {
         // VurderFagsystemDto burde hatt et felt for første uttaksdag for søknad. For å
         // ikke kaste mottatt søknad til manuell journalføring i fpsak, sender vi her første
         // uttaksdag i et felt som brukes til det samme for inntektsmelding. Kontrakten bør endres
-        innhold.getFørsteFraværsdato().ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
+        Optional.ofNullable(innhold).flatMap(DokumentInnhold::getFørsteFraværsdato).ifPresent(dto::setStartDatoForeldrepengerInntektsmelding);
         w.getForsendelseMottattTidspunkt().ifPresent(dto::setForsendelseMottattTidspunkt);
         dto.setForsendelseMottatt(w.getForsendelseMottatt());
         dto.setDokumentTypeIdOffisiellKode(dokumentTypeId.getOffisiellKode());
