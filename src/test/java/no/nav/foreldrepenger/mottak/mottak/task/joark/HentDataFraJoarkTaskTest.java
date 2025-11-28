@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -101,7 +102,7 @@ class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport.lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
-        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(Destinasjon.FPSAK_UTEN_SAK);
+        when(vurderVLSaker.bestemDestinasjon(any(), any())).thenReturn(Destinasjon.FPSAK_UTEN_SAK);
         when(vurderVLSaker.opprettSak(any())).thenReturn("456");
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
@@ -116,7 +117,7 @@ class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport.lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
-        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(Destinasjon.FPSAK_UTEN_SAK);
+        when(vurderVLSaker.bestemDestinasjon(any(), any())).thenReturn(Destinasjon.FPSAK_UTEN_SAK);
         when(vurderVLSaker.opprettSak(any())).thenReturn("789");
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
@@ -131,7 +132,7 @@ class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
                                                                        "testsoknader/inntektsmelding-elektronisk-sample.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, "123"));
+        when(vurderVLSaker.bestemDestinasjon(any(), any())).thenReturn(new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, "123"));
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
@@ -168,7 +169,7 @@ class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport.lagJArkivJournalpostUstrukturert();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
-        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, "123"));
+        when(vurderVLSaker.bestemDestinasjon(any(), any())).thenReturn(new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, "123"));
         dataWrapper.setBehandlingTema(BehandlingTema.UDEFINERT);
         dataWrapper.setTema(Tema.UDEFINERT);
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
@@ -182,7 +183,7 @@ class HentDataFraJoarkTaskTest {
         dataWrapper.setBehandlingTema(BehandlingTema.UDEFINERT);
         var dokument = joarkTestsupport.lagJArkivJournalpostKlage();
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(Destinasjon.GOSYS);
+        when(vurderVLSaker.bestemDestinasjon(any(), any())).thenReturn(Destinasjon.GOSYS);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
@@ -196,7 +197,7 @@ class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
                                                                        "testsoknader/inntektsmelding-far.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(Destinasjon.GOSYS);
+        when(vurderVLSaker.bestemDestinasjon(any(), any())).thenReturn(Destinasjon.GOSYS);
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
 
@@ -211,7 +212,7 @@ class HentDataFraJoarkTaskTest {
                                                                        "testsoknader/inntektsmelding-svp.xml");
         doReturn(Optional.of(JoarkTestsupport.BRUKER_FNR)).when(aktørConsumer).hentPersonIdentForAktørId(JoarkTestsupport.AKTØR_ID);
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(Destinasjon.FPSAK_UTEN_SAK);
+        when(vurderVLSaker.bestemDestinasjon(any(), any())).thenReturn(Destinasjon.FPSAK_UTEN_SAK);
         when(vurderVLSaker.opprettSak(any())).thenReturn("123");
 
         MottakMeldingDataWrapper resultat = doTaskWithPrecondition(dataWrapper);
@@ -237,7 +238,7 @@ class HentDataFraJoarkTaskTest {
     void skal_sende_til_manuell_behandling_ved_presatt_saksnummer_ikke_vl() {
         var dokument = joarkTestsupport.lagJArkivJournalpostKlageMedSaksnummer("INFOTRYGD");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(vurderVLSaker.bestemDestinasjon(dataWrapper)).thenReturn(Destinasjon.GOSYS);
+        when(vurderVLSaker.bestemDestinasjon(eq(dataWrapper), any())).thenReturn(Destinasjon.GOSYS);
 
         BehandlingTema actualBehandlingTema = BehandlingTema.UDEFINERT;
         dataWrapper.setBehandlingTema(actualBehandlingTema);
@@ -255,7 +256,7 @@ class HentDataFraJoarkTaskTest {
         var dokument = joarkTestsupport.lagJArkivJournalpostKlageMedSaksnummer("VL");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
         when(arkivTjeneste.oppdaterRettMangler(any(), any(), any(), any())).thenReturn(true);
-        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, "VL"));
+        when(vurderVLSaker.bestemDestinasjon(any(), any())).thenReturn(new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, "VL"));
 
         BehandlingTema actualBehandlingTema = BehandlingTema.UDEFINERT;
         dataWrapper.setSaksnummer("VL");

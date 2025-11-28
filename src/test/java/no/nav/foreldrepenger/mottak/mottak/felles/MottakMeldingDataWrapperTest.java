@@ -1,11 +1,6 @@
 package no.nav.foreldrepenger.mottak.mottak.felles;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.time.LocalDate;
-import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -90,23 +85,6 @@ class MottakMeldingDataWrapperTest {
         assertThat(wrapper.getAktørId()).hasValueSatisfying(it -> assertThat(it).isEqualTo(aktørId));
     }
 
-    @Test
-    void skal_få_samme_dato_tilbake() {
-        LocalDate now = LocalDate.now();
-        LocalDate dato1 = now.minusDays(1);
-        LocalDate dato2 = now.minusMonths(1);
-        LocalDate dato3 = now.plusDays(1);
-
-        wrapper.setAdopsjonsbarnFodselsdatoer(Arrays.asList(now, dato1, dato2));
-        wrapper.setBarnFodselsdato(dato1);
-        wrapper.setBarnTermindato(dato3);
-        wrapper.setOmsorgsovertakelsedato(dato2);
-
-        assertThat(wrapper.getAdopsjonsbarnFodselsdatoer()).isEqualTo(Arrays.asList(now, dato1, dato2));
-        assertThat(wrapper.getBarnTermindato()).hasValueSatisfying(s -> assertThat(s).isEqualTo(dato3));
-        assertThat(wrapper.getOmsorgsovertakelsedato()).hasValueSatisfying(s -> assertThat(s).isEqualTo(dato2));
-        assertThat(wrapper.getBarnFodselsdato()).hasValueSatisfying(s -> assertThat(s).isEqualTo(dato1));
-    }
 
     @Test
     void test_skal_gi_prosess_task_id() {
@@ -136,23 +114,4 @@ class MottakMeldingDataWrapperTest {
         assertThat(wrapper.erStrukturertDokument().get()).isTrue();
     }
 
-    @Test
-    void skal_kunne_sette_rolle_og_hente_ut_igjen() {
-        wrapper.setBrukerRolle("MOR");
-        assertThat(wrapper.getBrukerRolle()).hasValue("MOR");
-    }
-
-
-    @Test
-    void skal_returnere_tom_optional_når_inntektsmelding_startdato_ikke_er_satt() {
-        assertThat(wrapper.getInntektsmeldingStartDato()).isEmpty();
-    }
-
-    @Test
-    void skal_kaste_illegalstate_hvis_inntektsmelding_startdato_inneholder_flere_datoer() {
-        eksisterendeData.setProperty(MottakMeldingDataWrapper.INNTEKSTMELDING_STARTDATO_KEY, "1234;1234");
-        var wrapper = new MottakMeldingDataWrapper(eksisterendeData);
-        var e = assertThrows(IllegalStateException.class, () -> wrapper.getInntektsmeldingStartDato());
-        assertTrue(e.getMessage().contains("Inneholder flere startdatoer"));
-    }
 }

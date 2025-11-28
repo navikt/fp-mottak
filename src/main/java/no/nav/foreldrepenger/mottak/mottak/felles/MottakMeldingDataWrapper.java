@@ -1,12 +1,8 @@
 package no.nav.foreldrepenger.mottak.mottak.felles;
 
-import static java.util.stream.Collectors.joining;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -25,25 +21,10 @@ public class MottakMeldingDataWrapper {
     public static final String TEMA_KEY = "tema";
     public static final String BEHANDLINGSTEMA_KEY = "behandlingstema";
     public static final String DOKUMENTTYPE_ID_KEY = "dokumentTypeId";
-    public static final String BARN_TERMINDATO_KEY = "barn.termindato";
-    public static final String BARN_FODSELSDATO_KEY = "barn.fodselsdato";
-    public static final String ADOPSJONSBARN_FODSELSDATOER_KEY = "adopsjonsbarn.fodselsdatoer";
-    public static final String BARN_OMSORGSOVERTAKELSEDATO_KEY = "barn.omsorgsovertakelsedato";
     public static final String STRUKTURERT_DOKUMENT = "strukturert.dokument";
     public static final String FORSENDELSE_MOTTATT_TIDSPUNKT_KEY = "forsendelse.mottatt.tidspunkt";
     public static final String JOURNAL_ENHET = "journalforende.enhet";
-    public static final String ANNEN_PART_ID_KEY = "annen.part.id";
-    public static final String FØRSTE_UTTAKSDAG_KEY = "forste.uttaksdag";
-    public static final String VIRKSOMHETSNUMMER = "virksomhetsnummer";
-    public static final String ARBEIDSGIVER_AKTØR_ID = "arbeidsgiver.aktoerId";
-    public static final String ARBEIDSFORHOLDSID = "arbeidsforholdsId";
-    public static final String INNTEKTSMELDING_YTELSE = "im.ytelse";
     public static final String EKSTERN_REFERANSE = "eksternreferanse";
-    public static final String BRUKER_ROLLE = "brukerRolle";
-
-    // Inntektsmelding
-    public static final String INNTEKSTMELDING_STARTDATO_KEY = "inntektsmelding.startdato";
-    public static final String TYPE_ENDRING = "inntektsmelding.aarsak.til.innsending";
 
     private final ProsessTaskData prosessTaskData;
 
@@ -93,14 +74,6 @@ public class MottakMeldingDataWrapper {
         return prosessTaskData.getId();
     }
 
-    public Optional<String> getÅrsakTilInnsending() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(TYPE_ENDRING));
-    }
-
-    public void setÅrsakTilInnsending(String endringstype) {
-        prosessTaskData.setProperty(TYPE_ENDRING, endringstype);
-    }
-
     public BehandlingTema getBehandlingTema() {
         return BehandlingTema.fraKode(prosessTaskData.getPropertyValue(BEHANDLINGSTEMA_KEY));
     }
@@ -116,11 +89,6 @@ public class MottakMeldingDataWrapper {
     public void setTema(Tema tema) {
         prosessTaskData.setProperty(TEMA_KEY, tema.getKode());
     }
-
-    public boolean getHarTema() {
-        return prosessTaskData.getPropertyValue(TEMA_KEY) != null;
-    }
-
 
     public String getArkivId() {
         return prosessTaskData.getPropertyValue(ARKIV_ID_KEY);
@@ -175,14 +143,6 @@ public class MottakMeldingDataWrapper {
         prosessTaskData.setProperty(EKSTERN_REFERANSE, enhet);
     }
 
-    public Optional<String> getBrukerRolle() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(BRUKER_ROLLE));
-    }
-
-    public void setBrukerRolle(String rolle) {
-        prosessTaskData.setProperty(BRUKER_ROLLE, rolle);
-    }
-
     public void setPayload(String payload) {
         prosessTaskData.setPayload(payload);
     }
@@ -199,61 +159,6 @@ public class MottakMeldingDataWrapper {
         prosessTaskData.setAktørId(aktørId);
     }
 
-    public Optional<LocalDate> getBarnTermindato() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(BARN_TERMINDATO_KEY)).map(LocalDate::parse);
-    }
-
-    public void setBarnTermindato(LocalDate dato) {
-        prosessTaskData.setProperty(BARN_TERMINDATO_KEY, dato.toString());
-    }
-
-    /**
-     * Relevant ved adopsjon
-     *
-     * @return Liste over fødselsdatoer for adopsjonsbarn
-     */
-    public List<LocalDate> getAdopsjonsbarnFodselsdatoer() {
-        return Arrays.stream(
-                Optional.ofNullable(prosessTaskData.getPropertyValue(ADOPSJONSBARN_FODSELSDATOER_KEY)).map(p -> p.split(";")).orElse(new String[0]))
-            .map(LocalDate::parse)
-            .toList();
-    }
-
-    public void setAdopsjonsbarnFodselsdatoer(List<LocalDate> datoer) {
-        if ((datoer != null) && !datoer.isEmpty()) {
-            String datoList = datoer.stream().map(LocalDate::toString).collect(joining(";"));
-            prosessTaskData.setProperty(ADOPSJONSBARN_FODSELSDATOER_KEY, datoList.isEmpty() ? null : datoList);
-        }
-    }
-
-    /**
-     * Relevant ved fødsel
-     *
-     * @return Fødselsdato som LocalDate
-     */
-    public Optional<LocalDate> getBarnFodselsdato() {
-        String property = prosessTaskData.getPropertyValue(BARN_FODSELSDATO_KEY);
-        if (property != null) {
-            if (property.contains(";")) {
-                throw new IllegalStateException("Inneholder flere bursdager.");
-            }
-            return Optional.of(LocalDate.parse(property));
-        }
-        return Optional.empty();
-    }
-
-    public void setBarnFodselsdato(LocalDate dato) {
-        prosessTaskData.setProperty(BARN_FODSELSDATO_KEY, dato.toString());
-    }
-
-    public Optional<LocalDate> getOmsorgsovertakelsedato() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(BARN_OMSORGSOVERTAKELSEDATO_KEY)).map(LocalDate::parse);
-    }
-
-    public void setOmsorgsovertakelsedato(LocalDate dato) {
-        prosessTaskData.setProperty(BARN_OMSORGSOVERTAKELSEDATO_KEY, dato.toString());
-    }
-
     public Optional<Boolean> erStrukturertDokument() {
         return Optional.ofNullable(prosessTaskData.getPropertyValue(STRUKTURERT_DOKUMENT)).map(Boolean::parseBoolean);
     }
@@ -262,66 +167,5 @@ public class MottakMeldingDataWrapper {
         prosessTaskData.setProperty(STRUKTURERT_DOKUMENT, String.valueOf(erStrukturertDokument));
     }
 
-    public void setInntekstmeldingStartdato(LocalDate dato) {
-        prosessTaskData.setProperty(INNTEKSTMELDING_STARTDATO_KEY, dato != null ? dato.toString() : null);
-    }
 
-    public Optional<LocalDate> getInntektsmeldingStartDato() {
-        String property = prosessTaskData.getProperties().getProperty(INNTEKSTMELDING_STARTDATO_KEY);
-        if (property != null) {
-            if (property.contains(";")) {
-                throw new IllegalStateException("Inneholder flere startdatoer.");
-            }
-            return Optional.of(LocalDate.parse(property));
-        }
-        return Optional.empty();
-    }
-
-    public Optional<String> getAnnenPartId() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(ANNEN_PART_ID_KEY));
-    }
-
-    public void setAnnenPartId(String annenPartId) {
-        prosessTaskData.setProperty(ANNEN_PART_ID_KEY, annenPartId);
-    }
-
-    public Optional<LocalDate> getFørsteUttaksdag() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(FØRSTE_UTTAKSDAG_KEY)).map(LocalDate::parse);
-    }
-
-    public void setFørsteUttakssdag(LocalDate dato) {
-        Optional.ofNullable(dato).map(LocalDate::toString).ifPresent(d -> prosessTaskData.setProperty(FØRSTE_UTTAKSDAG_KEY, d));
-    }
-
-    public Optional<String> getVirksomhetsnummer() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(VIRKSOMHETSNUMMER));
-    }
-
-    public void setVirksomhetsnummer(String virksomhetsnummer) {
-        prosessTaskData.setProperty(VIRKSOMHETSNUMMER, virksomhetsnummer);
-    }
-
-    public Optional<String> getArbeidsgiverAktørId() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(ARBEIDSGIVER_AKTØR_ID));
-    }
-
-    public void setArbeidsgiverAktørId(String aktørId) {
-        prosessTaskData.setProperty(ARBEIDSGIVER_AKTØR_ID, aktørId);
-    }
-
-    public Optional<String> getArbeidsforholdsid() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(ARBEIDSFORHOLDSID));
-    }
-
-    public void setArbeidsforholdsid(String arbeidsforholdsId) {
-        prosessTaskData.setProperty(ARBEIDSFORHOLDSID, arbeidsforholdsId);
-    }
-
-    public Optional<String> getInntektsmeldingYtelse() {
-        return Optional.ofNullable(prosessTaskData.getPropertyValue(INNTEKTSMELDING_YTELSE));
-    }
-
-    public void setInntektsmeldingYtelse(String ytelse) {
-        prosessTaskData.setProperty(INNTEKTSMELDING_YTELSE, ytelse);
-    }
 }

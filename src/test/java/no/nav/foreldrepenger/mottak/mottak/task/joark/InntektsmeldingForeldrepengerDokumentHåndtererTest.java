@@ -77,7 +77,7 @@ class InntektsmeldingForeldrepengerDokumentHåndtererTest {
         var dokument = joarkTestsupport.lagArkivJournalpostStrukturert(DokumentTypeId.INNTEKTSMELDING,
                                                                        "testsoknader/inntektsmelding-elektronisk-sample.xml");
         when(arkivTjeneste.hentArkivJournalpost(ARKIV_ID)).thenReturn(dokument);
-        when(vurderVLSaker.bestemDestinasjon(any())).thenReturn(new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, "123"));
+        when(vurderVLSaker.bestemDestinasjon(any(), any())).thenReturn(new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, "123"));
 
         BehandlingTema actualBehandlingTema = BehandlingTema.FORELDREPENGER;
         dataWrapper.setBehandlingTema(actualBehandlingTema);
