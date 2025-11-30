@@ -26,7 +26,6 @@ public class InngåendeHendelse extends BaseEntitet {
     @Column(name = "type", nullable = false)
     private HendelseType hendelseType;
 
-    @Lob
     @Column(name = "payload", columnDefinition = "TEXT")
     private String payload;
 
