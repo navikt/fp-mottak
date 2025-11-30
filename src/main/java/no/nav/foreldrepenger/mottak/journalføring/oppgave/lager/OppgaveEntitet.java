@@ -23,7 +23,7 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
 
     @Id
     @NaturalId
-    @Column(name = "JOURNALPOST_ID")
+    @Column(name = "JOURNALPOST_ID", nullable = false, updatable = false, unique = true)
     private String journalpostId;
 
     @Enumerated(EnumType.STRING)
@@ -53,7 +53,7 @@ public class OppgaveEntitet extends BaseEntitet implements Serializable {
     @Column(name = "VERSJON", columnDefinition = "INTEGER default 0", nullable = false)
     private int versjon = 0;
 
-    private OppgaveEntitet() {
+    protected OppgaveEntitet() {
     }
 
     public static OppgaveEntitet.Builder builder() {
