@@ -35,6 +35,8 @@ import no.nav.foreldrepenger.mottak.server.konfig.ApiConfig;
 import no.nav.foreldrepenger.mottak.server.konfig.ForvaltningApiConfig;
 import no.nav.foreldrepenger.mottak.server.konfig.InternalApiConfig;
 
+import org.slf4j.bridge.SLF4JBridgeHandler;
+
 public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
     private static final Environment ENV = Environment.current();
@@ -94,6 +96,7 @@ public class JettyServer {
     void bootStrap() throws Exception {
         System.setProperty("task.manager.runner.threads", "4");
         var dataSource = setupDataSource();
+        konfigurerLogging();
         migrer(dataSource);
         start();
     }
@@ -133,6 +136,15 @@ public class JettyServer {
         config.setDataSourceProperties(dsProperties);
 
         return new HikariDataSource(config);
+    }
+
+    /**
+     * Vi bruker SLF4J + logback, Jersey bruker JUL for logging.
+     * Setter opp en bridge for å få Jersey til å logge gjennom Logback også.
+     */
+    private static void konfigurerLogging() {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
     }
 
     private void start() throws Exception {
