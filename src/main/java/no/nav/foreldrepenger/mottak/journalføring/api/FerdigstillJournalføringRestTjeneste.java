@@ -76,16 +76,17 @@ public class FerdigstillJournalføringRestTjeneste {
             + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.") @NotNull @Valid
             @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
 
-        validerJournalpostId(request.journalpostId());
+        var journalpostId = request.journalpostId();
+        validerJournalpostId(journalpostId);
         var brukEnhet = validerEnhetId(request.enhetId());
 
         // sikre at finnes før oppretting av sak
-        var journalpost = journalføringTjeneste.hentJournalpost(request.journalpostId());
+        var journalpost = journalføringTjeneste.hentJournalpost(journalpostId);
         if (journalpost == null) {
             throw new TekniskException(EXCEPTION_KODE, "Finner ikke journalpost.");
         }
 
-        LOG.info("FPMOTTAK RESTJOURNALFØRING: Starter ferdigstilling av journalpostRequets {}", request);
+        LOG.info("FPMOTTAK RESTJOURNALFØRING: Starter ferdigstilling av journalpostRequets {}", journalpostId);
 
         //Endring av titler
         List<FerdigstillJournalføringTjeneste.DokumenterMedNyTittel> dokumenter = new ArrayList<>();
@@ -131,19 +132,20 @@ public class FerdigstillJournalføringRestTjeneste {
         + "Om saksnummer ikke foreligger må ytelse type og aktørId oppgis for å opprette en ny sak.") @NotNull @Valid
                                                              @TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) FerdigstillJournalføringRestTjeneste.FerdigstillRequest request) {
 
-        validerJournalpostId(request.journalpostId());
+        var journalpostId = request.journalpostId();
+        validerJournalpostId(journalpostId);
         var brukEnhet = validerEnhetId(request.enhetId());
 
         // sikre at finnes før oppretting av sak
-        var journalpost = journalføringTjeneste.hentJournalpost(request.journalpostId());
+        var journalpost = journalføringTjeneste.hentJournalpost(journalpostId);
         if (journalpost == null) {
             throw new TekniskException(EXCEPTION_KODE, "Finner ikke journalpost.");
         }
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
-            throw new TekniskException(EXCEPTION_KODE, "Feil tilstand på journalpost " + journalpost.getJournalpostId());
+            throw new TekniskException(EXCEPTION_KODE, "Feil tilstand på journalpost " + journalpostId);
         }
 
-        LOG.info("FPMOTTAK RESTJOURNALFØRING: Starter knytting av journalpost til annen/ny sak {}", request);
+        LOG.info("FPMOTTAK RESTJOURNALFØRING: Starter knytting av journalpost til annen/ny sak {}", journalpostId);
 
         //Endring av titler
         //var journalpost = jo.
