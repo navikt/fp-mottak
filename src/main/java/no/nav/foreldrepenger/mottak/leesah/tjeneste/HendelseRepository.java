@@ -149,7 +149,7 @@ public class HendelseRepository {
         int deletedRows = entityManager.createNativeQuery(
                 "DELETE FROM INNGAAENDE_HENDELSE WHERE sendt_tid < :foreldet and haandtert_status = :handtert")
             .setParameter("handtert", HåndtertStatusType.HÅNDTERT.getKode())
-            .setParameter("foreldet", LocalDateTime.now().minusWeeks(10))
+            .setParameter("foreldet", LocalDateTime.now().minusWeeks(12))
             .executeUpdate();
         entityManager.flush();
         return deletedRows;
@@ -163,7 +163,7 @@ public class HendelseRepository {
         int deletedRows = entityManager.createNativeQuery(
                 "DELETE FROM INNGAAENDE_HENDELSE WHERE sendt_tid is null and opprettet_tid < :foreldet and haandtert_status = :handtert")
             .setParameter("handtert", HåndtertStatusType.HÅNDTERT.getKode())
-            .setParameter("foreldet", LocalDateTime.now().minusWeeks(10))
+            .setParameter("foreldet", LocalDateTime.now().minusWeeks(12))
             .executeUpdate();
         entityManager.flush();
         return deletedRows;
