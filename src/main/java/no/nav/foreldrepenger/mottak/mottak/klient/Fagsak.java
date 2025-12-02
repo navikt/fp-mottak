@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
 import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakV2Dto;
 import no.nav.foreldrepenger.kontrakter.fordel.SakInfoV2Dto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
+import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 
 public interface Fagsak {
@@ -21,7 +22,7 @@ public interface Fagsak {
 
     void knyttSakOgJournalpost(JournalpostKnyttningDto journalpostKnyttningDto);
 
-    VurderFagsystemResultat vurderFagsystem(MottakMeldingDataWrapper w);
+    VurderFagsystemResultat vurderFagsystem(MottakMeldingDataWrapper w, DokumentInnhold innhold);
 
     List<SakInfoV2Dto> hentBrukersSaker(AktørIdDto aktørId);
 }
