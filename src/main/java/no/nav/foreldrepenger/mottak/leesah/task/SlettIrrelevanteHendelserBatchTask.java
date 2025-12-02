@@ -29,8 +29,8 @@ public class SlettIrrelevanteHendelserBatchTask implements ProsessTaskHandler {
     public void doTask(ProsessTaskData prosessTaskData) {
         var slettet = hendelseRepository.slettIrrelevanteHendelser();
         LOG.info("Slettet {} hendelser som ikke ble sendt til fpsak.", slettet);
-        slettet = hendelseRepository.slettGamleHendelser();
-        slettet += hendelseRepository.slettGamleHendelser2();
-        LOG.info("Slettet {} hendelser som er foreldet.", slettet);
+        var slettet2 = hendelseRepository.slettGamleHendelser();
+        slettet2 += hendelseRepository.slettGamleHendelser2();
+        LOG.info("Slettet {} hendelser som er foreldet.", slettet2);
     }
 }

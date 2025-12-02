@@ -133,9 +133,9 @@ public class HendelseRepository {
 
     public int slettIrrelevanteHendelser() {
         // Vurder å bruke (payload is null or sendt_tid is null) - har slått av sjekk på sendt_tid pga sporing av korrigert/annullert
-        int deletedRows = entityManager.createNativeQuery(
-                "DELETE FROM INNGAAENDE_HENDELSE WHERE payload is null and haandtert_status = :handtert")
-            .setParameter("handtert", HåndtertStatusType.HÅNDTERT.getKode())
+        int deletedRows = entityManager.createQuery(
+                "DELETE FROM InngåendeHendelse WHERE payload is null and håndtertStatus = :håndtertStatus")
+            .setParameter(HÅNDTERT_STATUS, HåndtertStatusType.HÅNDTERT)
             .executeUpdate();
         entityManager.flush();
         return deletedRows;
@@ -146,9 +146,9 @@ public class HendelseRepository {
         // 1/3 av endringer kommer samme dag, 2/3 innen 1 uke og 85-90% innen 30 dager
         // Logikken ser kun på tilfelle der tidligere hendelse ikke er håndtert
         // Dersom det ikke er behov for feilsøking: Kan slette alle som er håndtert (slå sammen med slettIrrelevanteHendelser)
-        int deletedRows = entityManager.createNativeQuery(
-                "DELETE FROM INNGAAENDE_HENDELSE WHERE sendt_tid < :foreldet and haandtert_status = :handtert")
-            .setParameter("handtert", HåndtertStatusType.HÅNDTERT.getKode())
+        int deletedRows = entityManager.createQuery(
+                "DELETE FROM InngåendeHendelse WHERE sendtTidspunkt < :foreldet and håndtertStatus = :håndtertStatus")
+            .setParameter(HÅNDTERT_STATUS, HåndtertStatusType.HÅNDTERT)
             .setParameter("foreldet", LocalDateTime.now().minusWeeks(12))
             .executeUpdate();
         entityManager.flush();
@@ -160,9 +160,9 @@ public class HendelseRepository {
         // 1/3 av endringer kommer samme dag, 2/3 innen 1 uke og 85-90% innen 30 dager
         // Logikken ser kun på tilfelle der tidligere hendelse ikke er håndtert
         // Dersom det ikke er behov for feilsøking: Kan slette alle som er håndtert (slå sammen med slettIrrelevanteHendelser)
-        int deletedRows = entityManager.createNativeQuery(
-                "DELETE FROM INNGAAENDE_HENDELSE WHERE sendt_tid is null and opprettet_tid < :foreldet and haandtert_status = :handtert")
-            .setParameter("handtert", HåndtertStatusType.HÅNDTERT.getKode())
+        int deletedRows = entityManager.createQuery(
+                "DELETE FROM InngåendeHendelse WHERE sendtTidspunkt is null and opprettetTidspunkt < :foreldet and håndtertStatus = :håndtertStatus")
+            .setParameter(HÅNDTERT_STATUS, HåndtertStatusType.HÅNDTERT)
             .setParameter("foreldet", LocalDateTime.now().minusWeeks(12))
             .executeUpdate();
         entityManager.flush();
