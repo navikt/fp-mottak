@@ -86,8 +86,6 @@ public class FerdigstillJournalføringRestTjeneste {
             throw new TekniskException(EXCEPTION_KODE, "Finner ikke journalpost.");
         }
 
-        LOG.info("FPMOTTAK RESTJOURNALFØRING: Starter ferdigstilling av journalpostRequets {}", journalpostId);
-
         //Endring av titler
         List<FerdigstillJournalføringTjeneste.DokumenterMedNyTittel> dokumenter = new ArrayList<>();
         String nyJournalpostTittel = null;
@@ -144,8 +142,6 @@ public class FerdigstillJournalføringRestTjeneste {
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
             throw new TekniskException(EXCEPTION_KODE, "Feil tilstand på journalpost " + journalpostId);
         }
-
-        LOG.info("FPMOTTAK RESTJOURNALFØRING: Starter knytting av journalpost til annen/ny sak {}", journalpostId);
 
         //Endring av titler
         //var journalpost = jo.
