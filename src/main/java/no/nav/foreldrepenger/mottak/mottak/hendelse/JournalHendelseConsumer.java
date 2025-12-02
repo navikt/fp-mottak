@@ -15,7 +15,7 @@ import no.nav.vedtak.felles.integrasjon.kafka.KafkaConsumerManager;
  * Dokumentasjon https://confluence.adeo.no/pages/viewpage.action?pageId=432217859
  */
 @ApplicationScoped
-public class JournalHendelseConsumer implements LiveAndReadinessAware, Controllable {
+public class JournalHendelseConsumer { // implements LiveAndReadinessAware, Controllable {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalHendelseConsumer.class);
 
@@ -24,30 +24,30 @@ public class JournalHendelseConsumer implements LiveAndReadinessAware, Controlla
     JournalHendelseConsumer() {
     }
 
-    @Inject
-    public JournalHendelseConsumer(JournalføringHendelseHåndterer journalføringHendelseHåndterer) {
-        this.kcm = new KafkaConsumerManager<>(journalføringHendelseHåndterer);
-    }
-
-    @Override
-    public boolean isAlive() {
-        return kcm.allRunning();
-    }
-
-    @Override
-    public boolean isReady() {
-        return isAlive();
-    }
-
-    @Override
-    public void start() {
-        LOG.info("Starter konsumering av topics={}", kcm.topicNames());
-        kcm.start((t, e) -> LOG.error("{} :: Caught exception in stream, exiting", t, e));
-    }
-
-    @Override
-    public void stop() {
-        LOG.info("Starter shutdown av topics={} med 10 sekunder timeout", kcm.topicNames());
-        kcm.stop();
-    }
+//    @Inject
+//    public JournalHendelseConsumer(JournalføringHendelseHåndterer journalføringHendelseHåndterer) {
+//        this.kcm = new KafkaConsumerManager<>(journalføringHendelseHåndterer);
+//    }
+//
+//    @Override
+//    public boolean isAlive() {
+//        return kcm.allRunning();
+//    }
+//
+//    @Override
+//    public boolean isReady() {
+//        return isAlive();
+//    }
+//
+//    @Override
+//    public void start() {
+//        LOG.info("Starter konsumering av topics={}", kcm.topicNames());
+//        kcm.start((t, e) -> LOG.error("{} :: Caught exception in stream, exiting", t, e));
+//    }
+//
+//    @Override
+//    public void stop() {
+//        LOG.info("Starter shutdown av topics={} med 10 sekunder timeout", kcm.topicNames());
+//        kcm.stop();
+//    }
 }
