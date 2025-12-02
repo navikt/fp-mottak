@@ -1,0 +1,106 @@
+package no.nav.foreldrepenger.mottak.mottak.tjeneste;
+
+import static no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentKategori.KLAGE_ELLER_ANKE;
+import static no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId.KLAGE_DOKUMENT;
+import static no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId.UDEFINERT;
+
+import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakDto;
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
+import no.nav.foreldrepenger.mottak.fordel.konfig.KonfigVerdier;
+import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
+import no.nav.foreldrepenger.mottak.mottak.felles.InntektsmeldingInnhold;
+import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
+import no.nav.foreldrepenger.mottak.mottak.felles.SøknadInnhold;
+import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
+import no.nav.foreldrepenger.mottak.mottak.klient.VurderFagsystemResultat;
+import no.nav.vedtak.konfig.Tid;
+
+/**
+ * Tjeneste som henter ut informasjon fra søknadsskjema og vurderer denne i
+ * henhold til følgende kriterier.
+ * <p>
+ * - HVIS aktørID og behandlingstema er likt - Fødselsdato innen intervall -16 -
+ * +4 uker fra termin - Fødselsdato matcher innen et visst slingringsmonn -
+ * Omsorgsovertagelsesdato matcher innen et slingringsmonn OG fødselsdato for
+ * barn matcher eksakt
+ * <p>
+ * For ustrukturerte forsendelser gjelder andre regler; en sak er "passende"
+ * HVIS aktørID er lik, OG saken er åpen.
+ * <p>
+ * Hvis det ikke finnes noen åpen sak så kan "passende sak" være en avsluttet
+ * sak som er nyere enn 3 måneder.
+ */
+
+@Dependent
+public class DestinasjonsRuter {
+
+    private final Fagsak fagsakRestKlient;
+
+    @Inject
+    public DestinasjonsRuter(Fagsak fagsakRestKlient) {
+        this.fagsakRestKlient = fagsakRestKlient;
+    }
+
+    private static boolean skalBehandlesEtterTidligereRegler(DokumentInnhold innhold) {
+        return tidligsteRelevanteDato(innhold).isBefore(KonfigVerdier.ENDRING_BEREGNING_DATO);
+    }
+
+    public static LocalDate tidligsteRelevanteDato(DokumentInnhold innhold) {
+        return switch (innhold) {
+            case InntektsmeldingInnhold inn -> inn.getFørsteFraværsdato().orElse(Tid.TIDENES_ENDE);
+            case SøknadInnhold søk -> Stream.of(søk.getOmsorgsovertakelsesdato(), søk.getFørsteFraværsdato(), søk.getFødselsdato(), søk.getTermindato())
+                .flatMap(Optional::stream)
+                .min(Comparator.naturalOrder())
+                .orElse(Tid.TIDENES_ENDE);
+            case null ->  Tid.TIDENES_ENDE;
+        };
+    }
+
+    public static boolean erKlageEllerAnke(MottakMeldingDataWrapper data) {
+        return KLAGE_DOKUMENT.equals(data.getDokumentTypeId().orElse(UDEFINERT)) ||
+            KLAGE_ELLER_ANKE.equals(ArkivUtil.utledKategoriFraDokumentType(data.getDokumentTypeId().orElse(UDEFINERT)));
+    }
+
+    public Destinasjon bestemDestinasjon(MottakMeldingDataWrapper w, DokumentInnhold innhold) {
+
+        var res = fagsakRestKlient.vurderFagsystem(w, innhold);
+
+        res.getSaksnummer().ifPresent(w::setSaksnummer);
+        if (VurderFagsystemResultat.SendTil.FPSAK.equals(res.destinasjon()) && res.getSaksnummer().isPresent()) {
+            return new Destinasjon(Destinasjon.ForsendelseStatus.FPSAK, res.getSaksnummer().orElseThrow());
+        }
+        if (skalBehandlesEtterTidligereRegler(innhold)) {
+            return Destinasjon.GOSYS;
+        }
+        if (VurderFagsystemResultat.SendTil.FPSAK.equals(res.destinasjon())) {
+            return Destinasjon.FPSAK_UTEN_SAK;
+        }
+        if (VurderFagsystemResultat.SendTil.GOSYS.equals(res.destinasjon())) {
+            return Destinasjon.GOSYS;
+        }
+        throw new IllegalStateException("Utviklerfeil"); // fix korrekt feilhåndtering
+
+    }
+
+    public String opprettSak(MottakMeldingDataWrapper w) {
+        var dokumenttype = w.getDokumentTypeId().orElseThrow();
+        if (!kanOppretteSakFraDokument(dokumenttype)) {
+            throw new IllegalArgumentException("Kan ikke opprette sak for dokument");
+        }
+        var saksnummerDto = fagsakRestKlient.opprettSak(
+            new OpprettSakDto(w.getArkivId(), w.getBehandlingTema().getOffisiellKode(), w.getAktørId().orElseThrow()));
+        w.setSaksnummer(saksnummerDto.saksnummer());
+        return saksnummerDto.saksnummer();
+    }
+
+    public static boolean kanOppretteSakFraDokument(DokumentTypeId dokumenttype) {
+        return DokumentTypeId.erFørsteSøknadType(dokumenttype) || DokumentTypeId.INNTEKTSMELDING.equals(dokumenttype);
+    }
+}

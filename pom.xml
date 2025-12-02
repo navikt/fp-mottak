@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>no.nav.foreldrepenger.felles</groupId>
+        <artifactId>fp-parent-app</artifactId>
+        <version>5.0.3</version>
+    </parent>
+
+    <groupId>no.nav.foreldrepenger.mottak</groupId>
+    <artifactId>fpmottak</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
+        <sonar.projectName>fp-mottak</sonar.projectName>
+        <sonar.projectKey>navikt_fp-mottak</sonar.projectKey>
+
+        <felles.version>7.6.10</felles.version>
+        <prosesstask.version>5.2.1</prosesstask.version>
+        <fp-kontrakter.version>9.4.14</fp-kontrakter.version>
+
+        <!-- Eksterne -->
+        <openapi-spec-utils.version>2.0.6</openapi-spec-utils.version>
+        <confluent.version>8.1.0</confluent.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles</groupId>
+                <artifactId>felles</artifactId>
+                <version>${felles.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.vedtak.prosesstask</groupId>
+                <artifactId>prosesstask-root</artifactId>
+                <version>${prosesstask.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+                <artifactId>fp-kontrakter-root</artifactId>
+                <version>${fp-kontrakter.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>saf-klient</artifactId>
+                <version>${felles.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>oppgave-rest-klient</artifactId>
+                <version>${felles.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>person-klient</artifactId>
+                <version>${felles.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>dokarkiv-klient</artifactId>
+                <version>${felles.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>tilgang-klient</artifactId>
+                <version>${felles.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+                <artifactId>kafka-properties</artifactId>
+                <version>${felles.version}</version>
+            </dependency>
+
+            <!-- Fikser security warning - kan fjernes om avro bumper selv. -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.28.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-schema-registry-client</artifactId>
+                <version>${confluent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-avro-serializer</artifactId>
+                <version>${confluent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.teamdokumenthandtering</groupId>
+                <artifactId>teamdokumenthandtering-avro-schemas</artifactId>
+                <version>1.1.6</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-auth-filter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-kontekst</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-xmlutils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-abac-kontekst</artifactId>
+        </dependency>
+
+
+        <!-- Eksterne -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+
+        <!-- FP-Felles -->
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>saf-klient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>oppgave-rest-klient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>person-klient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>dokarkiv-klient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>tilgang-klient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-feil</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-mapper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+
+
+        <!-- FP-Prosesstask -->
+        <dependency>
+            <groupId>no.nav.vedtak.prosesstask</groupId>
+            <artifactId>prosesstask-kontekst</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.vedtak.prosesstask</groupId>
+            <artifactId>prosesstask</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.vedtak.prosesstask</groupId>
+            <artifactId>prosesstask-rest-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+            <artifactId>fordel-v1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-konfig</artifactId>
+        </dependency>
+
+        <!-- NAV -->
+        <dependency>
+            <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+            <artifactId>inntektsmelding-v1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+            <artifactId>soeknad-v3</artifactId>
+        </dependency>
+
+        <!-- Kafka -->
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.teamdokumenthandtering</groupId>
+            <artifactId>teamdokumenthandtering-avro-schemas</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.confluent</groupId>
+            <artifactId>kafka-avro-serializer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>kafka-properties</artifactId>
+        </dependency>
+
+        <!-- CDI -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld.servlet</groupId>
+            <artifactId>weld-servlet-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld.se</groupId>
+            <artifactId>weld-se-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- SWAGGER -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2-jakarta</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.openapi.spec.utils</groupId>
+            <artifactId>openapi-spec-utils</artifactId>
+            <version>${openapi-spec-utils.version}</version>
+        </dependency>
+
+        <!-- Hibernate -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-micrometer</artifactId>
+        </dependency>
+
+        <!-- Server -->
+        <dependency>
+            <groupId>org.eclipse.jetty.ee11</groupId>
+            <artifactId>jetty-ee11-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.ee11</groupId>
+            <artifactId>jetty-ee11-cdi</artifactId>
+        </dependency>
+
+        <!-- REST -->
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.expressly</groupId>
+            <artifactId>expressly</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.ext.cdi</groupId>
+            <artifactId>jersey-cdi1x-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-multipart</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.ext</groupId>
+            <artifactId>jersey-bean-validation</artifactId>
+        </dependency>
+
+        <!-- Database -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-db</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.transaction</groupId>
+            <artifactId>jakarta.transaction-api</artifactId>
+        </dependency>
+
+        <!-- Test avhengigheter -->
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-testutilities</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>app</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <properties>
+                        <configurationParameters>
+                            junit.jupiter.execution.parallel.enabled = true
+                            junit.jupiter.execution.parallel.mode.default = concurrent
+                        </configurationParameters>
+                    </properties>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.basedir}/target/lib/</outputDirectory>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>no.nav.foreldrepenger.mottak.server.JettyServer</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <scm>
+        <connection>scm:git:ssh://git@github.com:navikt/fpmottak.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:navikt/fp-mottak.git</developerConnection>
+        <url>https://github.com/navikt/fpmottak</url>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>Github navikt Maven Packages</name>
+            <url>https://maven.pkg.github.com/navikt/fp-mottak</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/navikt/teamdokumenthandtering-avro-schemas</url>
+        </repository>
+    </repositories>
+</project>
