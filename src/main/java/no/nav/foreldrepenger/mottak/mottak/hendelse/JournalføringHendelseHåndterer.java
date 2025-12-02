@@ -144,7 +144,7 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
         if (ENV.isLocal()) {
             return Duration.ZERO;
         }
-        return Duration.ofHours(2);
+        return Duration.ofMinutes(10);
     }
 
     @Override
