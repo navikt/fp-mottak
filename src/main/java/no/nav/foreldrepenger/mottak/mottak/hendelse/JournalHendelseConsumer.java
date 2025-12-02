@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.mottak.hendelse;
 
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.server.Controllable;
 import no.nav.vedtak.server.LiveAndReadinessAware;
 
@@ -16,11 +15,9 @@ import no.nav.vedtak.felles.integrasjon.kafka.KafkaConsumerManager;
  * Dokumentasjon https://confluence.adeo.no/pages/viewpage.action?pageId=432217859
  */
 @ApplicationScoped
-public class JournalHendelseConsumer implements Controllable {
-                                    //implements LiveAndReadinessAware, Controllable {
+public class JournalHendelseConsumer implements LiveAndReadinessAware, Controllable {
 
     private static final Logger LOG = LoggerFactory.getLogger(JournalHendelseConsumer.class);
-    private static final Environment ENV = Environment.current();
 
     private KafkaConsumerManager<String, JournalfoeringHendelseRecord> kcm;
 
@@ -32,29 +29,25 @@ public class JournalHendelseConsumer implements Controllable {
         this.kcm = new KafkaConsumerManager<>(journalføringHendelseHåndterer);
     }
 
-    //@Override
+    @Override
     public boolean isAlive() {
         return kcm.allRunning();
     }
 
-    //@Override
+    @Override
     public boolean isReady() {
         return isAlive();
     }
 
     @Override
     public void start() {
-        if (ENV.isLocal()) {
-            LOG.info("Starter konsumering av topics={}", kcm.topicNames());
-            kcm.start((t, e) -> LOG.error("{} :: Caught exception in stream, exiting", t, e));
-        }
+        LOG.info("Starter konsumering av topics={}", kcm.topicNames());
+        kcm.start((t, e) -> LOG.error("{} :: Caught exception in stream, exiting", t, e));
     }
 
     @Override
     public void stop() {
-        if (ENV.isLocal()) {
-            LOG.info("Starter shutdown av topics={} med 10 sekunder timeout", kcm.topicNames());
-            kcm.stop();
-        }
+        LOG.info("Starter shutdown av topics={} med 10 sekunder timeout", kcm.topicNames());
+        kcm.stop();
     }
 }
