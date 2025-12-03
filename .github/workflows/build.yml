@@ -32,7 +32,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    if: github.ref_name == 'master' && false
+    if: github.ref_name == 'master'
     needs: build-app
     uses: navikt/fp-autotest/.github/workflows/autotest.yml@master
     with:
@@ -43,7 +43,7 @@ jobs:
 
   notify:
     name: Notify
-    if: github.ref_name == 'master' && (success() || failure()) && !contains(needs.*.result, 'skipped') && false
+    if: github.ref_name == 'master' && (success() || failure()) && !contains(needs.*.result, 'skipped')
     needs: [build-app, verdikjede]
     uses: navikt/fp-autotest/.github/workflows/report-and-notify.yml@master
     with:
@@ -55,7 +55,7 @@ jobs:
     name: Deploy dev
     permissions:
       id-token: write
-    if: github.ref_name == 'master' && false
+    if: github.ref_name == 'master'
     needs: [build-app, verdikjede]
     uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
     with:
@@ -68,7 +68,7 @@ jobs:
     name: Deploy prod
     permissions:
       id-token: write
-    if: github.ref_name == 'master' && false
+    if: github.ref_name == 'master'
     needs: [build-app, verdikjede, deploy-dev]
     uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
     with:
