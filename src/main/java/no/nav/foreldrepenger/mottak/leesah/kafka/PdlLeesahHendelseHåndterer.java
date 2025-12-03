@@ -10,6 +10,7 @@ import static no.nav.foreldrepenger.mottak.leesah.kafka.PdlLeesahOversetter.UTFL
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import no.nav.foreldrepenger.mottak.leesah.domene.HåndtertStatusType;
@@ -21,6 +22,7 @@ import no.nav.foreldrepenger.mottak.leesah.task.HendelserDataWrapper;
 import no.nav.foreldrepenger.mottak.leesah.task.VurderSorteringTask;
 import no.nav.foreldrepenger.mottak.leesah.tjeneste.HendelseRepository;
 
+import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
@@ -223,7 +225,12 @@ public class PdlLeesahHendelseHåndterer implements KafkaMessageHandler<String, 
 
     @Override
     public String groupId() { // Keep stable (or it will read from autoOffsetReset()
-        return "fpabonnent";
+        return "fpmottak";
+    }
+
+    @Override
+    public Optional<OffsetResetStrategy> autoOffsetReset() {
+        return Optional.of(OffsetResetStrategy.LATEST);
     }
 
     @Override
