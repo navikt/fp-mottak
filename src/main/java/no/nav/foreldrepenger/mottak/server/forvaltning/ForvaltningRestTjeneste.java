@@ -28,8 +28,9 @@ import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.Status;
 import no.nav.foreldrepenger.mottak.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
-import no.nav.foreldrepenger.mottak.mottak.task.RekjørFeiledeTasksBatchTask;
-import no.nav.foreldrepenger.mottak.mottak.task.SlettGamleTasksBatchTask;
+import no.nav.foreldrepenger.mottak.mottak.task.SikkerhetsnettTask;
+import no.nav.foreldrepenger.mottak.server.task.RekjørFeiledeTasksBatchTask;
+import no.nav.foreldrepenger.mottak.server.task.SlettGamleTasksBatchTask;
 import no.nav.foreldrepenger.mottak.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.mottak.task.VLKlargjørerTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -109,11 +110,20 @@ public class ForvaltningRestTjeneste {
 
     @POST
     @Path("/autorun")
-    @Operation(description = "Start task for å kjøre batchjobs", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Starter batch-scheduler."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
+    @Operation(description = "Start task for å kjøre task-rydding", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Starter batch-scheduler."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response autoRunBatch() {
+    public Response autoRunTasksBatchTask() {
         taskTjeneste.lagre(ProsessTaskData.forProsessTask(RekjørFeiledeTasksBatchTask.class));
         taskTjeneste.lagre(ProsessTaskData.forProsessTask(SlettGamleTasksBatchTask.class));
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/autorun-sikkerhetsnett")
+    @Operation(description = "Start task for å kjøre sikkerhetsnett", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Starter batch-scheduler."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response autoRunBatch() {
+        taskTjeneste.lagre(ProsessTaskData.forProsessTask(SikkerhetsnettTask.class));
         return Response.ok().build();
     }
 
