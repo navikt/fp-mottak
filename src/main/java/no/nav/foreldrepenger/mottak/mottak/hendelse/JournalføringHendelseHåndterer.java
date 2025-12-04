@@ -136,15 +136,8 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
             melding.setEksternReferanseId(eksternReferanse);
         }
         var oppdatertTaskdata = melding.getProsessTaskData();
-        oppdatertTaskdata.setNesteKjøringEtter(LocalDateTime.now().plus(delay).plus(deploymentDelay()));
+        oppdatertTaskdata.setNesteKjøringEtter(LocalDateTime.now().plus(delay));
         taskTjeneste.lagre(oppdatertTaskdata);
-    }
-
-    private static Duration deploymentDelay() {
-        if (ENV.isLocal()) {
-            return Duration.ZERO;
-        }
-        return Duration.ofMinutes(10);
     }
 
     @Override
