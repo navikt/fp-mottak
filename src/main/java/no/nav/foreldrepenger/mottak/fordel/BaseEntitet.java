@@ -37,7 +37,9 @@ public class BaseEntitet implements Serializable {
     @PrePersist
     protected void onCreate() {
         this.opprettetAv = finnBrukernavn();
-        this.opprettetTidspunkt = LocalDateTime.now();
+        if (this.opprettetTidspunkt == null) {
+            this.opprettetTidspunkt = LocalDateTime.now();
+        }
     }
 
     @PreUpdate
