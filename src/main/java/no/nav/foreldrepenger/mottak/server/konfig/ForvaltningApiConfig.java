@@ -10,7 +10,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import jakarta.ws.rs.ApplicationPath;
 import no.nav.foreldrepenger.mottak.server.forvaltning.ForvaltningRestTjeneste;
-import no.nav.foreldrepenger.mottak.server.forvaltning.migrering.MigreringRestTjeneste;
 import no.nav.foreldrepenger.mottak.server.konfig.swagger.OpenApiUtils;
 import no.nav.foreldrepenger.mottak.server.sikkerhet.ForvaltningAuthorizationFilter;
 import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
@@ -30,8 +29,7 @@ public class ForvaltningApiConfig extends ResourceConfig {
     private static Set<Class<?>> getForvaltningKlasser() {
         return Set.of(
             ProsessTaskRestTjeneste.class,
-            ForvaltningRestTjeneste.class,
-            MigreringRestTjeneste.class
+            ForvaltningRestTjeneste.class
         );
     }
 
