@@ -26,6 +26,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -35,16 +36,14 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.kontrakter.felles.typer.AktørId;
+import no.nav.foreldrepenger.kontrakter.felles.typer.Fødselsnummer;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.mottak.server.error.FeilDto;
-import no.nav.foreldrepenger.mottak.server.error.FeilType;
-import no.nav.foreldrepenger.mottak.server.konfig.ApiConfig;
-import no.nav.foreldrepenger.mottak.server.sikkerhet.AppAbacAttributtType;
 import no.nav.foreldrepenger.mottak.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.domene.Oppgave;
-import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.mottak.journal.saf.DokumentInfo;
@@ -52,6 +51,10 @@ import no.nav.foreldrepenger.mottak.mottak.klient.AktørIdDto;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.DestinasjonsRuter;
+import no.nav.foreldrepenger.mottak.server.error.FeilDto;
+import no.nav.foreldrepenger.mottak.server.error.FeilType;
+import no.nav.foreldrepenger.mottak.server.konfig.ApiConfig;
+import no.nav.foreldrepenger.mottak.server.sikkerhet.AppAbacAttributtType;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
@@ -61,6 +64,7 @@ import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+import no.nav.vedtak.util.Fritekst;
 
 @Path(JournalføringRestTjeneste.JOURNALFOERING_PATH)
 @Consumes(APPLICATION_JSON)
@@ -118,7 +122,7 @@ public class JournalføringRestTjeneste {
                                                  @NotNull @Valid @TilpassetAbacAttributt(supplierClass = HentBrukerDataSupplier.class) HentBrukerDto request) {
         Objects.requireNonNull(request.fødselsnummer(), "FNR/DNR må være satt.");
         try {
-            var aktørId = pdl.hentAktørIdForPersonIdent(request.fødselsnummer()).orElseThrow();
+            var aktørId = pdl.hentAktørIdForPersonIdent(request.fødselsnummer().value()).orElseThrow();
             return new HentBrukerResponseDto(pdl.hentNavn(BehandlingTema.FORELDREPENGER, aktørId), request.fødselsnummer());
         } catch (NoSuchElementException e) {
             throw new TekniskException("BRUKER-MANGLER", "Angitt bruker ikke funnet. Sjekk om oppgitt personnummer er riktig.", e);
@@ -142,9 +146,9 @@ public class JournalføringRestTjeneste {
             || List.of(Bruker.BrukerIdType.ORGNR, Bruker.BrukerIdType.UKJENT).contains(journalpost.bruker().idType())) {
             LOG.info("Oppdaterer bruker for {}", journalpostId);
 
-            arkiv.oppdaterJournalpostBruker(journalpostId, request.fødselsnummer());
+            arkiv.oppdaterJournalpostBruker(journalpostId, request.fødselsnummer().value());
             oppgaveTjeneste.hentLokalOppgaveFor(JournalpostId.fra(journalpostId))
-                .ifPresent(oppgave -> oppgaveTjeneste.oppdaterBruker(oppgave, request.fødselsnummer()));
+                .ifPresent(oppgave -> oppgaveTjeneste.oppdaterBruker(oppgave, request.fødselsnummer().value()));
         } else {
             LOG.info("Bruker av type {} kan ikke oppdateres.", journalpost.bruker().idType());
         }
@@ -247,7 +251,7 @@ public class JournalføringRestTjeneste {
             responseBuilder.type("application/pdf");
             responseBuilder.header("Content-Disposition", "filename=dokument.pdf");
             return responseBuilder.build();
-        } catch (Exception e) {
+        } catch (Exception _) {
             var feilmelding = String.format("Dokument ikke funnet for journalpost= %s dokument= %s", journalpost, dokument);
             return Response.status(Response.Status.NOT_FOUND)
                 .entity(new FeilDto(feilmelding, FeilType.TOMT_RESULTAT_FEIL))
@@ -299,8 +303,8 @@ public class JournalføringRestTjeneste {
     private OppgaveDto lagOppgaveDto(Oppgave oppgave) {
         return new OppgaveDto(
             oppgave.journalpostId(),
-            oppgave.aktørId(),
-            hentPersonIdent(oppgave).orElse(null),
+            oppgave.aktørId() != null ? new AktørId(oppgave.aktørId()) : null,
+            hentPersonIdent(oppgave).map(Fødselsnummer::new).orElse(null),
             mapYtelseType(oppgave),
             oppgave.fristFerdigstillelse(),
             oppgave.beskrivelse(),
@@ -341,27 +345,27 @@ public class JournalføringRestTjeneste {
 
     public enum OppgaveKilde { LOKAL, GOSYS }
 
-    public record OppdaterBrukerDto(@NotNull String journalpostId, @NotNull String fødselsnummer) {
+    public record OppdaterBrukerDto(@NotNull @Digits(integer = 18, fraction = 0) String journalpostId, @Valid @NotNull Fødselsnummer fødselsnummer) {
     }
 
-    public record HentBrukerDto(@NotNull String fødselsnummer) {}
+    public record HentBrukerDto(@Valid @NotNull Fødselsnummer fødselsnummer) {}
 
-    public record HentBrukerResponseDto(@NotNull String navn, @NotNull String fødselsnummer) {}
+    public record HentBrukerResponseDto(@NotNull String navn, @Valid @NotNull Fødselsnummer fødselsnummer) {}
 
     public record OppgaveDto(@NotNull String journalpostId,
-                             String aktørId,
-                             String fødselsnummer,
+                             @Valid AktørId aktørId,
+                             @Valid Fødselsnummer fødselsnummer,
                              @Valid YtelseTypeDto ytelseType,
                              @NotNull LocalDate frist,
-                             String beskrivelse,
+                             @Fritekst String beskrivelse,
                              @NotNull LocalDate opprettetDato,
-                             String enhetId,
-                             String reservertAv,
+                             @Fritekst String enhetId,
+                             @Fritekst String reservertAv,
                              OppgaveKilde kilde) {
 
     }
 
-    public record ReserverOppgaveDto(@NotNull String journalpostId, String reserverFor) {
+    public record ReserverOppgaveDto(@NotNull @Fritekst String journalpostId, @Fritekst String reserverFor) {
     }
 
     public static class EmptyAbacDataSupplier implements Function<Object, AbacDataAttributter> {

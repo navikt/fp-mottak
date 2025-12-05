@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.mottak.journalføring.utils;
 
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.YtelseType;
-
 import static no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.YtelseType.ES;
 import static no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.YtelseType.FP;
 import static no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.YtelseType.SVP;
+
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
+import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.YtelseType;
 
 public class YtelseTypeUtils {
     private YtelseTypeUtils() {

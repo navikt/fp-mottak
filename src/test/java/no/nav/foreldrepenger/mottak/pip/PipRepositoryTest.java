@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import jakarta.persistence.EntityManager;
+import no.nav.foreldrepenger.mottak.database.JpaExtension;
 import no.nav.foreldrepenger.mottak.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.Status;
-import no.nav.foreldrepenger.mottak.database.JpaExtension;
 
 @ExtendWith(JpaExtension.class)
 class PipRepositoryTest {

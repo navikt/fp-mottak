@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.mottak.journalføring.api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.kontrakter.fordel.SakInfoV2Dto;
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.mottak.klient.FagsakYtelseTypeDto;
 
 public class ManuellJournalføringMapper {

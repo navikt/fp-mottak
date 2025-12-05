@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>no.nav.foreldrepenger.mottak</groupId>
-    <artifactId>fpmottak</artifactId>
+    <artifactId>fp-mottak</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -214,6 +214,10 @@
             <artifactId>abonnent-v2</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+            <artifactId>fp-kontrakt-felles</artifactId>
+        </dependency>
+        <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-konfig</artifactId>
         </dependency>
@@ -385,14 +389,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <properties>
-                        <configurationParameters>
-                            junit.jupiter.execution.parallel.enabled = true
-                            junit.jupiter.execution.parallel.mode.default = concurrent
-                        </configurationParameters>
-                    </properties>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

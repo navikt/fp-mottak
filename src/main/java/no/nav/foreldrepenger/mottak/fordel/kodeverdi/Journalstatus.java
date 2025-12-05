@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.mottak.fordel.kodeverdi;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Journalstatus implements Kodeverdi {
 
