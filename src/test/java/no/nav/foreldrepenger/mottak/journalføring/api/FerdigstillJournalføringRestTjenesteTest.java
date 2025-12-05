@@ -20,8 +20,8 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.kontrakter.fordel.FagsakInfomasjonDto;
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.mottak.klient.FagsakYtelseTypeDto;
@@ -34,7 +34,7 @@ class FerdigstillJournalføringRestTjenesteTest {
     private static final String JOURNALPOST_ID = "123";
     private static final String ENHETID = "4867";
     private static final String SAKSNUMMER = "789";
-    private static final String AKTØR_ID = "9000000000009";
+    private static final String AKTØR_ID = AktørId.dummy().getId();
 
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Oslo"));

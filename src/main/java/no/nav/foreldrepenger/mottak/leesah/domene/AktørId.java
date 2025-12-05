@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.typer;
+package no.nav.foreldrepenger.mottak.leesah.domene;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -8,12 +8,14 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
 
 /**
  * Id som genereres fra NAV Aktør Register. Denne iden benyttes til interne forhold i Nav og vil ikke endres f.eks. dersom bruker går fra
  * DNR til FNR i Folkeregisteret. Tilsvarende vil den kunne referere personer som har ident fra et utenlandsk system.
  */
+@Embeddable
 public class AktørId implements Serializable, Comparable<AktørId> {
     private static final String VALID_REGEXP = "^\\d{13}$";
 
@@ -23,7 +25,7 @@ public class AktørId implements Serializable, Comparable<AktørId> {
     @NotNull
     @jakarta.validation.constraints.Pattern(regexp = VALID_REGEXP, message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')")
     @Column(name = "aktoer_id", updatable = false, length = 50)
-    private String aktørId;  // NOSONAR
+    private String aktørId;
 
     protected AktørId() {
         // for hibernate
@@ -36,10 +38,6 @@ public class AktørId implements Serializable, Comparable<AktørId> {
 
     public AktørId(String aktørId) {
         this.aktørId = validateAktørId(aktørId);
-    }
-
-    public static boolean erGyldigAktørId(String aktørId) {
-        return aktørId != null && VALID.matcher(aktørId).matches();
     }
 
     private String validateAktørId(String aktørId) {
@@ -59,11 +57,10 @@ public class AktørId implements Serializable, Comparable<AktørId> {
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
-        }
-        if (obj == null || !getClass().equals(obj.getClass())) {
+        } else if (obj == null || !getClass().equals(obj.getClass())) {
             return false;
         }
-        var other = (AktørId) obj;
+        AktørId other = (AktørId) obj;
         return Objects.equals(aktørId, other.aktørId);
     }
 
@@ -74,7 +71,7 @@ public class AktørId implements Serializable, Comparable<AktørId> {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "<" + maskerAktørId() + ">";
+        return getClass().getSimpleName() + "<" + aktørId + ">";
     }
 
     @Override
@@ -82,15 +79,8 @@ public class AktørId implements Serializable, Comparable<AktørId> {
         return aktørId.compareTo(o.aktørId);
     }
 
-    private String maskerAktørId() {
-        if (aktørId == null) {
-            return "";
-        }
-        var length = aktørId.length();
-        if (length <= 4) {
-            return "*".repeat(length);
-        }
-        return "*".repeat(length - 4) + aktørId.substring(length - 4);
+    public static boolean erGyldigAktørId(String aktørId) {
+        return aktørId != null && VALID.matcher(aktørId).matches();
     }
 
     private static final AtomicLong DUMMY_AKTØRID = new AtomicLong(1000000000000L);

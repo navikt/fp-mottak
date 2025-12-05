@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.mottak.journalføring.api.JournalføringRestTjenest
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.Status;
+import no.nav.foreldrepenger.mottak.leesah.task.SlettIrrelevanteHendelserBatchTask;
 import no.nav.foreldrepenger.mottak.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
@@ -124,6 +125,15 @@ public class ForvaltningRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response autoRunBatch() {
         taskTjeneste.lagre(ProsessTaskData.forProsessTask(SikkerhetsnettTask.class));
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/autorun-hendelserydder")
+    @Operation(description = "Start task for å kjøre rydde gamle hendeser", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Starter batch-scheduler."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response autoRunHendelserBatchTask() {
+        taskTjeneste.lagre(ProsessTaskData.forProsessTask(SlettIrrelevanteHendelserBatchTask.class));
         return Response.ok().build();
     }
 

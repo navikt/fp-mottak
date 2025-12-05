@@ -1,0 +1,95 @@
+package no.nav.foreldrepenger.mottak.leesah.task;
+
+
+import no.nav.foreldrepenger.mottak.leesah.domene.HendelsePayload;
+import no.nav.foreldrepenger.mottak.leesah.domene.HendelseType;
+import no.nav.foreldrepenger.mottak.leesah.domene.HåndtertStatusType;
+import no.nav.foreldrepenger.mottak.leesah.domene.InngåendeHendelse;
+import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlEndringstype;
+import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlFødsel;
+import no.nav.foreldrepenger.mottak.leesah.domene.internt.PdlFødselHendelsePayload;
+import no.nav.foreldrepenger.mottak.leesah.fpsak.HendelserKlient;
+import no.nav.foreldrepenger.mottak.leesah.pdl.tjeneste.PdlFødselHendelseTjeneste;
+import no.nav.foreldrepenger.mottak.leesah.tjeneste.InngåendeHendelseTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.time.LocalDate;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
+class SendHendelseTaskTest {
+
+    private static final HendelseType HENDELSE_TYPE = HendelseType.PDL_FØDSEL_OPPRETTET;
+    private static final LocalDate FØDSELSDATO = LocalDate.parse("2018-01-01");
+    private static final String HENDELSE_ID = "1";
+
+
+    private HendelserKlient mockHendelseConsumer;
+    private ProsessTaskData prosessTaskData;
+    private InngåendeHendelseTjeneste inngåendeHendelseTjeneste;
+
+    private SendHendelseTask sendHendelseTask;
+
+    @BeforeEach
+    void setup() {
+        inngåendeHendelseTjeneste = mock(InngåendeHendelseTjeneste.class);
+        mockHendelseConsumer = mock(HendelserKlient.class);
+        sendHendelseTask = new SendHendelseTask(mockHendelseConsumer, inngåendeHendelseTjeneste);
+
+        prosessTaskData = ProsessTaskData.forProsessTask(SendHendelseTask.class);
+    }
+
+    @Test
+    void skal_sende_fødselshendelse() {
+        // Arrange
+        var fødselBuilder = PdlFødsel.builder();
+        fødselBuilder.medHendelseId(HENDELSE_ID);
+        fødselBuilder.medHendelseType(HendelseType.PDL_FØDSEL_OPPRETTET);
+        fødselBuilder.medEndringstype(PdlEndringstype.OPPRETTET);
+        fødselBuilder.leggTilPersonident("1111111111111");
+        fødselBuilder.leggTilPersonident("2222222222222");
+        fødselBuilder.leggTilPersonident("77777777777"); //fnr
+        fødselBuilder.medFødselsdato(FØDSELSDATO);
+        var fødsel = fødselBuilder.build();
+        fødsel.setAktørIdForeldre(Set.of("3333333333333", "4444444444444", "5555555555555", "6666666666666"));
+        var inngåendeHendelse = InngåendeHendelse.builder()
+            .hendelseId(HENDELSE_ID)
+            .hendelseType(HendelseType.PDL_FØDSEL_OPPRETTET)
+            .håndtertStatus(HåndtertStatusType.GROVSORTERT)
+            .payload(DefaultJsonMapper.toJson(fødsel))
+            .build();
+        when(inngåendeHendelseTjeneste.finnHendelse(HENDELSE_ID)).thenReturn(inngåendeHendelse);
+        when(inngåendeHendelseTjeneste.hentUtPayloadFraInngåendeHendelse(inngåendeHendelse))
+            .thenReturn(new PdlFødselHendelseTjeneste().payloadFraJsonString(inngåendeHendelse.getPayload()));
+
+        var hendelse = new HendelserDataWrapper(prosessTaskData);
+        hendelse.setHendelseId(HENDELSE_ID);
+        hendelse.setHendelseType(HENDELSE_TYPE.getKode());
+
+        var payloadCaptor = ArgumentCaptor.forClass(PdlFødselHendelsePayload.class);
+        var ihCaptor = ArgumentCaptor.forClass(HendelsePayload.class);
+
+        // Act
+        sendHendelseTask.doTask(hendelse.getProsessTaskData());
+
+        // Assert
+        verify(mockHendelseConsumer, times(1)).sendHendelse(payloadCaptor.capture());
+        var payload = payloadCaptor.getValue();
+        assertThat(payload.getHendelseId()).isEqualTo(HENDELSE_ID);
+        assertThat(payload.getHendelseType()).isEqualTo(HENDELSE_TYPE.getKode());
+        assertThat(payload.getAktørIdBarn()).isPresent();
+        assertThat(payload.getAktørIdBarn().get()).containsExactlyInAnyOrder("1111111111111", "2222222222222");
+        assertThat(payload.getAktørIdForeldre()).isPresent();
+        assertThat(payload.getAktørIdForeldre().get()).containsExactlyInAnyOrder("3333333333333", "4444444444444", "5555555555555", "6666666666666");
+        assertThat(payload.getFødselsdato()).isPresent().hasValue(FØDSELSDATO);
+
+        verify(inngåendeHendelseTjeneste, times(1)).oppdaterHendelseSomSendtNå(ihCaptor.capture());
+    }
+}

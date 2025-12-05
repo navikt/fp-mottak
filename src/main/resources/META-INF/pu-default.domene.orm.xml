@@ -6,10 +6,7 @@
                  https://jakarta.ee/xml/ns/persistence/orm/orm_3_0.xsd"
                  version="3.0">
 
-    <sequence-generator name="SEQ_DOKUMENT" allocation-size="50" sequence-name="SEQ_DOKUMENT"/>
-    <sequence-generator name="SEQ_DOKUMENT_METADATA" allocation-size="50" sequence-name="SEQ_DOKUMENT_METADATA"/>
-    <sequence-generator name="SEQ_JOURNALPOST" allocation-size="50" sequence-name="SEQ_JOURNALPOST"/>
-
     <entity class="no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.OppgaveEntitet"/>
+    <entity class="no.nav.foreldrepenger.mottak.leesah.domene.InngåendeHendelse"/>
 
 </entity-mappings>

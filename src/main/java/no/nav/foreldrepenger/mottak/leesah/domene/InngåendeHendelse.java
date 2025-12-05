@@ -9,7 +9,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import no.nav.foreldrepenger.mottak.fordel.BaseEntitet;
 

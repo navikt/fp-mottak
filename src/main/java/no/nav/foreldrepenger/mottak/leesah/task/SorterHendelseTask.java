@@ -1,0 +1,110 @@
+package no.nav.foreldrepenger.mottak.leesah.task;
+
+
+import java.util.Collections;
+import java.util.Set;
+
+import no.nav.foreldrepenger.mottak.leesah.domene.HendelseOpplysningType;
+import no.nav.foreldrepenger.mottak.leesah.domene.HendelsePayload;
+import no.nav.foreldrepenger.mottak.leesah.domene.HåndtertStatusType;
+import no.nav.foreldrepenger.mottak.leesah.fpsak.HendelserKlient;
+
+import no.nav.foreldrepenger.mottak.leesah.tjeneste.AbonnentHendelserFeil;
+import no.nav.foreldrepenger.mottak.leesah.tjeneste.InngåendeHendelseTjeneste;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+
+import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.felles.prosesstask.api.TaskType;
+
+import static no.nav.foreldrepenger.mottak.leesah.tjeneste.AktørIdTjeneste.getAktørIderForSortering;
+
+@Dependent
+@ProsessTask("hendelser.grovsorter")
+public class SorterHendelseTask implements ProsessTaskHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SorterHendelseTask.class);
+
+    private final ProsessTaskTjeneste prosessTaskTjeneste;
+    private final InngåendeHendelseTjeneste inngåendeHendelseTjeneste;
+    private final HendelserKlient hendelser;
+
+    @Inject
+    public SorterHendelseTask(ProsessTaskTjeneste prosessTaskTjeneste,
+                              InngåendeHendelseTjeneste inngåendeHendelseTjeneste,
+                              HendelserKlient hendelser) {
+        this.inngåendeHendelseTjeneste = inngåendeHendelseTjeneste;
+        this.prosessTaskTjeneste = prosessTaskTjeneste;
+        this.hendelser = hendelser;
+    }
+
+    @Override
+    public void doTask(ProsessTaskData prosessTaskData) {
+        var dataWrapper = new HendelserDataWrapper(prosessTaskData);
+        String hendelseId = getHendelseId(dataWrapper);
+
+        var inngåendeHendelse = inngåendeHendelseTjeneste.finnHendelseSomErSendtTilSortering(hendelseId).orElse(null);
+        if (inngåendeHendelse == null) {
+            LOGGER.warn("Fant ikke InngåendeHendelse for HendelseId {} - kan ikke grovsortere", hendelseId);
+            return;
+        }
+
+        var hendelsePayload = inngåendeHendelseTjeneste.hentUtPayloadFraInngåendeHendelse(inngåendeHendelse);
+        var aktørIderForSortering = getAktørIderForSortering(hendelsePayload);
+
+
+        if (HendelseOpplysningType.PDL_FALSKIDENT_HENDELSE.equals(inngåendeHendelse.getHendelseType().getOpplysningType())) {
+            var filtrertAktørIdList = hendelser.grovsorterHistorisk(aktørIderForSortering);
+            var relevant = hendelseErRelevant(aktørIderForSortering, filtrertAktørIdList);
+            if (relevant) {
+                LOGGER.warn("Falsk-Identitet hendelse med hendelseId {} og type {} er relevant for FPSAK", hendelsePayload.getHendelseId(),
+                    hendelsePayload.getHendelseType());
+            } else {
+                LOGGER.info("Ikke-relevant hendelse med hendelseId {} og type {} blir ikke videresendt til FPSAK", hendelsePayload.getHendelseId(),
+                    hendelsePayload.getHendelseType());
+            }
+            // Logikk i FP-sak ikke klart for å sende inn ennå
+            inngåendeHendelseTjeneste.markerHendelseSomHåndtertOgFjernPayload(inngåendeHendelse);
+            inngåendeHendelseTjeneste.fjernPayloadTidligereHendelser(inngåendeHendelse);
+            return;
+        }
+
+        var filtrertAktørIdList = hendelser.grovsorterAktørIder(aktørIderForSortering);
+        if (!hendelseErRelevant(aktørIderForSortering, filtrertAktørIdList)) {
+            LOGGER.info("Ikke-relevant hendelse med hendelseId {} og type {} blir ikke videresendt til FPSAK", hendelsePayload.getHendelseId(),
+                hendelsePayload.getHendelseType());
+            inngåendeHendelseTjeneste.markerHendelseSomHåndtertOgFjernPayload(inngåendeHendelse);
+            inngåendeHendelseTjeneste.fjernPayloadTidligereHendelser(inngåendeHendelse);
+            return;
+        }
+
+        opprettSendHendelseTask(dataWrapper, hendelsePayload);
+        inngåendeHendelseTjeneste.oppdaterHåndtertStatus(inngåendeHendelse, HåndtertStatusType.GROVSORTERT);
+        LOGGER.info("Opprettet SendHendelseTask for hendelse {}", hendelseId);
+    }
+
+    private String getHendelseId(HendelserDataWrapper dataWrapper) {
+        return dataWrapper.getHendelseId()
+            .orElseThrow(() -> AbonnentHendelserFeil.prosesstaskPreconditionManglerProperty(dataWrapper.getProsessTaskData().taskType(),
+                HendelserDataWrapper.HENDELSE_ID, dataWrapper.getId()));
+    }
+
+    private void opprettSendHendelseTask(HendelserDataWrapper dataWrapper, HendelsePayload hendelsePayload) {
+        var nesteSteg = dataWrapper.nesteSteg(TaskType.forProsessTask(SendHendelseTask.class));
+        nesteSteg.setHendelseId(hendelsePayload.getHendelseId());
+        nesteSteg.setHendelseType(hendelsePayload.getHendelseType());
+        prosessTaskTjeneste.lagre(nesteSteg.getProsessTaskData());
+    }
+
+    private boolean hendelseErRelevant(Set<String> aktørIdForSortering, Set<String> grovsortert) {
+        return !Collections.disjoint(aktørIdForSortering, grovsortert);
+    }
+
+}
