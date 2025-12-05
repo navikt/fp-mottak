@@ -6,45 +6,47 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.mottak.server.konfig.ApiConfig;
-
-import org.glassfish.jersey.media.multipart.MultiPart;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Application;
 
-class RestApiTester {
+public class RestApiTester {
 
     static final List<Class<?>> UNNTATT = Collections.singletonList(OpenApiResource.class);
 
     static Collection<Method> finnAlleRestMetoder() {
         List<Method> liste = new ArrayList<>();
-        for (Class<?> klasse : finnAlleRestTjenester()) {
-            for (Method method : klasse.getDeclaredMethods()) {
+        for (var klasse : finnAlleRestTjenester()) {
+            for (var method : klasse.getDeclaredMethods()) {
                 if (Modifier.isPublic(method.getModifiers())) {
-                    if (!erRestMetodeSomErUnntatt(method)) {
-                        liste.add(method);
-                    }
+                    liste.add(method);
                 }
             }
         }
         return liste;
     }
 
-    private static boolean erRestMetodeSomErUnntatt(Method method) {
-        boolean unntatt = // Et unntak pr linje
-            ((method.getParameterCount() == 1) && MultiPart.class.isAssignableFrom(method.getParameterTypes()[0]));
-        return unntatt;
+    static Collection<Class<?>> finnAlleJsonSubTypeClasses(Class<?> klasse) {
+        var resultat = new ArrayList<Class<?>>();
+        if (klasse.isAnnotationPresent(JsonSubTypes.class)) {
+            var jsonSubTypes = klasse.getAnnotation(JsonSubTypes.class);
+            for (var subtype : jsonSubTypes.value()) {
+                resultat.add(subtype.value());
+            }
+        }
+        return resultat;
     }
 
-    static Collection<Class<?>> finnAlleRestTjenester() {
-        ApiConfig config = new ApiConfig();
-        return config.getClasses()
-            .stream()
-            .filter(c -> c.getAnnotation(Path.class) != null)
-            .filter(c -> !UNNTATT.contains(c))
-            .collect(Collectors.toList());
+    private static Collection<Class<?>> finnAlleRestTjenester() {
+        var resultat = new ArrayList<>(finnAlleRestTjenester(new ApiConfig()));
+        resultat.addAll(finnAlleRestTjenester(new ForvaltningApiConfig()));
+        return resultat;
+    }
+
+    private static Collection<Class<?>> finnAlleRestTjenester(Application config) {
+        return config.getClasses().stream().filter(c -> c.getAnnotation(Path.class) != null).filter(c -> !UNNTATT.contains(c)).toList();
     }
 }

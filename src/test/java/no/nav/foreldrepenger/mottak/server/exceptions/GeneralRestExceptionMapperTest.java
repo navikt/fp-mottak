@@ -2,14 +2,13 @@ package no.nav.foreldrepenger.mottak.server.exceptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import no.nav.foreldrepenger.mottak.server.error.FeilDto;
-import no.nav.foreldrepenger.mottak.server.error.FeilType;
-import no.nav.foreldrepenger.mottak.server.error.GeneralRestExceptionMapper;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import jakarta.ws.rs.core.Response;
+import no.nav.foreldrepenger.mottak.server.error.FeilDto;
+import no.nav.foreldrepenger.mottak.server.error.FeilType;
+import no.nav.foreldrepenger.mottak.server.error.GeneralRestExceptionMapper;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;

@@ -9,9 +9,9 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 
 import jakarta.ws.rs.ApplicationPath;
-import no.nav.foreldrepenger.mottak.server.JacksonJsonConfig;
 import no.nav.foreldrepenger.mottak.journalføring.api.FerdigstillJournalføringRestTjeneste;
 import no.nav.foreldrepenger.mottak.journalføring.api.JournalføringRestTjeneste;
+import no.nav.foreldrepenger.mottak.server.JacksonJsonConfig;
 import no.nav.foreldrepenger.mottak.server.error.ConstraintViolationMapper;
 import no.nav.foreldrepenger.mottak.server.error.GeneralRestExceptionMapper;
 import no.nav.foreldrepenger.mottak.server.error.JsonMappingExceptionMapper;
@@ -30,7 +30,7 @@ public class ApiConfig extends ResourceConfig {
         setProperties(getApplicationProperties());
     }
 
-    private static Set<Class<?>> getApplicationClasses() {
+    static Set<Class<?>> getApplicationClasses() {
         return Set.of(
             FerdigstillJournalføringRestTjeneste.class,
             JournalføringRestTjeneste.class

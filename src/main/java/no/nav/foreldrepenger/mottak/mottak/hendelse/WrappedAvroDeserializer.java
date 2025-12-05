@@ -1,13 +1,13 @@
 package no.nav.foreldrepenger.mottak.mottak.hendelse;
 
-import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
-import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+import java.util.Map;
 
 import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
 
-import java.util.Map;
+import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
+import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 
 public class WrappedAvroDeserializer<T extends SpecificRecord> implements Deserializer<T> {
     private final KafkaAvroDeserializer inner;

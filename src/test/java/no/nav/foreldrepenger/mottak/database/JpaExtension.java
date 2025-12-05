@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.mottak.database;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-import no.nav.foreldrepenger.mottak.fordel.dbstoette.TestDatabaseInit;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.mottak.fordel.dbstoette.TestDatabaseInit;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareExtension;
 
 public class JpaExtension extends EntityManagerAwareExtension {
