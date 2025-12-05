@@ -5,9 +5,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 
-import no.nav.foreldrepenger.mottak.server.sikkerhet.AppAbacAttributtType;
-import no.nav.foreldrepenger.mottak.server.sikkerhet.AppPdpRequestBuilderImpl;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -6,12 +6,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.mottak.database.JpaExtension;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import no.nav.foreldrepenger.mottak.database.JpaExtension;
 import no.nav.vedtak.felles.testutilities.db.EntityManagerAwareTest;
 
 /**

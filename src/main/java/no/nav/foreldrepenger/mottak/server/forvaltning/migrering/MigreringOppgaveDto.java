@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.AktørId;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.Status;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.YtelseType;
 
-public record MigreringOppgaveDto(@Valid @Size List<OppgaveDto> oppgaver) {
+public record MigreringOppgaveDto(@Size List<@Valid OppgaveDto> oppgaver) {
 
     public record OppgaveDto(@Size @Pattern(regexp = "^[\\p{Alnum}_.\\-]*$") String journalpostId,
                              LocalDateTime opprettetTidspunkt,

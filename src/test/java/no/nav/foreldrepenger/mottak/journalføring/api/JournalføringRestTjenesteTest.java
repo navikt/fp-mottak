@@ -27,23 +27,25 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import no.nav.foreldrepenger.kontrakter.felles.typer.AktørId;
+import no.nav.foreldrepenger.kontrakter.felles.typer.Fødselsnummer;
+import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.Journalstatus;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.Tema;
-import no.nav.foreldrepenger.mottak.server.error.FeilDto;
 import no.nav.foreldrepenger.mottak.journalføring.domene.JournalpostId;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.Journalføringsoppgave;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.domene.Oppgave;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.domene.Oppgavestatus;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.YtelseType;
-import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.mottak.mottak.journal.ArkivJournalpost;
 import no.nav.foreldrepenger.mottak.mottak.journal.ArkivTjeneste;
 import no.nav.foreldrepenger.mottak.mottak.journal.saf.DokumentInfo;
 import no.nav.foreldrepenger.mottak.mottak.journal.saf.Journalpost;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.mottak.person.PersonInformasjon;
+import no.nav.foreldrepenger.mottak.server.error.FeilDto;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
@@ -100,10 +102,10 @@ class JournalføringRestTjenesteTest {
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
-        var oppgave = oppgaveDtos.get(0);
+        var oppgave = oppgaveDtos.getFirst();
         assertThat(oppgave.journalpostId()).isEqualTo(expectedJournalpostId);
         assertThat(oppgave.frist()).isEqualTo(now);
-        assertThat(oppgave.aktørId()).isEqualTo("aktørId");
+        assertThat(oppgave.aktørId()).isEqualTo(new AktørId("aktørId"));
         assertThat(oppgave.fødselsnummer()).isNull();
         assertThat(oppgave.beskrivelse()).isEqualTo(beskrivelse);
         assertThat(oppgave.opprettetDato()).isEqualTo(now);
@@ -127,10 +129,10 @@ class JournalføringRestTjenesteTest {
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
-        var oppgave = oppgaveDtos.get(0);
+        var oppgave = oppgaveDtos.getFirst();
         assertThat(oppgave.journalpostId()).isEqualTo(expectedJournalPostUtenTittel);
         assertThat(oppgave.frist()).isEqualTo(now);
-        assertThat(oppgave.aktørId()).isEqualTo("aktørId");
+        assertThat(oppgave.aktørId()).isEqualTo(new AktørId("aktørId"));
         assertThat(oppgave.fødselsnummer()).isNull();
         assertThat(oppgave.beskrivelse()).isEqualTo(beskrivelse);
         assertThat(oppgave.opprettetDato()).isEqualTo(now);
@@ -178,9 +180,9 @@ class JournalføringRestTjenesteTest {
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
-        var oppgave = oppgaveDtos.get(0);
-        assertThat(oppgave.aktørId()).isEqualTo(aktørId);
-        assertThat(oppgave.fødselsnummer()).isEqualTo(fnr);
+        var oppgave = oppgaveDtos.getFirst();
+        assertThat(oppgave.aktørId()).isEqualTo(new AktørId(aktørId));
+        assertThat(oppgave.fødselsnummer()).isEqualTo(new Fødselsnummer(fnr));
         assertThat(oppgave.ytelseType()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
     }
 
@@ -197,7 +199,7 @@ class JournalføringRestTjenesteTest {
         var oppgaveDtos = restTjeneste.hentÅpneOppgaver();
 
         assertThat(oppgaveDtos).isNotNull().hasSize(1);
-        assertThat(oppgaveDtos.get(0).ytelseType()).isNull();
+        assertThat(oppgaveDtos.getFirst().ytelseType()).isNull();
     }
 
     @Test
@@ -263,6 +265,7 @@ class JournalføringRestTjenesteTest {
         assertThat(((JournalpostDetaljerDto) ex.getEntity()).journalpostId()).isEqualTo(expectedJournalpostId);
     }
 
+    @Test
     @DisplayName("/bruker/hent - ok bruker finnes")
     void skal_levere_navn_til_bruker() {
         var expectedFnr = "11111122222";
@@ -272,12 +275,12 @@ class JournalføringRestTjenesteTest {
         when(pdl.hentAktørIdForPersonIdent(expectedFnr)).thenReturn(Optional.of(brukerAktørId));
         when(pdl.hentNavn(BehandlingTema.FORELDREPENGER, brukerAktørId)).thenReturn(navn);
 
-        var request = new JournalføringRestTjeneste.HentBrukerDto(expectedFnr);
+        var request = new JournalføringRestTjeneste.HentBrukerDto(new Fødselsnummer(expectedFnr));
         var response = restTjeneste.hentBruker(request);
 
         assertThat(response).isNotNull();
         assertThat(response.navn()).isEqualTo(navn);
-        assertThat(response.fødselsnummer()).isEqualTo(expectedFnr);
+        assertThat(response.fødselsnummer()).isEqualTo(new Fødselsnummer(expectedFnr));
     }
 
     @Test
@@ -308,7 +311,7 @@ class JournalføringRestTjenesteTest {
 
         when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(opprettJournalpost(expectedJournalpostId));
 
-        var request = new JournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, expectedFnr);
+        var request = new JournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, new Fødselsnummer(expectedFnr));
         var journalpostDetaljerDto = restTjeneste.oppdaterBruker(request);
 
         assertThat(journalpostDetaljerDto).isNotNull();
@@ -324,7 +327,7 @@ class JournalføringRestTjenesteTest {
 
         when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(getStandardBuilder(expectedJournalpostId, "test", Bruker.BrukerIdType.UKJENT).build());
 
-        var request = new JournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, expectedFnr);
+        var request = new JournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, new Fødselsnummer(expectedFnr));
         var journalpostDetaljerDto = restTjeneste.oppdaterBruker(request);
 
         assertThat(journalpostDetaljerDto).isNotNull();
@@ -340,7 +343,7 @@ class JournalføringRestTjenesteTest {
 
         when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(getStandardBuilder(expectedJournalpostId, "123456789", Bruker.BrukerIdType.ORGNR).build());
 
-        var request = new JournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, expectedFnr);
+        var request = new JournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, new Fødselsnummer(expectedFnr));
         var journalpostDetaljerDto = restTjeneste.oppdaterBruker(request);
 
         assertThat(journalpostDetaljerDto).isNotNull();
@@ -358,7 +361,7 @@ class JournalføringRestTjenesteTest {
         when(arkiv.hentArkivJournalpost(expectedJournalpostId)).thenReturn(getStandardBuilder(expectedJournalpostId, brukerAktørId, Bruker.BrukerIdType.AKTOERID).build());
         when(pdl.hentPersonIdentForAktørId(brukerAktørId)).thenReturn(Optional.of(expectedFnr));
 
-        var request = new JournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, expectedFnr);
+        var request = new JournalføringRestTjeneste.OppdaterBrukerDto(expectedJournalpostId, new Fødselsnummer(expectedFnr));
         var journalpostDetaljerDto = restTjeneste.oppdaterBruker(request);
 
         assertThat(journalpostDetaljerDto).isNotNull();

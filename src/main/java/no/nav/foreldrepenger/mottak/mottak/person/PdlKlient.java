@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.mottak.mottak.person;
 
+import jakarta.enterprise.context.Dependent;
 import no.nav.vedtak.felles.integrasjon.person.AbstractPersonKlient;
 import no.nav.vedtak.felles.integrasjon.person.Tema;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
-
-import jakarta.enterprise.context.Dependent;
 
 @Dependent
 @RestClientConfig(

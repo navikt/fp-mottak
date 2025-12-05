@@ -27,14 +27,14 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.Journalstatus;
-import no.nav.foreldrepenger.mottak.server.error.FeilDto;
-import no.nav.foreldrepenger.mottak.server.sikkerhet.AppAbacAttributtType;
 import no.nav.foreldrepenger.mottak.journalføring.domene.JournalpostId;
-import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.mottak.behandlendeenhet.EnhetsTjeneste;
 import no.nav.foreldrepenger.mottak.mottak.klient.FagsakYtelseTypeDto;
+import no.nav.foreldrepenger.mottak.server.error.FeilDto;
+import no.nav.foreldrepenger.mottak.server.sikkerhet.AppAbacAttributtType;
 import no.nav.foreldrepenger.mottak.typer.AktørId;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -228,9 +228,9 @@ public class FerdigstillJournalføringRestTjeneste {
 
     record FerdigstillRequest(
         @NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
-        @NotNull String enhetId,
+        @NotNull @Pattern(regexp = "[\\d]{4}") String enhetId,
         @Size(max = 11) @Pattern(regexp = "^[0-9_\\-]*$") String saksnummer,
         @Valid OpprettSakDto opprettSak,
-        @Valid OppdaterJournalpostMedTittelDto oppdaterTitlerDto ) {}
+        @Valid OppdaterJournalpostMedTittelDto oppdaterTitlerDto) {}
 
 }
