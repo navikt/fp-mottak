@@ -26,7 +26,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 class JournalpostValideringTjenesteTest {
 
     private static final JournalpostId JOURNALPOST_ID = JournalpostId.fra("987654");
-    private static final AktørId AKTØR_ID = new AktørId(1234567890123L);
+    private static final AktørId AKTØR_ID = AktørId.dummy();
     @Mock
     private ArkivTjeneste arkivTjeneste;
     @Mock

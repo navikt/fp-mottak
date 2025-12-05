@@ -14,8 +14,15 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-import no.nav.foreldrepenger.mottak.database.JpaExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import jakarta.persistence.EntityManager;
+import no.nav.foreldrepenger.mottak.database.JpaExtension;
 import no.nav.foreldrepenger.mottak.leesah.domene.AktørId;
 import no.nav.foreldrepenger.mottak.leesah.domene.HendelseType;
 import no.nav.foreldrepenger.mottak.leesah.domene.HåndtertStatusType;
@@ -30,22 +37,9 @@ import no.nav.foreldrepenger.mottak.leesah.pdl.tjeneste.ForsinkelseKonfig;
 import no.nav.foreldrepenger.mottak.leesah.pdl.tjeneste.ForsinkelseTjeneste;
 import no.nav.foreldrepenger.mottak.leesah.pdl.tjeneste.HendelseTjenesteHjelper;
 import no.nav.foreldrepenger.mottak.leesah.pdl.tjeneste.PdlFødselHendelseTjeneste;
-import no.nav.foreldrepenger.mottak.leesah.testutilities.FiktiveFnr;
-
 import no.nav.foreldrepenger.mottak.leesah.tjeneste.HendelseRepository;
-
 import no.nav.foreldrepenger.mottak.leesah.tjeneste.HendelseTjeneste;
 import no.nav.foreldrepenger.mottak.leesah.tjeneste.HendelseTjenesteProvider;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import jakarta.persistence.EntityManager;
-
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
@@ -55,10 +49,10 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 @ExtendWith(JpaExtension.class)
 class VurderSorteringTaskTest {
 
-    private static final String FNR_BARN = new FiktiveFnr().nesteBarnFnr();
-    private static final String AKTØR_ID_BARN = "1111111111111";
-    private static final String AKTØR_ID_MOR = "2222222222222";
-    private static final String AKTØR_ID_FAR = "3333333333333";
+    private static final String FNR_BARN = PersonIdent.genererFra(LocalDate.now()).getIdent();
+    private static final String AKTØR_ID_BARN = AktørId.dummy().getId();
+    private static final String AKTØR_ID_MOR = AktørId.dummy().getId();
+    private static final String AKTØR_ID_FAR = AktørId.dummy().getId();
     private static final String HENDELSE_ID = "1";
 
     @Mock

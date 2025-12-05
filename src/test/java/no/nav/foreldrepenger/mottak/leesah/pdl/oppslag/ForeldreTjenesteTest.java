@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -13,16 +14,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.mottak.leesah.domene.PersonIdent;
-import no.nav.foreldrepenger.mottak.leesah.testutilities.FiktiveFnr;
 import no.nav.pdl.ForelderBarnRelasjon;
 import no.nav.pdl.ForelderBarnRelasjonRolle;
 import no.nav.pdl.Person;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
 
 class ForeldreTjenesteTest {
-    private static final PersonIdent BARN_FNR = new PersonIdent(new FiktiveFnr().nesteBarnFnr());
-    private static final PersonIdent MOR_FNR = new PersonIdent(new FiktiveFnr().nesteKvinneFnr());
-    private static final PersonIdent FAR_FNR = new PersonIdent(new FiktiveFnr().nesteKvinneFnr());
+
+    private static final PersonIdent BARN_FNR = PersonIdent.genererFra(LocalDate.now().minusDays(1));
+    private static final PersonIdent MOR_FNR = PersonIdent.genererFra(LocalDate.now().minusYears(29), false);
+    private static final PersonIdent FAR_FNR = PersonIdent.genererFra(LocalDate.now().minusYears(28), true);
 
     private FødselTjeneste fødselTjeneste;
 

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.leesah.domene;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -105,5 +106,46 @@ public class PersonIdent implements Comparable<PersonIdent> {
     @Override
     public String toString() {
         return PersonIdent.class.getSimpleName() + "<ident=" + ident + ">";
+    }
+
+    public static PersonIdent genererFra(LocalDate fødselsdato) {
+        return genererFra(fødselsdato, System.currentTimeMillis() % 2 == 0);
+    }
+
+    public static PersonIdent genererFra(LocalDate fødselsdato, boolean mann) {
+        String dag = String.format("%02d", fødselsdato.getDayOfMonth());
+        String måned = String.format("%02d", fødselsdato.getMonthValue() + 80);
+        String år = String.format("%02d", fødselsdato.getYear() % 100);
+        var start = dag + måned + år;
+        return genererFra(start, mann);
+    }
+
+    private static PersonIdent genererFra(String ddmmyy, boolean mann) {
+        var individnr = mann ? 1 : 0;
+        while (individnr < 1000) {
+            var kandidat = ddmmyy + String.format("%03d", individnr);
+            var c1 = gyldigKontrollSiffer(kandidat, 9, CHECKSUM_EN_VECTOR);
+            if (c1 != null) {
+                var c2 = gyldigKontrollSiffer(kandidat + c1, 10, CHECKSUM_TO_VECTOR);
+                if (c2 != null) {
+                    return PersonIdent.fra(kandidat + c1 + c2);
+                }
+            }
+            individnr += 2;
+        }
+        throw new IllegalStateException("Klarte ikke å generere gyldig fnr for input " + ddmmyy + " og kjønn " + (mann ? "mann" : "kvinne"));
+    }
+
+
+    private static String gyldigKontrollSiffer(String kandidat, int max, int[] vektor) {
+        int sum = 0;
+        for (int i = 0; i < max; i++) {
+            sum += (kandidat.charAt(i) - '0') * vektor[i];
+        }
+        var rest = sum % 11;
+        if (rest == 1) {
+            return null;
+        }
+        return String.valueOf(rest == 0 ? 0 : 11 - rest);
     }
 }

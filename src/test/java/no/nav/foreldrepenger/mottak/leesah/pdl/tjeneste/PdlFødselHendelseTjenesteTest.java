@@ -13,14 +13,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Collections;
 import java.util.Set;
 
-import no.nav.foreldrepenger.mottak.leesah.domene.internt.PdlFødselHendelsePayload;
-import no.nav.foreldrepenger.mottak.leesah.testutilities.HendelseTestDataUtil;
-
-import no.nav.foreldrepenger.mottak.leesah.tjeneste.HendelseTjeneste;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.mottak.leesah.domene.AktørId;
+import no.nav.foreldrepenger.mottak.leesah.domene.internt.PdlFødselHendelsePayload;
+import no.nav.foreldrepenger.mottak.leesah.testutilities.HendelseTestDataUtil;
+import no.nav.foreldrepenger.mottak.leesah.tjeneste.HendelseTjeneste;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
@@ -70,7 +69,7 @@ class PdlFødselHendelseTjenesteTest {
     @Test
     void skal_mappe_fra_payload_json_til_PdlFødselHendelsePayload_flere_identer_matcher_aktørId() {
         // Arrange
-        var aktørIdBarn = of("1234567890986", "1234567890987");
+        var aktørIdBarn = of(AktørId.dummy().getId(), AktørId.dummy().getId());
         var aktørIdForeldre = of("1234567890989", "1234567890988", "1234567890990", "1234567890991");
         var fødselmelding = HendelseTestDataUtil.lagFødselsmelding(aktørIdBarn, aktørIdForeldre, FØDSELSDATO);
 

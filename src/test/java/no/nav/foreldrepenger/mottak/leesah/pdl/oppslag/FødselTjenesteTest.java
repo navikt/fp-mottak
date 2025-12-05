@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -13,17 +14,16 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.mottak.leesah.domene.AktørId;
 import no.nav.foreldrepenger.mottak.leesah.domene.PersonIdent;
-import no.nav.foreldrepenger.mottak.leesah.testutilities.FiktiveFnr;
 
 
 
 class FødselTjenesteTest {
 
-    private static final PersonIdent BARN_FNR = new PersonIdent(new FiktiveFnr().nesteBarnFnr());
-    private static final PersonIdent MOR_FNR = new PersonIdent(new FiktiveFnr().nesteKvinneFnr());
-    private static final AktørId MOR_AKTØR_ID = new AktørId("1111111111111");
-    private static final PersonIdent FAR_FNR = new PersonIdent(new FiktiveFnr().nesteKvinneFnr());
-    private static final AktørId FAR_AKTØR_ID = new AktørId("2222222222222");
+    private static final PersonIdent BARN_FNR = PersonIdent.genererFra(LocalDate.now().minusDays(1));
+    private static final PersonIdent MOR_FNR = PersonIdent.genererFra(LocalDate.now().minusYears(29), false);
+    private static final AktørId MOR_AKTØR_ID = AktørId.dummy();
+    private static final PersonIdent FAR_FNR = PersonIdent.genererFra(LocalDate.now().minusYears(28), true);
+    private static final AktørId FAR_AKTØR_ID = AktørId.dummy();
 
     private FødselTjeneste fødselTjeneste = mock(FødselTjeneste.class);
     private AktørTjeneste aktørTjeneste = mock(AktørTjeneste.class);

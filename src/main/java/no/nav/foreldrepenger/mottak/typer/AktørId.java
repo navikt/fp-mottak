@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.mottak.typer;
 
+import java.io.Serializable;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
+
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
-
-import java.io.Serializable;
-import java.util.Objects;
-import java.util.regex.Pattern;
 
 /**
  * Id som genereres fra NAV Aktør Register. Denne iden benyttes til interne forhold i Nav og vil ikke endres f.eks. dersom bruker går fra
@@ -90,5 +91,14 @@ public class AktørId implements Serializable, Comparable<AktørId> {
             return "*".repeat(length);
         }
         return "*".repeat(length - 4) + aktørId.substring(length - 4);
+    }
+
+    private static final AtomicLong DUMMY_AKTØRID = new AtomicLong(1000000000000L);
+
+    /**
+     * Genererer dummy aktørid unikt for test.
+     */
+    public static AktørId dummy() {
+        return new AktørId(DUMMY_AKTØRID.getAndIncrement());
     }
 }

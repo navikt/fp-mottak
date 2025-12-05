@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,14 +14,13 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.mottak.leesah.domene.AktørId;
 import no.nav.foreldrepenger.mottak.leesah.domene.PersonIdent;
-import no.nav.foreldrepenger.mottak.leesah.testutilities.FiktiveFnr;
 import no.nav.pdl.IdentGruppe;
 import no.nav.pdl.IdentInformasjon;
 import no.nav.pdl.Identliste;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
 
 class AktørTjenesteTest {
-    private static final PersonIdent FNR = new PersonIdent(new FiktiveFnr().nesteKvinneFnr());
+    private static final PersonIdent FNR = PersonIdent.genererFra(LocalDate.now().minusYears(25), false);
     private static final AktørId AKTØR_ID = AktørId.dummy();
 
     private AktørTjeneste aktørTjeneste;

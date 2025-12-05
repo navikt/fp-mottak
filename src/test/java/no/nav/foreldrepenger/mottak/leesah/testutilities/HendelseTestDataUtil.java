@@ -1,17 +1,18 @@
 package no.nav.foreldrepenger.mottak.leesah.testutilities;
 
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import no.nav.foreldrepenger.mottak.leesah.domene.AktørId;
 import no.nav.foreldrepenger.mottak.leesah.domene.HendelseType;
 import no.nav.foreldrepenger.mottak.leesah.domene.HåndtertStatusType;
 import no.nav.foreldrepenger.mottak.leesah.domene.InngåendeHendelse;
 import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlEndringstype;
 import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlFødsel;
 import no.nav.foreldrepenger.mottak.leesah.domene.internt.PdlFødselHendelsePayload;
-
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 
 
@@ -20,9 +21,9 @@ public class HendelseTestDataUtil {
     public static final HendelseType MELDINGSTYPE = HendelseType.PDL_FØDSEL_OPPRETTET;
     public static final String HENDELSE_ID = UUID.randomUUID().toString();
     public static final LocalDate FØDSELSDATO = LocalDate.of(2018, 1, 30);
-    public static final String AKTØR_ID_BARN = "1678462152535";
-    public static final String AKTØR_ID_MOR = "1678462152536";
-    public static final String AKTØR_ID_FAR = "1678462152537";
+    public static final String AKTØR_ID_BARN = AktørId.dummy().getId();
+    public static final String AKTØR_ID_MOR = AktørId.dummy().getId();
+    public static final String AKTØR_ID_FAR = AktørId.dummy().getId();
 
     public static PdlFødsel lagFødselsmelding() {
         PdlFødsel.Builder fødsel = new PdlFødsel.Builder();
