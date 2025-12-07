@@ -24,29 +24,39 @@ public class PdlLeesahHendelseConsumer implements LiveAndReadinessAware, Control
 
     @Inject
     public PdlLeesahHendelseConsumer(PdlLeesahHendelseHåndterer håndterer) {
-        //this.kcm = new KafkaConsumerManager<>(håndterer);
+        if (ENV.isLocal()) {
+            this.kcm = new KafkaConsumerManager<>(håndterer);
+        }
     }
 
     @Override
     public boolean isAlive() {
-        return true; //kcm.allRunning();
+        if (ENV.isLocal()) {
+            return kcm.allRunning();
+        } else {
+            return true;
+        }
     }
 
     @Override
     public boolean isReady() {
-        return true; //isAlive();
+        return isAlive();
     }
 
     @Override
     public void start() {
-        //LOG.info("Starter konsumering av topics={}", kcm.topicNames());
-        //kcm.start((t, e) -> LOG.error("{} :: Caught exception in stream, exiting", t, e));
+        if (ENV.isLocal()) {
+            LOG.info("Starter konsumering av topics={}", kcm.topicNames());
+            kcm.start((t, e) -> LOG.error("{} :: Caught exception in stream, exiting", t, e));
+        }
     }
 
     @Override
     public void stop() {
-        //LOG.info("Starter shutdown av topics={} med 10 sekunder timeout", kcm.topicNames());
-        //kcm.stop();
+        if (ENV.isLocal()) {
+            LOG.info("Starter shutdown av topics={} med 10 sekunder timeout", kcm.topicNames());
+            kcm.stop();
+        }
     }
 
 }
