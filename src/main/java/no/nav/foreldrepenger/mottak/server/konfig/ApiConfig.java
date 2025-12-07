@@ -11,6 +11,7 @@ import org.glassfish.jersey.server.ServerProperties;
 import jakarta.ws.rs.ApplicationPath;
 import no.nav.foreldrepenger.mottak.journalføring.api.FerdigstillJournalføringRestTjeneste;
 import no.nav.foreldrepenger.mottak.journalføring.api.JournalføringRestTjeneste;
+import no.nav.foreldrepenger.mottak.leesah.migrer.MigrerHendelseRestTjeneste;
 import no.nav.foreldrepenger.mottak.server.JacksonJsonConfig;
 import no.nav.foreldrepenger.mottak.server.error.ConstraintViolationMapper;
 import no.nav.foreldrepenger.mottak.server.error.GeneralRestExceptionMapper;
@@ -33,7 +34,8 @@ public class ApiConfig extends ResourceConfig {
     static Set<Class<?>> getApplicationClasses() {
         return Set.of(
             FerdigstillJournalføringRestTjeneste.class,
-            JournalføringRestTjeneste.class
+            JournalføringRestTjeneste.class,
+            MigrerHendelseRestTjeneste.class
         );
     }
 
