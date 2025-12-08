@@ -59,7 +59,7 @@ public class MigrerHendelseRestTjeneste {
         summary = ("Lagre hendelser som skal migreres"),
         responses = {@ApiResponse(responseCode = "200", description = "Hendelser")})
     @Path("/hendelse")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response lagreHendelser(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
                                    @NotNull @Parameter(name = "hendelser") @Valid MigreringHendelseDto hendelse) {
         lagreEllerOppdater(hendelse);
@@ -84,7 +84,7 @@ public class MigrerHendelseRestTjeneste {
         }
     }
 
-    public static InngåendeHendelse fraHendelseDto(MigreringHendelseDto hendelse) {
+    private static InngåendeHendelse fraHendelseDto(MigreringHendelseDto hendelse) {
         return InngåendeHendelse.builder()
             .hendelseType(hendelse.type())
             .payload(hendelse.payload())
