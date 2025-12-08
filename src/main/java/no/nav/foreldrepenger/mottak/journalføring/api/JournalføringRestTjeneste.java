@@ -379,7 +379,7 @@ public class JournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (ReserverOppgaveDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, dto.journalpostId());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, JournalpostId.fra(dto.journalpostId()));
         }
     }
 
@@ -387,7 +387,7 @@ public class JournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (JournalpostIdDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, dto.journalpostId());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, JournalpostId.fra(dto.journalpostId()));
         }
     }
 
