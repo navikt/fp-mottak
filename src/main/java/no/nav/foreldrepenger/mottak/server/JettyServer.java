@@ -26,6 +26,7 @@ import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -34,8 +35,6 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.mottak.server.konfig.ApiConfig;
 import no.nav.foreldrepenger.mottak.server.konfig.ForvaltningApiConfig;
 import no.nav.foreldrepenger.mottak.server.konfig.InternalApiConfig;
-
-import org.slf4j.bridge.SLF4JBridgeHandler;
 
 public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);

@@ -8,8 +8,6 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 
-import io.swagger.v3.oas.annotations.Operation;
-
 @Path("/metrics")
 @ApplicationScoped
 public class PrometheusRestService {

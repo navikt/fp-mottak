@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.mottak.mottak.hendelse;
 
-import no.nav.vedtak.server.Controllable;
-import no.nav.vedtak.server.LiveAndReadinessAware;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +7,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import no.nav.joarkjournalfoeringhendelser.JournalfoeringHendelseRecord;
 import no.nav.vedtak.felles.integrasjon.kafka.KafkaConsumerManager;
+import no.nav.vedtak.server.Controllable;
+import no.nav.vedtak.server.LiveAndReadinessAware;
 
 /*
  * Dokumentasjon https://confluence.adeo.no/pages/viewpage.action?pageId=432217859

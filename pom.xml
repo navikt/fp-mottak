@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>no.nav.foreldrepenger.mottak</groupId>
-    <artifactId>fpmottak</artifactId>
+    <artifactId>fp-mottak</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -212,6 +212,10 @@
         <dependency>
             <groupId>no.nav.foreldrepenger.kontrakter</groupId>
             <artifactId>abonnent-v2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.kontrakter</groupId>
+            <artifactId>fp-kontrakt-felles</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>

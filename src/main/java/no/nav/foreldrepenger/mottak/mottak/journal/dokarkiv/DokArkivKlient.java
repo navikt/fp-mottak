@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.mottak.journal.dokarkiv;
 
 import jakarta.enterprise.context.Dependent;
-
 import no.nav.vedtak.felles.integrasjon.dokarkiv.AbstractDokArkivKlient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;

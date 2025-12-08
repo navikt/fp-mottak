@@ -1,14 +1,13 @@
 package no.nav.foreldrepenger.mottak.server.forvaltning;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 
 //@ApiModel(value = "Input til prosesstask før submit VL")
 public class SubmitJfortIMDto implements AbacDto {

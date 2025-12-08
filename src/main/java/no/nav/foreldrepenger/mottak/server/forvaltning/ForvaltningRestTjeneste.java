@@ -30,10 +30,10 @@ import no.nav.foreldrepenger.mottak.mottak.domene.oppgavebehandling.OpprettGSakO
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.mottak.task.SikkerhetsnettTask;
-import no.nav.foreldrepenger.mottak.server.task.RekjørFeiledeTasksBatchTask;
-import no.nav.foreldrepenger.mottak.server.task.SlettGamleTasksBatchTask;
 import no.nav.foreldrepenger.mottak.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.mottak.task.VLKlargjørerTask;
+import no.nav.foreldrepenger.mottak.server.task.RekjørFeiledeTasksBatchTask;
+import no.nav.foreldrepenger.mottak.server.task.SlettGamleTasksBatchTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;

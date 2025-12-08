@@ -2,12 +2,11 @@ package no.nav.foreldrepenger.mottak.mottak.journal.saf;
 
 import java.util.List;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import no.nav.saf.AvsenderMottakerResponseProjection;
 import no.nav.saf.BrukerResponseProjection;
 import no.nav.saf.DokumentInfoResponseProjection;
