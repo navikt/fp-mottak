@@ -352,20 +352,20 @@ public class JournalføringRestTjeneste {
 
     public record HentBrukerResponseDto(@NotNull String navn, @Valid @NotNull Fødselsnummer fødselsnummer) {}
 
-    public record OppgaveDto(@NotNull String journalpostId,
+    public record OppgaveDto(@NotNull @Digits(integer = 18, fraction = 0) String journalpostId,
                              @Valid AktørId aktørId,
                              @Valid Fødselsnummer fødselsnummer,
                              @Valid YtelseTypeDto ytelseType,
                              @NotNull LocalDate frist,
                              @Fritekst String beskrivelse,
                              @NotNull LocalDate opprettetDato,
-                             @Fritekst String enhetId,
+                             @Digits(integer = 4, fraction = 0) String enhetId,
                              @Fritekst String reservertAv,
                              OppgaveKilde kilde) {
 
     }
 
-    public record ReserverOppgaveDto(@NotNull @Fritekst String journalpostId, @Fritekst String reserverFor) {
+    public record ReserverOppgaveDto(@NotNull @Digits(integer = 18, fraction = 0) String journalpostId, @Fritekst String reserverFor) {
     }
 
     public static class EmptyAbacDataSupplier implements Function<Object, AbacDataAttributter> {
