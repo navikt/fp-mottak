@@ -379,7 +379,7 @@ public class JournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (ReserverOppgaveDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, JournalpostId.fra(dto.journalpostId()));
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, dto.journalpostId());
         }
     }
 
@@ -387,7 +387,7 @@ public class JournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (JournalpostIdDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, JournalpostId.fra(dto.journalpostId()));
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, dto.journalpostId());
         }
     }
 
@@ -395,7 +395,7 @@ public class JournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (OppdaterBrukerDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, dto.fødselsnummer());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, dto.fødselsnummer().value());
         }
     }
 
@@ -403,7 +403,7 @@ public class JournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (HentBrukerDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, dto.fødselsnummer());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, dto.fødselsnummer().value());
         }
     }
 }

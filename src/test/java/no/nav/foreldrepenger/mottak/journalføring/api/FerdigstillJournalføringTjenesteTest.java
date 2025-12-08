@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.mottak.journalføring.ManuellOpprettSakValidator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -87,6 +89,8 @@ class FerdigstillJournalføringTjenesteTest {
     private ArkivTjeneste arkiv;
     @Mock
     private ArkivJournalpost arkivJournalpost;
+    @Mock
+    private ManuellOpprettSakValidator manuellOpprettSakValidator;
 
     private FerdigstillJournalføringTjeneste journalføringTjeneste;
     private final List<FerdigstillJournalføringTjeneste.DokumenterMedNyTittel> tomDokumentListe = new ArrayList<>();
@@ -101,7 +105,7 @@ class FerdigstillJournalføringTjenesteTest {
         lenient().when(arkiv.hentArkivJournalpost(JOURNALPOST_ID)).thenReturn(arkivJournalpost);
         lenient().when(arkivJournalpost.getJournalpostId()).thenReturn(JOURNALPOST_ID);
 
-        journalføringTjeneste = new FerdigstillJournalføringTjeneste(klargjører, fagsak, pdl, oppgaver, taskTjeneste, arkiv);
+        journalføringTjeneste = new FerdigstillJournalføringTjeneste(klargjører, fagsak, pdl, oppgaver, taskTjeneste, arkiv, manuellOpprettSakValidator);
     }
 
     @Test

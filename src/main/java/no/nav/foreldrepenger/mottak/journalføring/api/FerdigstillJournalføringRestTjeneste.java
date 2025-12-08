@@ -19,14 +19,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import no.nav.foreldrepenger.kontrakter.felles.typer.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.Journalstatus;
@@ -59,7 +59,7 @@ public class FerdigstillJournalføringRestTjeneste {
     private static final String EXCEPTION_KODE = "FP-32354";
 
 
-    protected FerdigstillJournalføringRestTjeneste() {
+    FerdigstillJournalføringRestTjeneste() {
         // CDI proxy
     }
 
@@ -101,14 +101,14 @@ public class FerdigstillJournalføringRestTjeneste {
             LOG.info("FPMOTTAK RESTJOURNALFØRING:Ny journalposttittel er: {}, ny dokumentTypeId: {}", nyJournalpostTittel, nyDokumentTypeId);
         }
 
-        var saksnummer = request.saksnummer() != null ? request.saksnummer() : null;
+        var saksnummer = request.saksnummer() != null ? request.saksnummer().value() : null;
 
         if (saksnummer == null) {
             if (request.opprettSak() == null || (!SakstypeDto.GENERELL.equals(request.opprettSak().sakstype()) && request.opprettSak().ytelseType() == null)) {
                 throw new TekniskException(EXCEPTION_KODE, "OpprettSakDto kan ikke være null ved opprettelse av en sak eller mangler ytelsestype.");
             }
             if (SakstypeDto.GENERELL.equals(request.opprettSak().sakstype())) {
-                journalføringTjeneste.oppdaterJournalpostOgFerdigstillGenerellSak(brukEnhet, journalpost, request.opprettSak().aktørId(),
+                journalføringTjeneste.oppdaterJournalpostOgFerdigstillGenerellSak(brukEnhet, journalpost, request.opprettSak().aktørId().value(),
                     nyJournalpostTittel, dokumenter, nyDokumentTypeId);
                 return new SaksnummerDto("000000000");
             }
@@ -145,7 +145,7 @@ public class FerdigstillJournalføringRestTjeneste {
 
         //Endring av titler
         //var journalpost = jo.
-        var saksnummer = request.saksnummer() != null ? request.saksnummer() : null;
+        var saksnummer = request.saksnummer() != null ? request.saksnummer().value() : null;
 
         if (saksnummer == null) {
             if (request.opprettSak() == null || SakstypeDto.GENERELL.equals(request.opprettSak().sakstype()) || request.opprettSak().ytelseType() == null) {
@@ -167,7 +167,7 @@ public class FerdigstillJournalføringRestTjeneste {
         if (opprettSakDto == null) {
             throw new TekniskException(EXCEPTION_KODE, "OpprettSakDto kan ikke være null ved opprettelse av en sak.");
         }
-        return new OpprettSak(new AktørId(opprettSakDto.aktørId), mapYtelseTypeFraDto(opprettSakDto.ytelseType));
+        return new OpprettSak(new AktørId(opprettSakDto.aktørId().value()), mapYtelseTypeFraDto(opprettSakDto.ytelseType));
     }
 
     public record OpprettSak(AktørId aktørId, FagsakYtelseTypeDto ytelseType ){}
@@ -210,7 +210,7 @@ public class FerdigstillJournalføringRestTjeneste {
             var req = (FerdigstillRequest) obj;
             var opprett = AbacDataAttributter.opprett();
             if (req.opprettSak() != null) {
-                opprett.leggTil(AppAbacAttributtType.AKTØR_ID, req.opprettSak().aktørId());
+                opprett.leggTil(AppAbacAttributtType.AKTØR_ID, req.opprettSak().aktørId().value());
             }
             return opprett;
         }
@@ -218,18 +218,19 @@ public class FerdigstillJournalføringRestTjeneste {
 
     enum SakstypeDto { FAGSAK, GENERELL }
 
-    record OpprettSakDto(@Valid YtelseTypeDto ytelseType, @Valid FerdigstillJournalføringRestTjeneste.SakstypeDto sakstype,
-                         @NotNull @Pattern(regexp = "^\\d{13}$", message = "aktørId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String aktørId) {
+    public record OpprettSakDto(@Valid YtelseTypeDto ytelseType,
+                         @Valid FerdigstillJournalføringRestTjeneste.SakstypeDto sakstype,
+                         @NotNull @Valid no.nav.foreldrepenger.kontrakter.felles.typer.AktørId aktørId) {
         @Override
         public String toString() {
             return "OpprettSakDto{" + "ytelseType=" + ytelseType + ", sakstype=" + sakstype + '}';
         }
     }
 
-    record FerdigstillRequest(
-        @NotNull @Pattern(regexp = "^(-?[1-9]|[a-z0])[a-z0-9_:-]*$", message = "journalpostId ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String journalpostId,
-        @NotNull @Pattern(regexp = "[\\d]{4}") String enhetId,
-        @Size(max = 11) @Pattern(regexp = "^[0-9_\\-]*$") String saksnummer,
+    public record FerdigstillRequest(
+        @NotNull @Digits(integer = 18, fraction = 0) String journalpostId,
+        @NotNull @Digits(integer = 4, fraction = 0) String enhetId,
+        @Valid Saksnummer saksnummer,
         @Valid OpprettSakDto opprettSak,
         @Valid OppdaterJournalpostMedTittelDto oppdaterTitlerDto) {}
 

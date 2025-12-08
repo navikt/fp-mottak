@@ -27,7 +27,7 @@ public class ForvaltningApiConfig extends ResourceConfig {
         setProperties(getApplicationProperties());
     }
 
-    private static Set<Class<?>> getForvaltningKlasser() {
+    public static Set<Class<?>> getForvaltningKlasser() {
         return Set.of(
             ProsessTaskRestTjeneste.class,
             ForvaltningRestTjeneste.class,
