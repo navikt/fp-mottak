@@ -61,13 +61,13 @@ public class FerdigstillJournalføringTjeneste {
     static final String BRUKER_MANGLER = "Journalpost mangler knyting til bruker - prøv igjen om et halv minutt";
     static final String JOURNALPOST_IKKE_INNGÅENDE = "Journalpost ikke Inngående";
     private static final Logger LOG = LoggerFactory.getLogger(FerdigstillJournalføringTjeneste.class);
-    protected static final String ENDELIG = "ENDELIG";
     private VLKlargjører klargjører;
     private Fagsak fagsak;
     private PersonInformasjon pdl;
     private Journalføringsoppgave oppgaver;
     private ProsessTaskTjeneste taskTjeneste;
     private ArkivTjeneste arkivTjeneste;
+    private ManuellOpprettSakValidator manuellOpprettSakValidator;
 
     FerdigstillJournalføringTjeneste() {
         //CDI
@@ -79,13 +79,15 @@ public class FerdigstillJournalføringTjeneste {
                                             PersonInformasjon pdl,
                                             Journalføringsoppgave oppgaver,
                                             ProsessTaskTjeneste taskTjeneste,
-                                            ArkivTjeneste arkivTjeneste) {
+                                            ArkivTjeneste arkivTjeneste,
+                                            ManuellOpprettSakValidator manuellOpprettSakValidator) {
         this.klargjører = klargjører;
         this.fagsak = fagsak;
         this.pdl = pdl;
         this.oppgaver = oppgaver;
         this.taskTjeneste = taskTjeneste;
         this.arkivTjeneste = arkivTjeneste;
+        this.manuellOpprettSakValidator = manuellOpprettSakValidator;
     }
 
     public void oppdaterJournalpostOgFerdigstill(String enhetId,
@@ -141,7 +143,7 @@ public class FerdigstillJournalføringTjeneste {
 
         var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
 
-        final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
+        final var xml = hentDokumentSettMetadata(behandlingTema, aktørIdFagsak, journalpost);
         klargjører.klargjør(xml, saksnummer, journalpost.getJournalpostId(), brukDokumentTypeId, mottattTidspunkt, behandlingTema,
                 dokumentKategori, enhetId, eksternReferanseId);
 
@@ -266,19 +268,13 @@ public class FerdigstillJournalføringTjeneste {
     }
 
     String opprettSak(ArkivJournalpost journalpost, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo, DokumentTypeId nyDokumentTypeId) {
-        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensForOpprettSak(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
-            nyDokumentTypeId);
-
+        manuellOpprettSakValidator.validerKonsistensForOpprettSak(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(), nyDokumentTypeId);
         return fagsak.opprettSak(opprettSakRequest(journalpost.getJournalpostId(), opprettSakInfo)).saksnummer();
     }
 
     // Validerer mot eksisterende men sikrer at det opprettes ny sak
-    String opprettNySak(ArkivJournalpost journalpost,
-                        FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo,
-                        DokumentTypeId nyDokumentTypeId) {
-        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensForOpprettSak(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(),
-            nyDokumentTypeId);
-
+    String opprettNySak(ArkivJournalpost journalpost, FerdigstillJournalføringRestTjeneste.OpprettSak opprettSakInfo, DokumentTypeId nyDokumentTypeId) {
+        manuellOpprettSakValidator.validerKonsistensForOpprettSak(journalpost, opprettSakInfo.ytelseType(), opprettSakInfo.aktørId(), nyDokumentTypeId);
         return fagsak.opprettSak(opprettSakRequest(null, opprettSakInfo)).saksnummer();
     }
 
@@ -308,14 +304,13 @@ public class FerdigstillJournalføringTjeneste {
 
         validerKanJournalføreKlageDokument(behandlingTemaFagsak, brukDokumentTypeId, dokumentKategori);
 
-        new ManuellOpprettSakValidator(arkivTjeneste).validerKonsistensForKnyttTilAnnenSak(journalpost, behandlingTema.utledYtelseType(),
-            new AktørId(aktørIdFagsak), journalpost.getHovedtype());
+        manuellOpprettSakValidator.validerKonsistensForKnyttTilAnnenSak(journalpost, behandlingTema.utledYtelseType(), new AktørId(aktørIdFagsak), journalpost.getHovedtype());
 
         // Do the business
         var nyJournalpostId = arkivTjeneste.knyttTilAnnenSak(journalpost, enhetId, saksnummer, aktørIdFagsak);
 
         // Bruk fra opprinnelig
-        final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
+        final var xml = hentDokumentSettMetadata(behandlingTema, aktørIdFagsak, journalpost);
         var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
         String eksternReferanseId = journalpost.getEksternReferanseId();
         if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId) && eksternReferanseId == null) {
@@ -341,7 +336,7 @@ public class FerdigstillJournalføringTjeneste {
         var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
 
         // Bruk fra opprinnelig
-        final var xml = hentDokumentSettMetadata(saksnummer, behandlingTema, aktørIdFagsak, journalpost);
+        final var xml = hentDokumentSettMetadata(behandlingTema, aktørIdFagsak, journalpost);
         var mottattTidspunkt = Optional.ofNullable(journalpost.getDatoOpprettet()).orElseGet(LocalDateTime::now);
         String eksternReferanseId = journalpost.getEksternReferanseId();
         if (DokumentTypeId.INNTEKTSMELDING.equals(brukDokumentTypeId) && eksternReferanseId == null) {
@@ -442,15 +437,15 @@ public class FerdigstillJournalføringTjeneste {
         return fagsak.finnFagsakInfomasjon(new SaksnummerDto(saksnummerFraArkiv));
     }
 
-    private String hentDokumentSettMetadata(String saksnummer, BehandlingTema behandlingTema, String aktørId, ArkivJournalpost journalpost) {
+    private String hentDokumentSettMetadata(BehandlingTema behandlingTema, String aktørId, ArkivJournalpost journalpost) {
         final var xml = journalpost.getStrukturertPayload();
         if (journalpost.getInnholderStrukturertInformasjon()) {
-            return validerXml(journalpost, behandlingTema, saksnummer, aktørId, xml);
+            return validerXml(journalpost, behandlingTema, aktørId, xml);
         }
         return xml;
     }
 
-    private String validerXml(ArkivJournalpost journalpost, BehandlingTema behandlingTema, String saksnummer, String aktørId, String xml) {
+    private String validerXml(ArkivJournalpost journalpost, BehandlingTema behandlingTema, String aktørId, String xml) {
         MottattStrukturertDokument<?> mottattDokument;
         try {
             mottattDokument = MeldingXmlParser.unmarshallXml(xml);

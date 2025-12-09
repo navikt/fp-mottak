@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
+import no.nav.foreldrepenger.kontrakter.felles.typer.Saksnummer;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -143,13 +145,13 @@ class FerdigstillJournalføringRestTjenesteTest {
     private static FerdigstillJournalføringRestTjeneste.FerdigstillRequest req(String enhetid, String journalpostId, String sakId, YtelseTypeDto ytelseTypeDto, String aktørId, OppdaterJournalpostMedTittelDto oppdaterJournalpostMedTittelDto) {
         FerdigstillJournalføringRestTjeneste.OpprettSakDto opprettSakDto = null;
         if (aktørId != null && ytelseTypeDto != null) {
-            opprettSakDto = new FerdigstillJournalføringRestTjeneste.OpprettSakDto(ytelseTypeDto, null, aktørId);
+            opprettSakDto = new FerdigstillJournalføringRestTjeneste.OpprettSakDto(ytelseTypeDto, null, new no.nav.foreldrepenger.kontrakter.felles.typer.AktørId(aktørId));
         }
-        return new FerdigstillJournalføringRestTjeneste.FerdigstillRequest(journalpostId, enhetid, sakId, opprettSakDto, oppdaterJournalpostMedTittelDto);
+        return new FerdigstillJournalføringRestTjeneste.FerdigstillRequest(journalpostId, enhetid, new Saksnummer(sakId), opprettSakDto, oppdaterJournalpostMedTittelDto);
     }
 
     private static FerdigstillJournalføringRestTjeneste.FerdigstillRequest reqGenerell(String enhetid, String journalpostId, String sakId, String aktørId, OppdaterJournalpostMedTittelDto oppdaterJournalpostMedTittelDto) {
-        var opprettSakDto = new FerdigstillJournalføringRestTjeneste.OpprettSakDto(null, FerdigstillJournalføringRestTjeneste.SakstypeDto.GENERELL, aktørId);
-        return new FerdigstillJournalføringRestTjeneste.FerdigstillRequest(journalpostId, enhetid, sakId, opprettSakDto, oppdaterJournalpostMedTittelDto);
+        var opprettSakDto = new FerdigstillJournalføringRestTjeneste.OpprettSakDto(null, FerdigstillJournalføringRestTjeneste.SakstypeDto.GENERELL, new no.nav.foreldrepenger.kontrakter.felles.typer.AktørId(aktørId));
+        return new FerdigstillJournalføringRestTjeneste.FerdigstillRequest(journalpostId, enhetid, new Saksnummer(sakId), opprettSakDto, oppdaterJournalpostMedTittelDto);
     }
 }

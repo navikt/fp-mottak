@@ -395,7 +395,7 @@ public class JournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (OppdaterBrukerDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, dto.fødselsnummer());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, dto.fødselsnummer().value());
         }
     }
 
@@ -403,7 +403,7 @@ public class JournalføringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var dto = (HentBrukerDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, dto.fødselsnummer());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, dto.fødselsnummer().value());
         }
     }
 }

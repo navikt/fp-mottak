@@ -4,6 +4,10 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Optional;
 
+import jakarta.enterprise.context.ApplicationScoped;
+
+import jakarta.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,12 +28,18 @@ import no.nav.vedtak.exception.FunksjonellException;
  * - At dokumentet ikke er en endringssøknad.
  * - At brukeren ikke har en aktiv sak allerede opprettet i FPSAK.
  */
+@ApplicationScoped
 public class ManuellOpprettSakValidator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ManuellOpprettSakValidator.class);
 
-    private final ArkivTjeneste arkivTjeneste;
+    private ArkivTjeneste arkivTjeneste;
 
+    ManuellOpprettSakValidator() {
+        // CDI
+    }
+
+    @Inject
     public ManuellOpprettSakValidator(ArkivTjeneste arkivTjeneste) {
         this.arkivTjeneste = arkivTjeneste;
     }

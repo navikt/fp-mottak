@@ -1,32 +1,31 @@
 package no.nav.foreldrepenger.mottak.server.konfig;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.Application;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 
 public class RestApiTester {
 
-    static final List<Class<?>> UNNTATT = Collections.singletonList(OpenApiResource.class);
+    private static final Set<Class<? extends Annotation>> REST_METHOD_ANNOTATIONS = Set.of(GET.class, POST.class, DELETE.class, PATCH.class, PUT.class);
 
     static Collection<Method> finnAlleRestMetoder() {
-        List<Method> liste = new ArrayList<>();
-        for (var klasse : finnAlleRestTjenester()) {
-            for (var method : klasse.getDeclaredMethods()) {
-                if (Modifier.isPublic(method.getModifiers())) {
-                    liste.add(method);
-                }
-            }
-        }
-        return liste;
+        return finnAlleRestTjenester().stream()
+            .map(Class::getDeclaredMethods)
+            .flatMap(Arrays::stream)
+            .filter(RestApiTester::erMetodenEtRestEndepunkt)
+            .collect(Collectors.toSet());
     }
 
     static Collection<Class<?>> finnAlleJsonSubTypeClasses(Class<?> klasse) {
@@ -40,13 +39,14 @@ public class RestApiTester {
         return resultat;
     }
 
-    private static Collection<Class<?>> finnAlleRestTjenester() {
-        var resultat = new ArrayList<>(finnAlleRestTjenester(new ApiConfig()));
-        resultat.addAll(finnAlleRestTjenester(new ForvaltningApiConfig()));
-        return resultat;
+    private static Set<Class<?>> finnAlleRestTjenester() {
+        var resultat = new ArrayList<Class<?>>();
+        resultat.addAll(ApiConfig.getApplicationClasses());
+        resultat.addAll(ForvaltningApiConfig.getForvaltningKlasser());
+        return Set.copyOf(resultat);
     }
 
-    private static Collection<Class<?>> finnAlleRestTjenester(Application config) {
-        return config.getClasses().stream().filter(c -> c.getAnnotation(Path.class) != null).filter(c -> !UNNTATT.contains(c)).toList();
+    private static boolean erMetodenEtRestEndepunkt(Method method) {
+        return REST_METHOD_ANNOTATIONS.stream().anyMatch(method::isAnnotationPresent);
     }
 }
