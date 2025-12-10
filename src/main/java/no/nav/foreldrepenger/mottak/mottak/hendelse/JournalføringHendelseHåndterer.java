@@ -151,11 +151,6 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
     }
 
     @Override
-    public Optional<OffsetResetStrategy> autoOffsetReset() {
-        return Optional.of(OffsetResetStrategy.LATEST);
-    }
-
-    @Override
     public Supplier<Deserializer<String>> keyDeserializer() {
         return () -> {
             var s = new StringDeserializer();
