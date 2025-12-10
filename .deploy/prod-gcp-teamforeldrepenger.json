@@ -15,9 +15,6 @@
         "cpu": "200m",
         "mem": "1024Mi"
     },
-    "ingresses": [
-        "https://fpmottak.intern.nav.no"
-    ],
     "groups": [
         {
             "uuid": "73107205-17ec-4a07-a56e-e0a8542f90c9",
