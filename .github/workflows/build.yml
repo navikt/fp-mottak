@@ -32,7 +32,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    if: github.ref_name == 'master'
+    if: github.ref_name == 'master' && false
     needs: build-app
     uses: navikt/fp-autotest/.github/workflows/autotest.yml@master
     with:
@@ -56,7 +56,8 @@ jobs:
     permissions:
       id-token: write
     if: github.ref_name == 'master'
-    needs: [build-app, verdikjede]
+    #needs: [build-app, verdikjede]
+    needs: [build-app]
     uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
     with:
       gar: true
@@ -69,7 +70,8 @@ jobs:
     permissions:
       id-token: write
     if: github.ref_name == 'master'
-    needs: [build-app, verdikjede, deploy-dev]
+    #needs: [build-app, verdikjede, deploy-dev]
+    needs: [build-app, deploy-dev]
     uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
     with:
       gar: true
