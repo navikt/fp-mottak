@@ -5,10 +5,8 @@ import static io.confluent.kafka.serializers.KafkaAvroDeserializerConfig.SPECIFI
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
@@ -148,11 +146,6 @@ public class JournalføringHendelseHåndterer implements KafkaMessageHandler<Str
     @Override
     public String groupId() { // Keep stable (or it will read from autoOffsetReset())
         return "fpmottak";
-    }
-
-    @Override
-    public Optional<OffsetResetStrategy> autoOffsetReset() {
-        return Optional.of(OffsetResetStrategy.LATEST);
     }
 
     @Override
