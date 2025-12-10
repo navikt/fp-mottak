@@ -11,8 +11,6 @@ public class HendelserDataWrapper {
 
     public static final String HENDELSE_ID = "hendelse.id";
     public static final String HENDELSE_TYPE = "hendelse.type";
-    @SuppressWarnings("unused")
-    public static final String HENDELSE_KILDE = "hendelse.kilde"; // Ta i bruk ved taskoppretting når ny kilde eller omlegging. Nå kun PDL
 
     private final ProsessTaskData prosessTaskData;
 

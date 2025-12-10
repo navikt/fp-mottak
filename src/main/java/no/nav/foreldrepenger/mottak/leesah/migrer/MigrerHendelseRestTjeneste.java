@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.leesah.migrer;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -62,25 +63,62 @@ public class MigrerHendelseRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response lagreHendelser(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
                                    @NotNull @Parameter(name = "hendelser") @Valid MigreringHendelseDto hendelse) {
-        lagreEllerOppdater(hendelse);
-        return Response.ok().build();
+        var lagret = lagreFase1(hendelse);
+        return Response.ok(lagret).build();
     }
 
-    private void lagreEllerOppdater(MigreringHendelseDto hendelse) {
+    private boolean lagreFase1(MigreringHendelseDto hendelse) {
         var eksisterende = hendelseRepository.finnHendelseFraIdHvisFinnes(hendelse.hendelseId()).orElse(null);
         if (eksisterende != null) {
-            LOG.info("Mottok og lagret eksisterende hendelse id {} av type {}", hendelse.hendelseId(), hendelse.type().name());
+            LOG.info("Fant eksisterende hendelse id {} av type {}", hendelse.hendelseId(), hendelse.type().name());
             /* Ikke i runde 1 i mottak. Andre migrering - oppdater dersom ulik */
-            return;
-            //eksisterende.setHåndtertStatus(hendelseDto.haandtertStatus());
-            //eksisterende.setHåndteresEtterTidspunkt(hendelseDto.haandteresEtter());
-            //eksisterende.setSendtTidspunkt(hendelseDto.sendtTid());
-            //hendelseRepository.lagreInngåendeHendelse(eksisterende);
+            return false;
         } else {
             var nyHendelse = fraHendelseDto(hendelse);
             Optional.ofNullable(hendelse.opprettetTid()).ifPresent(nyHendelse::setOpprettetTidspunkt);
             hendelseRepository.lagreInngåendeHendelse(nyHendelse);
             LOG.info("Mottok og lagret hendelse id {} av type {}", hendelse.hendelseId(), hendelse.type().name());
+            return true;
+        }
+    }
+
+    @POST
+    @Operation(description = "Oppdaterer status for migrerte hendelser", tags = "Migrering",
+        summary = ("Oppdaterer status for migrerte hendelser"),
+        responses = {@ApiResponse(responseCode = "200", description = "Hendelser")})
+    @Path("/hendelse-fase2")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response lagreHendelserFase2(@TilpassetAbacAttributt(supplierClass = MigreringAbacSupplier.class)
+                                   @NotNull @Parameter(name = "hendelser") @Valid MigreringHendelseDto hendelse) {
+        var oppdatert = oppdaterFase2(hendelse);
+        return Response.ok(oppdatert).build();
+    }
+
+    private boolean oppdaterFase2(MigreringHendelseDto hendelse) {
+        var eksisterende = hendelseRepository.finnHendelseFraIdHvisFinnes(hendelse.hendelseId()).orElse(null);
+        if (eksisterende != null) {
+            LOG.info("Fant eksisterende hendelse id {} av type {}", hendelse.hendelseId(), hendelse.type().name());
+            var endret = false;
+            if (!Objects.equals(eksisterende.getHåndtertStatus(), hendelse.haandtertStatus())) {
+                eksisterende.setHåndtertStatus(hendelse.haandtertStatus());
+                endret = true;
+            }
+            if (!Objects.equals(eksisterende.getHåndteresEtterTidspunkt(), hendelse.haandteresEtter())) {
+                eksisterende.setHåndteresEtterTidspunkt(hendelse.haandteresEtter());
+                endret = true;
+            }
+            if (!Objects.equals(eksisterende.getSendtTidspunkt(), hendelse.sendtTid())) {
+                eksisterende.setSendtTidspunkt(hendelse.sendtTid());
+                endret = true;
+            }
+            if (endret) {
+                LOG.info("Oppdaterte eksisterende hendelse id {} av type {}", hendelse.hendelseId(), hendelse.type().name());
+                hendelseRepository.lagreInngåendeHendelse(eksisterende);
+            }
+            return endret;
+        } else {
+            LOG.info("Mottok og ignorerte ny hendelse id {} av type {}", hendelse.hendelseId(), hendelse.type().name());
+            return false;
         }
     }
 
