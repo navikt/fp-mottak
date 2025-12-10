@@ -81,6 +81,9 @@ spec:
       rules:
         - application: fp-frontend
         - application: fp-journalforing
+        - application: fp-abonnent
+          namespace: teamforeldrepenger
+          cluster: {{environment}}-fss
         - application: fp-swagger
           namespace: teamforeldrepenger
           cluster: {{environment}}-gcp
