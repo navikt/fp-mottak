@@ -25,11 +25,15 @@ import no.nav.foreldrepenger.mottak.journalføring.api.JournalføringRestTjenest
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.OppgaveEntitet;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.OppgaveRepository;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.Status;
+import no.nav.foreldrepenger.mottak.leesah.task.SlettIrrelevanteHendelserBatchTask;
 import no.nav.foreldrepenger.mottak.mottak.domene.oppgavebehandling.OpprettGSakOppgaveTask;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
+import no.nav.foreldrepenger.mottak.mottak.task.SikkerhetsnettTask;
 import no.nav.foreldrepenger.mottak.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.mottak.task.VLKlargjørerTask;
+import no.nav.foreldrepenger.mottak.server.task.RekjørFeiledeTasksBatchTask;
+import no.nav.foreldrepenger.mottak.server.task.SlettGamleTasksBatchTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
@@ -105,6 +109,33 @@ public class ForvaltningRestTjeneste {
         return Response.ok().build();
     }
 
+    @POST
+    @Path("/autorun")
+    @Operation(description = "Start task for å kjøre task-rydding", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Starter batch-scheduler."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response autoRunTasksBatchTask() {
+        taskTjeneste.lagre(ProsessTaskData.forProsessTask(RekjørFeiledeTasksBatchTask.class));
+        taskTjeneste.lagre(ProsessTaskData.forProsessTask(SlettGamleTasksBatchTask.class));
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/autorun-sikkerhetsnett")
+    @Operation(description = "Start task for å kjøre sikkerhetsnett", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Starter batch-scheduler."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response autoRunBatch() {
+        taskTjeneste.lagre(ProsessTaskData.forProsessTask(SikkerhetsnettTask.class));
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/autorun-hendelserydder")
+    @Operation(description = "Start task for å kjøre rydde gamle hendeser", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Starter batch-scheduler."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response autoRunHendelserBatchTask() {
+        taskTjeneste.lagre(ProsessTaskData.forProsessTask(SlettIrrelevanteHendelserBatchTask.class));
+        return Response.ok().build();
+    }
 
     @POST
     @Path("/searchTasks")
@@ -116,12 +147,10 @@ public class ForvaltningRestTjeneste {
     }
 
     @POST
-    @Operation(
-        description = "Send inntektsmelding til angitt sak (allerede journalført)",
-        tags = "Forvaltning",
-        summary = "Bruker eksisterende task til å sende dokument til VL",
-        responses = {@ApiResponse(responseCode = "200", description = "Inntektsmelding sendt til VL")}
-    )
+    @Operation(description = "Send inntektsmelding til angitt sak (allerede journalført)", tags = "Forvaltning", summary = "Bruker eksisterende task til å sende dokument til VL", responses =
+
+        {@ApiResponse(responseCode = "200", description = "Inntektsmelding sendt til VL")})
+
     @Path("/fiks-arkiv-feil")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response fiksarkivFeil(@Parameter(description = "Arkivfeil") @NotNull @Valid SubmitJfortIMDto dto) {

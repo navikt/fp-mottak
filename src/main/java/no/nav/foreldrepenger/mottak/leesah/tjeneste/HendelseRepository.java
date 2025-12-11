@@ -168,8 +168,4 @@ public class HendelseRepository {
         entityManager.flush();
         return deletedRows;
     }
-
-    public List<InngåendeHendelse> hentAlleInngåendeHendelser() {
-        return entityManager.createQuery("from InngåendeHendelse", InngåendeHendelse.class).getResultList();
-    }
 }
