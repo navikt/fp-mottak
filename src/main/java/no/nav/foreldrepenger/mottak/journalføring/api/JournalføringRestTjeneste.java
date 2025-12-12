@@ -185,7 +185,7 @@ public class JournalføringRestTjeneste {
                 || ex.getMessage().contains("Saksbehandler har ikke tilgang til ressurs på grunn av journalposten sin status")) {
                 return Response.noContent().build();
             }
-            throw new TekniskException("FORDEL-123", "Journapost " + journalpostId.journalpostId() + " finnes ikke i arkivet.", ex);
+            throw new TekniskException("MOTTAK-123", "Journapost " + journalpostId.journalpostId() + " finnes ikke i arkivet.", ex);
         }
     }
 
@@ -200,7 +200,7 @@ public class JournalføringRestTjeneste {
             oppgaveTjeneste.flyttLokalOppgaveTilGosys(JournalpostId.fra(journalpostId.journalpostId()));
             return Response.ok().build();
         } catch (NoSuchElementException ex) {
-            throw new TekniskException("FORDEL-123", "Journalpost " + journalpostId.journalpostId() + " kunne ikke flyttes til Gosys.", ex);
+            throw new TekniskException("MOTTAK-123", "Journalpost " + journalpostId.journalpostId() + " kunne ikke flyttes til Gosys.", ex);
         }
     }
 

@@ -89,7 +89,7 @@ public class PdlLeesahHendelseHåndterer implements KafkaMessageHandler<String, 
         var inngåendeHendelse = hendelseRepository.finnHendelseFraIdHvisFinnes(payload.getHendelseId().toString());
         if (inngåendeHendelse.isPresent()) {
             LOG.info(
-                "FPABONNENT mottok duplikat hendelse som ignoreres: hendelseId={} opplysningstype={} endringstype={} master={} opprettet={} tidligereHendelseId={}. Tiltak: Sjekk om det skjedde en deploy/restart av Fpabonnent i det samme tidsrommet - i så fall kan dette ignoreres.",
+                "FPMOTTAK mottok duplikat hendelse som ignoreres: hendelseId={} opplysningstype={} endringstype={} master={} opprettet={} tidligereHendelseId={}. Tiltak: Sjekk om det skjedde en deploy/restart av fpmottak i det samme tidsrommet - i så fall kan dette ignoreres.",
                 payload.getHendelseId(), payload.getOpplysningstype(), payload.getEndringstype(), payload.getMaster(), payload.getOpprettet(),
                 payload.getTidligereHendelseId());
             return;
@@ -159,13 +159,13 @@ public class PdlLeesahHendelseHåndterer implements KafkaMessageHandler<String, 
     }
 
     private void loggMottakMedDato(Personhendelse payload, String hendelse, String datofelt, LocalDate dato) {
-        LOG.info("FPABONNENT mottok {}: hendelseId={} opplysningstype={} endringstype={} master={} opprettet={} tidligereHendelseId={} {}={}",
+        LOG.info("FPMOTTAK mottok {}: hendelseId={} opplysningstype={} endringstype={} master={} opprettet={} tidligereHendelseId={} {}={}",
             hendelse, payload.getHendelseId(), payload.getOpplysningstype(), payload.getEndringstype(), payload.getMaster(), payload.getOpprettet(),
             payload.getTidligereHendelseId(), datofelt, dato);
     }
 
     private void loggMottakUtenDato(Personhendelse payload, String hendelse) {
-        LOG.info("FPABONNENT mottok {}: hendelseId={} opplysningstype={} endringstype={} master={} opprettet={} tidligereHendelseId={}", hendelse,
+        LOG.info("FPMOTTAK mottok {}: hendelseId={} opplysningstype={} endringstype={} master={} opprettet={} tidligereHendelseId={}", hendelse,
             payload.getHendelseId(), payload.getOpplysningstype(), payload.getEndringstype(), payload.getMaster(), payload.getOpprettet(),
             payload.getTidligereHendelseId());
     }
@@ -226,11 +226,6 @@ public class PdlLeesahHendelseHåndterer implements KafkaMessageHandler<String, 
     @Override
     public String groupId() { // Keep stable (or it will read from autoOffsetReset()
         return "fpmottak";
-    }
-
-    @Override
-    public Optional<OffsetResetStrategy> autoOffsetReset() {
-        return Optional.of(OffsetResetStrategy.LATEST);
     }
 
     @Override

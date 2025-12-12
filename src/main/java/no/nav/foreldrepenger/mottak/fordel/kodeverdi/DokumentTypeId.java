@@ -132,7 +132,7 @@ public enum DokumentTypeId implements Kodeverdi {
         ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL, ETTERSENDT_SØKNAD_FORELDREPENGER_ADOPSJON,
         ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD, ETTERSENDT_FLEKSIBELT_UTTAK_FORELDREPENGER);
 
-    // Ulike titler er brukt i selvbetjening, fordel, sak og kodeverk
+    // Ulike titler er brukt i selvbetjening, mottak, sak og kodeverk
     private static final Map<String, DokumentTypeId> ALT_TITLER = Map.ofEntries(
         Map.entry("søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser", SØKNAD_SVANGERSKAPSPENGER),
         Map.entry("søknad om svangerskapspenger for selvstendig", SØKNAD_SVANGERSKAPSPENGER),
