@@ -35,6 +35,8 @@ import no.nav.foreldrepenger.mottak.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.server.task.RekjørFeiledeTasksBatchTask;
 import no.nav.foreldrepenger.mottak.server.task.SlettGamleTasksBatchTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -114,8 +116,8 @@ public class ForvaltningRestTjeneste {
     @Operation(description = "Start task for å kjøre task-rydding", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Starter batch-scheduler."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response autoRunTasksBatchTask() {
-        taskTjeneste.lagre(ProsessTaskData.forProsessTask(RekjørFeiledeTasksBatchTask.class));
-        taskTjeneste.lagre(ProsessTaskData.forProsessTask(SlettGamleTasksBatchTask.class));
+        startTaskVedBehov(RekjørFeiledeTasksBatchTask.class);
+        startTaskVedBehov(SlettGamleTasksBatchTask.class);
         return Response.ok().build();
     }
 
@@ -124,7 +126,7 @@ public class ForvaltningRestTjeneste {
     @Operation(description = "Start task for å kjøre sikkerhetsnett", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Starter batch-scheduler."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response autoRunBatch() {
-        taskTjeneste.lagre(ProsessTaskData.forProsessTask(SikkerhetsnettTask.class));
+        startTaskVedBehov(SikkerhetsnettTask.class);
         return Response.ok().build();
     }
 
@@ -133,7 +135,7 @@ public class ForvaltningRestTjeneste {
     @Operation(description = "Start task for å kjøre rydde gamle hendeser", tags = "Forvaltning", responses = {@ApiResponse(responseCode = "200", description = "Starter batch-scheduler."), @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")})
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response autoRunHendelserBatchTask() {
-        taskTjeneste.lagre(ProsessTaskData.forProsessTask(SlettIrrelevanteHendelserBatchTask.class));
+        startTaskVedBehov(SlettIrrelevanteHendelserBatchTask.class);
         return Response.ok().build();
     }
 
@@ -243,5 +245,16 @@ public class ForvaltningRestTjeneste {
     private static LocalDate helgeJustertFrist(LocalDate dato) {
         return dato.getDayOfWeek().getValue() > DayOfWeek.FRIDAY.getValue() ? dato.plusDays(
             1L + DayOfWeek.SUNDAY.getValue() - dato.getDayOfWeek().getValue()) : dato;
+    }
+
+    private void startTaskVedBehov(Class<? extends ProsessTaskHandler> taskKlasse) {
+        var schedulerType = TaskType.forProsessTask(taskKlasse);
+        var eksisterende = taskTjeneste.finnAlle(ProsessTaskStatus.KLAR).stream()
+            .map(ProsessTaskData::taskType)
+            .anyMatch(schedulerType::equals);
+        if (!eksisterende) {
+            var taskData = ProsessTaskData.forProsessTask(taskKlasse);
+            taskTjeneste.lagre(taskData);
+        }
     }
 }
