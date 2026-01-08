@@ -117,8 +117,10 @@ class PdlFødselHendelseTjenesteTest {
         assertThat(payload).isNotNull();
         assertThat(payload.getHendelseType()).isEqualTo(MELDINGSTYPE.getKode());
         assertThat(payload.getHendelseId()).isEqualTo(HENDELSE_ID);
+        assertThat(payload.getAktørIdBarn()).isNotEmpty();
         assertThat(payload.getAktørIdBarn().get()).isEmpty();
-        assertThat(payload.getAktørIdForeldre()).isEmpty();
+        assertThat(payload.getAktørIdForeldre()).isNotEmpty();
+        assertThat(payload.getAktørIdForeldre().get()).isEmpty();
         assertThat(payload.getFødselsdato()).isEmpty();
     }
 
