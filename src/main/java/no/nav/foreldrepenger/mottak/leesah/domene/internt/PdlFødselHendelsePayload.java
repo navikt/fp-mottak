@@ -57,7 +57,7 @@ public class PdlFødselHendelsePayload extends HendelsePayload {
     }
 
     public Optional<Set<String>> getAktørIdForeldre() {
-        return Optional.ofNullable(aktørIdForeldre);
+        return Optional.ofNullable(aktørIdForeldre).filter(s -> !s.isEmpty());
     }
 
     public Optional<LocalDate> getFødselsdato() {
