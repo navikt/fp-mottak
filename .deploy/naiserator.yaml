@@ -47,7 +47,6 @@ spec:
       destinations:
         - id: loki
         - id: elastic
-        - id: secure_logs
   kafka:
     pool: {{kafkaPool}}
   gcp:
