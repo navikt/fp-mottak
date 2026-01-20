@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.mottak.server.error;
 
+import no.nav.vedtak.exception.IntegrasjonException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -51,6 +53,8 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
         var feil = getExceptionMelding(cause);
         if (cause instanceof ManglerTilgangException) {
             LOG.info(feil, cause);
+        } else if (cause instanceof IntegrasjonException ie) {
+            LOG.warn(String.format("Fikk uventet feil: %s, med feil %s", feil, ie.getFeil()), cause);
         } else {
             if (LOG.isWarnEnabled()) {
                 LOG.warn(String.format("Fikk uventet feil: %s", feil), cause);
