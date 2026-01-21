@@ -15,12 +15,11 @@ public final class SøknadInnhold extends DokumentInnhold {
     private LocalDate termindato;
     private LocalDate fødselsdato;
     private LocalDate omsorgsovertakelsesdato;
-    private final List<LocalDate> adopsjonsbarnFødselsdatoer;
+    private List<LocalDate> adopsjonsbarnFødselsdatoer;
     private String saksnummer;
 
     public SøknadInnhold(String aktørId, BehandlingTema behandlingTema, LocalDate førsteFraværsdato, LocalDateTime mottattTidspunkt) {
         super(aktørId, behandlingTema, førsteFraværsdato, mottattTidspunkt);
-        this.adopsjonsbarnFødselsdatoer = new ArrayList<>();
     }
 
     public Optional<String> getBrukerRolle() {
@@ -68,6 +67,9 @@ public final class SøknadInnhold extends DokumentInnhold {
     }
 
     public void leggTilAdopsjonsbarnFødselsdatoer(List<LocalDate> adopsjonsbarnFødselsdatoer) {
+        if (this.adopsjonsbarnFødselsdatoer == null) {
+            this.adopsjonsbarnFødselsdatoer = new ArrayList<>();
+        }
         this.adopsjonsbarnFødselsdatoer.addAll(adopsjonsbarnFødselsdatoer);
     }
 

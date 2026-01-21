@@ -125,7 +125,10 @@ public class FagsakKlient implements Fagsak {
         dto.setDokumentKategoriOffisiellKode(dokumentKategori.getOffisiellKode());
 
         if (innhold instanceof SøknadInnhold søknadInnhold) {
-            dto.setAdopsjonsBarnFodselsdatoer(søknadInnhold.getAdopsjonsbarnFødselsdatoer());
+            // Denne må enten være null eller ha minst en dato. Validering i kontrakt
+            var adopsjonsbarn = Optional.ofNullable(søknadInnhold.getAdopsjonsbarnFødselsdatoer())
+                .filter(liste -> !liste.isEmpty()).orElse(null);
+            dto.setAdopsjonsBarnFodselsdatoer(adopsjonsbarn);
             søknadInnhold.getTermindato().ifPresent(dto::setBarnTermindato);
             søknadInnhold.getFødselsdato().ifPresent(dto::setBarnFodselsdato);
             søknadInnhold.getOmsorgsovertakelsesdato().ifPresent(dto::setOmsorgsovertakelsedato);
