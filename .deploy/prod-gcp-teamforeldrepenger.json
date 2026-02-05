@@ -1,10 +1,6 @@
 {
     "environment": "prod",
     "kafkaPool": "nav-prod",
-    "dbTier": "db-custom-1-3840",
-    "dbDiskAutoresize": "true",
-    "dbHighAvailability": "true",
-    "dbPointInTimeRecovery": "true",
     "minReplicas": "2",
     "maxReplicas": "3",
     "limits": {
@@ -29,5 +25,12 @@
             "kommentar": "drift"
         }
     ],
+    "db": {
+        "dbVersion": "POSTGRES_17",
+        "dbTier": "db-custom-1-3840",
+        "dbDiskAutoresize": "true",
+        "dbHighAvailability": "true",
+        "dbPointInTimeRecovery": "true"
+    },
     "dokarkivUrl": "dokarkiv.prod-fss-pub.nais.io"
 }
