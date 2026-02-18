@@ -4,11 +4,10 @@
     "minReplicas": "1",
     "maxReplicas": "2",
     "limits": {
-        "cpu": "2",
-        "mem": "2048Mi"
+        "mem": "576Mi"
     },
     "requests": {
-        "cpu": "100m",
+        "cpu": "118m",
         "mem": "512Mi"
     },
     "groups": [
