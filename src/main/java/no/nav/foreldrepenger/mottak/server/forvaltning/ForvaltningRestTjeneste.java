@@ -247,11 +247,10 @@ public class ForvaltningRestTjeneste {
     }
 
     @POST
-    @Produces(TEXT_PLAIN)
     @Operation(description = "Hent originaldokument for FyllUtSendInn-Json", tags = "Forvaltning",
         summary = "Hent originaldokument for FyllUtSendInn-Json", responses = {@ApiResponse(responseCode = "200", description = "FyltUtSendtInn")})
     @Path("/fyll-ut-send-inn-json")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public String hentFyllUtSendInnJson(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
         var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().journalpostId());
         if (!journalpost.getInnholderStrukturertInformasjon() || !MottakKanal.UINNLOGGET.getKode().equals(journalpost.getKanal())) {
