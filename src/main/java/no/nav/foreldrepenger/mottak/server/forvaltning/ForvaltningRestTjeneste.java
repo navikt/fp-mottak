@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.server.forvaltning;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
-import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -15,7 +14,6 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -37,7 +35,6 @@ import no.nav.foreldrepenger.mottak.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.server.task.RekjørFeiledeTasksBatchTask;
 import no.nav.foreldrepenger.mottak.server.task.SlettGamleTasksBatchTask;
-import no.nav.saf.Kanal;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
