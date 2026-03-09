@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.mottak.server.forvaltning;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -14,12 +15,14 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostIdDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
+import no.nav.foreldrepenger.mottak.fordel.kodeverdi.MottakKanal;
 import no.nav.foreldrepenger.mottak.journalføring.api.FerdigstillJournalføringTjeneste;
 import no.nav.foreldrepenger.mottak.journalføring.api.JournalføringRestTjeneste;
 import no.nav.foreldrepenger.mottak.journalføring.oppgave.lager.OppgaveEntitet;
@@ -34,6 +37,7 @@ import no.nav.foreldrepenger.mottak.mottak.task.TilJournalføringTask;
 import no.nav.foreldrepenger.mottak.mottak.task.VLKlargjørerTask;
 import no.nav.foreldrepenger.mottak.server.task.RekjørFeiledeTasksBatchTask;
 import no.nav.foreldrepenger.mottak.server.task.SlettGamleTasksBatchTask;
+import no.nav.saf.Kanal;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -240,6 +244,20 @@ public class ForvaltningRestTjeneste {
             oppgaveRepository.lagre(oppgave);
         }
         return Response.ok().build();
+    }
+
+    @GET
+    @Produces(TEXT_PLAIN)
+    @Operation(description = "Hent originaldokument for FyllUtSendInn-Json", tags = "Forvaltning",
+        summary = "Hent originaldokument for FyllUtSendInn-Json", responses = {@ApiResponse(responseCode = "200", description = "FyltUtSendtInn")})
+    @Path("/fyll-ut-send-inn-json")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public String hentFyllUtSendInnJson(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
+        var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().journalpostId());
+        if (!journalpost.getInnholderStrukturertInformasjon() || !MottakKanal.UINNLOGGET.getKode().equals(journalpost.getKanal())) {
+            return"";
+        }
+        return journalpost.getStrukturertPayload();
     }
 
     private static LocalDate helgeJustertFrist(LocalDate dato) {
