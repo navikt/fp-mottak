@@ -251,12 +251,12 @@ public class ForvaltningRestTjeneste {
         summary = "Hent originaldokument for FyllUtSendInn-Json", responses = {@ApiResponse(responseCode = "200", description = "FyltUtSendtInn")})
     @Path("/fyll-ut-send-inn-json")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public String hentFyllUtSendInnJson(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
+    public Response hentFyllUtSendInnJson(@Parameter(description = "Sak og Journalpost") @NotNull @Valid JournalpostSakDto dto) {
         var journalpost = journalføringTjeneste.hentJournalpost(dto.journalpostIdDto().journalpostId());
         if (!journalpost.getInnholderStrukturertInformasjon() || !MottakKanal.UINNLOGGET.getKode().equals(journalpost.getKanal())) {
-            return"";
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        return journalpost.getStrukturertPayload();
+        return Response.ok(journalpost.getStrukturertPayload()).build();
     }
 
     private static LocalDate helgeJustertFrist(LocalDate dato) {
