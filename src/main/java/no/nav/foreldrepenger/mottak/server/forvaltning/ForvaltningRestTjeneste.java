@@ -246,7 +246,7 @@ public class ForvaltningRestTjeneste {
         return Response.ok().build();
     }
 
-    @GET
+    @POST
     @Produces(TEXT_PLAIN)
     @Operation(description = "Hent originaldokument for FyllUtSendInn-Json", tags = "Forvaltning",
         summary = "Hent originaldokument for FyllUtSendInn-Json", responses = {@ApiResponse(responseCode = "200", description = "FyltUtSendtInn")})
