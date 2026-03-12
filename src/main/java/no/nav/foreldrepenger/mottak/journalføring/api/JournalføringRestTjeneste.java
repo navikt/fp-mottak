@@ -51,11 +51,11 @@ import no.nav.foreldrepenger.mottak.mottak.klient.AktørIdDto;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
 import no.nav.foreldrepenger.mottak.mottak.person.PersonInformasjon;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.DestinasjonsRuter;
-import no.nav.foreldrepenger.mottak.server.error.FeilDto;
-import no.nav.foreldrepenger.mottak.server.error.FeilType;
 import no.nav.foreldrepenger.mottak.server.konfig.ApiConfig;
 import no.nav.foreldrepenger.mottak.server.sikkerhet.AppAbacAttributtType;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.feil.FeilDto;
+import no.nav.vedtak.feil.FeilType;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -254,7 +254,7 @@ public class JournalføringRestTjeneste {
         } catch (Exception _) {
             var feilmelding = String.format("Dokument ikke funnet for journalpost= %s dokument= %s", journalpost, dokument);
             return Response.status(Response.Status.NOT_FOUND)
-                .entity(new FeilDto(feilmelding, FeilType.TOMT_RESULTAT_FEIL))
+                .entity(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, feilmelding))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
         }
