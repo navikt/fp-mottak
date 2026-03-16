@@ -18,7 +18,7 @@
         <sonar.projectName>fp-mottak</sonar.projectName>
         <sonar.projectKey>navikt_fp-mottak</sonar.projectKey>
 
-        <felles.version>7.7.1</felles.version>
+        <felles.version>7.7.2</felles.version>
         <prosesstask.version>5.2.5</prosesstask.version>
         <fp-kontrakter.version>9.4.29</fp-kontrakter.version>
 
@@ -133,6 +133,10 @@
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-openapi</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
@@ -271,16 +275,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- SWAGGER -->
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-annotations-jakarta</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.swagger.core.v3</groupId>
-            <artifactId>swagger-jaxrs2-jakarta</artifactId>
-        </dependency>
-
 
         <!-- Hibernate -->
         <dependency>
@@ -326,10 +320,6 @@
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-json-jackson</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
