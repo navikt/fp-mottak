@@ -7,7 +7,7 @@
         "mem": "1000Mi"
     },
     "requests": {
-        "cpu": "150m",
+        "cpu": "100m",
         "mem": "800Mi"
     },
     "groups": [
