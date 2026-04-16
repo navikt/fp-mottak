@@ -55,9 +55,10 @@ import no.nav.foreldrepenger.mottak.server.konfig.ApiConfig;
 import no.nav.foreldrepenger.mottak.server.sikkerhet.AppAbacAttributtType;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.feil.FeilDto;
-import no.nav.vedtak.feil.FeilType;
+import no.nav.vedtak.feil.Feilkode;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Bruker;
 import no.nav.vedtak.felles.integrasjon.dokarkiv.dto.Sak;
+import no.nav.vedtak.server.rest.FeilUtils;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -252,11 +253,9 @@ public class JournalføringRestTjeneste {
             responseBuilder.header("Content-Disposition", "filename=dokument.pdf");
             return responseBuilder.build();
         } catch (Exception _) {
+            FeilUtils.ensureCallId();
             var feilmelding = String.format("Dokument ikke funnet for journalpost= %s dokument= %s", journalpost, dokument);
-            return Response.status(Response.Status.NOT_FOUND)
-                .entity(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, feilmelding))
-                .type(MediaType.APPLICATION_JSON)
-                .build();
+            return FeilUtils.responseFra(Response.Status.NOT_FOUND, Feilkode.IKKE_FUNNET, feilmelding);
         }
     }
 
