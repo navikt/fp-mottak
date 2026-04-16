@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import no.nav.vedtak.server.rest.GeneralRestExceptionMapper;
+
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
@@ -19,6 +21,7 @@ public class ApiConfig extends ResourceConfig {
     public static final String API_URI = "/api";
 
     public ApiConfig() {
+        GeneralRestExceptionMapper.setLegacyFrontendInternFeil(true);
         register(FpRestJackson2Feature.class);
         register(MultiPartFeature.class); // Multipart upload mellomlagring
         registerClasses(getApplicationClasses());
