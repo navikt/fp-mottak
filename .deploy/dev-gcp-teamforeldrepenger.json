@@ -2,7 +2,7 @@
     "environment": "dev",
     "kafkaPool": "nav-dev",
     "minReplicas": "1",
-    "maxReplicas": "2",
+    "maxReplicas": "1",
     "limits": {
         "mem": "800Mi"
     },

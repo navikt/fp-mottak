@@ -21,7 +21,6 @@ public class ApiConfig extends ResourceConfig {
     public static final String API_URI = "/api";
 
     public ApiConfig() {
-        GeneralRestExceptionMapper.setLegacyFrontendInternFeil(true);
         register(FpRestJackson2Feature.class);
         register(MultiPartFeature.class); // Multipart upload mellomlagring
         registerClasses(getApplicationClasses());
