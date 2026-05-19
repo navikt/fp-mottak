@@ -24,7 +24,7 @@
 
         <!-- Eksterne -->
         <avro.version>1.12.1</avro.version>
-        <confluent.version>8.2.0</confluent.version>
+        <confluent.version>8.2.1</confluent.version>
     </properties>
 
     <dependencyManagement>
