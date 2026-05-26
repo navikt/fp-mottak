@@ -8,10 +8,10 @@ import jakarta.inject.Inject;
 import no.nav.person.pdl.leesah.Personhendelse;
 import no.nav.vedtak.felles.integrasjon.kafka.KafkaConsumerManager;
 import no.nav.vedtak.server.Controllable;
-import no.nav.vedtak.server.LiveAndReadinessAware;
+import no.nav.vedtak.server.LivenessAware;
 
 @ApplicationScoped
-public class PdlLeesahHendelseConsumer implements LiveAndReadinessAware, Controllable {
+public class PdlLeesahHendelseConsumer implements LivenessAware, Controllable {
 
     private static final Logger LOG = LoggerFactory.getLogger(PdlLeesahHendelseConsumer.class);
 
@@ -28,11 +28,6 @@ public class PdlLeesahHendelseConsumer implements LiveAndReadinessAware, Control
     @Override
     public boolean isAlive() {
         return kcm.allRunning();
-    }
-
-    @Override
-    public boolean isReady() {
-        return isAlive();
     }
 
     @Override
