@@ -13,6 +13,7 @@ import org.glassfish.jersey.server.ServerProperties;
 import jakarta.ws.rs.ApplicationPath;
 import no.nav.foreldrepenger.mottak.journalføring.api.FerdigstillJournalføringRestTjeneste;
 import no.nav.foreldrepenger.mottak.journalføring.api.JournalføringRestTjeneste;
+import no.nav.vedtak.server.rest.AuthenticationFilter;
 import no.nav.vedtak.server.rest.FpRestJackson2Feature;
 
 @ApplicationPath(ApiConfig.API_URI)
@@ -21,6 +22,7 @@ public class ApiConfig extends ResourceConfig {
     public static final String API_URI = "/api";
 
     public ApiConfig() {
+        register(AuthenticationFilter.class);
         register(FpRestJackson2Feature.class);
         register(MultiPartFeature.class); // Multipart upload mellomlagring
         registerClasses(getApplicationClasses());
