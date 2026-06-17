@@ -3,21 +3,17 @@ package no.nav.foreldrepenger.mottak.leesah.kafka;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-import no.nav.foreldrepenger.mottak.leesah.domene.HendelseType;
-import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlDød;
-import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlDødfødsel;
-import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlEndringstype;
-import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlFalskIdentitet;
-import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlFødsel;
-
-import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlPersonhendelse;
-import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlUtflytting;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.enterprise.context.ApplicationScoped;
-
+import no.nav.foreldrepenger.mottak.leesah.domene.HendelseType;
+import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlDød;
+import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlDødfødsel;
+import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlEndringstype;
+import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlFødsel;
+import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlPersonhendelse;
+import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlUtflytting;
 import no.nav.person.pdl.leesah.Personhendelse;
 
 @ApplicationScoped
@@ -25,7 +21,6 @@ public class PdlLeesahOversetter {
 
     private static final Logger LOG = LoggerFactory.getLogger(PdlLeesahOversetter.class);
 
-    public static final String FALSKID = "FALSK_ID_V1";
     public static final String FØDSELSDATO = "FOEDSELSDATO_V1";
     public static final String DØD = "DOEDSFALL_V1";
     public static final String DØDFØDSEL = "DOEDFOEDT_BARN_V1";
@@ -60,15 +55,6 @@ public class PdlLeesahOversetter {
         oversettPersonhendelse(personhendelse, builder);
         if (personhendelse.getUtflyttingFraNorge() != null) {
             builder.medUtflyttingsdato(personhendelse.getUtflyttingFraNorge().getUtflyttingsdato());
-        }
-        return builder.build();
-    }
-
-    public PdlFalskIdentitet oversettFalskIdentitet(Personhendelse personhendelse) {
-        var builder = PdlFalskIdentitet.builder();
-        oversettPersonhendelse(personhendelse, builder);
-        if (personhendelse.getFalskIdentitet() != null) {
-            builder.medErFalsk(personhendelse.getFalskIdentitet().getErFalsk());
         }
         return builder.build();
     }
@@ -141,14 +127,6 @@ public class PdlLeesahOversetter {
                         case ANNULLERT -> HendelseType.PDL_UTFLYTTING_ANNULLERT;
                         case KORRIGERT -> HendelseType.PDL_UTFLYTTING_KORRIGERT;
                         case OPPHOERT -> HendelseType.PDL_UTFLYTTING_OPPHØRT;
-                    };
-                }
-                case FALSKID -> {
-                    return switch (endringstype) {
-                        case OPPRETTET -> HendelseType.PDL_FALSKIDENT_OPPRETTET;
-                        case ANNULLERT -> HendelseType.PDL_FALSKIDENT_ANNULLERT;
-                        case KORRIGERT -> HendelseType.PDL_FALSKIDENT_KORRIGERT;
-                        case OPPHOERT -> HendelseType.PDL_FALSKIDENT_OPPHØRT;
                     };
                 }
                 default -> {

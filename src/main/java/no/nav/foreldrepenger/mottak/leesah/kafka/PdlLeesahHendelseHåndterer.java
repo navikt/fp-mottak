@@ -3,26 +3,14 @@ package no.nav.foreldrepenger.mottak.leesah.kafka;
 import static io.confluent.kafka.serializers.KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG;
 import static no.nav.foreldrepenger.mottak.leesah.kafka.PdlLeesahOversetter.DØD;
 import static no.nav.foreldrepenger.mottak.leesah.kafka.PdlLeesahOversetter.DØDFØDSEL;
-import static no.nav.foreldrepenger.mottak.leesah.kafka.PdlLeesahOversetter.FALSKID;
 import static no.nav.foreldrepenger.mottak.leesah.kafka.PdlLeesahOversetter.FØDSELSDATO;
 import static no.nav.foreldrepenger.mottak.leesah.kafka.PdlLeesahOversetter.UTFLYTTING;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 
-import no.nav.foreldrepenger.mottak.leesah.domene.HåndtertStatusType;
-import no.nav.foreldrepenger.mottak.leesah.domene.InngåendeHendelse;
-import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlPersonhendelse;
-import no.nav.foreldrepenger.mottak.leesah.kafka.test.VtpKafkaAvroDeserializer;
-import no.nav.foreldrepenger.mottak.leesah.pdl.tjeneste.ForsinkelseTjeneste;
-import no.nav.foreldrepenger.mottak.leesah.task.HendelserDataWrapper;
-import no.nav.foreldrepenger.mottak.leesah.task.VurderSorteringTask;
-import no.nav.foreldrepenger.mottak.leesah.tjeneste.HendelseRepository;
-
-import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
@@ -33,9 +21,16 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.mottak.leesah.domene.HåndtertStatusType;
+import no.nav.foreldrepenger.mottak.leesah.domene.InngåendeHendelse;
+import no.nav.foreldrepenger.mottak.leesah.domene.eksternt.PdlPersonhendelse;
+import no.nav.foreldrepenger.mottak.leesah.kafka.test.VtpKafkaAvroDeserializer;
+import no.nav.foreldrepenger.mottak.leesah.pdl.tjeneste.ForsinkelseTjeneste;
+import no.nav.foreldrepenger.mottak.leesah.task.HendelserDataWrapper;
+import no.nav.foreldrepenger.mottak.leesah.task.VurderSorteringTask;
+import no.nav.foreldrepenger.mottak.leesah.tjeneste.HendelseRepository;
 import no.nav.person.pdl.leesah.Personhendelse;
 import no.nav.vedtak.felles.integrasjon.kafka.KafkaMessageHandler;
 import no.nav.vedtak.felles.integrasjon.kafka.KafkaProperties;
@@ -103,8 +98,6 @@ public class PdlLeesahHendelseHåndterer implements KafkaMessageHandler<String, 
             håndterDødfødtBarn(payload);
         } else if (UTFLYTTING.contentEquals(payload.getOpplysningstype())) {
             håndterUtflytting(payload);
-        } else if (FALSKID.contentEquals(payload.getOpplysningstype())) {
-            håndterFalskIdentitet(payload);
         }
     }
 
@@ -150,12 +143,6 @@ public class PdlLeesahHendelseHåndterer implements KafkaMessageHandler<String, 
         }
         var pdlUtflytting = oversetter.oversettUtflytting(payload);
         prosesserHendelseVidereHvisRelevant(pdlUtflytting);
-    }
-
-    private void håndterFalskIdentitet(Personhendelse payload) {
-        loggMottakUtenDato(payload, "falskIdentitet");
-        var pdlFalskIdentitet = oversetter.oversettFalskIdentitet(payload);
-        prosesserHendelseVidereHvisRelevant(pdlFalskIdentitet);
     }
 
     private void loggMottakMedDato(Personhendelse payload, String hendelse, String datofelt, LocalDate dato) {
