@@ -1,30 +1,27 @@
 package no.nav.foreldrepenger.mottak.leesah.task;
 
 
+import static no.nav.foreldrepenger.mottak.leesah.tjeneste.AktørIdTjeneste.getAktørIderForSortering;
+
 import java.util.Collections;
 import java.util.Set;
-
-import no.nav.foreldrepenger.mottak.leesah.domene.HendelseOpplysningType;
-import no.nav.foreldrepenger.mottak.leesah.domene.HendelsePayload;
-import no.nav.foreldrepenger.mottak.leesah.domene.HåndtertStatusType;
-import no.nav.foreldrepenger.mottak.leesah.fpsak.HendelserKlient;
-
-import no.nav.foreldrepenger.mottak.leesah.tjeneste.AbonnentHendelserFeil;
-import no.nav.foreldrepenger.mottak.leesah.tjeneste.InngåendeHendelseTjeneste;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-
+import no.nav.foreldrepenger.mottak.leesah.domene.HendelseOpplysningType;
+import no.nav.foreldrepenger.mottak.leesah.domene.HendelsePayload;
+import no.nav.foreldrepenger.mottak.leesah.domene.HåndtertStatusType;
+import no.nav.foreldrepenger.mottak.leesah.fpsak.HendelserKlient;
+import no.nav.foreldrepenger.mottak.leesah.tjeneste.AbonnentHendelserFeil;
+import no.nav.foreldrepenger.mottak.leesah.tjeneste.InngåendeHendelseTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
-
-import static no.nav.foreldrepenger.mottak.leesah.tjeneste.AktørIdTjeneste.getAktørIderForSortering;
 
 @Dependent
 @ProsessTask("hendelser.grovsorter")
@@ -61,15 +58,6 @@ public class SorterHendelseTask implements ProsessTaskHandler {
 
 
         if (HendelseOpplysningType.PDL_FALSKIDENT_HENDELSE.equals(inngåendeHendelse.getHendelseType().getOpplysningType())) {
-            var filtrertAktørIdList = hendelser.grovsorterHistorisk(aktørIderForSortering);
-            var relevant = hendelseErRelevant(aktørIderForSortering, filtrertAktørIdList);
-            if (relevant) {
-                LOGGER.warn("Falsk-Identitet hendelse med hendelseId {} og type {} er relevant for FPSAK", hendelsePayload.getHendelseId(),
-                    hendelsePayload.getHendelseType());
-            } else {
-                LOGGER.info("Ikke-relevant hendelse med hendelseId {} og type {} blir ikke videresendt til FPSAK", hendelsePayload.getHendelseId(),
-                    hendelsePayload.getHendelseType());
-            }
             // Logikk i FP-sak ikke klart for å sende inn ennå
             inngåendeHendelseTjeneste.markerHendelseSomHåndtertOgFjernPayload(inngåendeHendelse);
             inngåendeHendelseTjeneste.fjernPayloadTidligereHendelser(inngåendeHendelse);

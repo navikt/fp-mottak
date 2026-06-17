@@ -54,14 +54,4 @@ public class HendelserKlient {
         }
         return Set.of();
     }
-
-    public Set<String> grovsorterHistorisk(Set<String> aktører) {
-        if (!aktører.isEmpty()) {
-            var dtos = aktører.stream().map(AktørIdDto::new).toList();
-            var request = RestRequest.newPOSTJson(dtos, grovsorterHistorisk, restConfig);
-            var respons = restKlient.send(request, String[].class);
-            return new HashSet<>(Arrays.asList(respons));
-        }
-        return Set.of();
-    }
 }

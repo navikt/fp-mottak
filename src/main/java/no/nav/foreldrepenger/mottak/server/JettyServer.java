@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.mottak.server.konfig.InternalApiConfig;
 import no.nav.vedtak.felles.jpa.flyway.FlywayUtil;
 import no.nav.vedtak.felles.jpa.jdbc.DataSourceHolder;
 import no.nav.vedtak.felles.jpa.jdbc.DatasourceUtil;
+import no.nav.vedtak.log.metrics.MetricsUtil;
 
 public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
@@ -86,6 +87,7 @@ public class JettyServer {
 
     void bootStrap() throws Exception {
         System.setProperty("task.manager.runner.threads", "4");
+        MetricsUtil.scrape(); // TODO: Ta inn en init-metode i felles
         var dataSource = DatasourceUtil.postgresDataSource(ENV.getRequiredProperty("DB_JDBC_URL"), null, null, 12);
         DataSourceHolder.initialize(dataSource);
         FlywayUtil.migrate(dataSource, "classpath:/db/postgres/defaultDS");
