@@ -5,6 +5,5 @@ public enum HendelseOpplysningType {
     PDL_DØD_HENDELSE,
     PDL_DØDFØDSEL_HENDELSE,
     PDL_UTFLYTTING_HENDELSE,
-    PDL_FALSKIDENT_HENDELSE,
     UDEFINERT
 }

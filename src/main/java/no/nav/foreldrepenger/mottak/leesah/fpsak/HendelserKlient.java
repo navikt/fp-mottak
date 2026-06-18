@@ -26,7 +26,6 @@ public class HendelserKlient {
     private final RestConfig restConfig;
     private final URI motta;
     private final URI grovsorter;
-    private final URI grovsorterHistorisk;
 
     public HendelserKlient() {
         this(RestClient.client());
@@ -37,7 +36,6 @@ public class HendelserKlient {
         this.restConfig = RestConfig.forClient(this.getClass());
         this.motta = UriBuilder.fromUri(restConfig.fpContextPath()).path(API_PATH).path("motta").build();
         this.grovsorter = UriBuilder.fromUri(restConfig.fpContextPath()).path(API_PATH).path("grovsorter").build();
-        this.grovsorterHistorisk = UriBuilder.fromUri(restConfig.fpContextPath()).path(API_PATH).path("grovsorter-historisk").build();
     }
 
     public void sendHendelse(HendelsePayload h) {
