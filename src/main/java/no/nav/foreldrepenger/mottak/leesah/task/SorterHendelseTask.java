@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-import no.nav.foreldrepenger.mottak.leesah.domene.HendelseOpplysningType;
 import no.nav.foreldrepenger.mottak.leesah.domene.HendelsePayload;
 import no.nav.foreldrepenger.mottak.leesah.domene.HåndtertStatusType;
 import no.nav.foreldrepenger.mottak.leesah.fpsak.HendelserKlient;
@@ -56,13 +55,6 @@ public class SorterHendelseTask implements ProsessTaskHandler {
         var hendelsePayload = inngåendeHendelseTjeneste.hentUtPayloadFraInngåendeHendelse(inngåendeHendelse);
         var aktørIderForSortering = getAktørIderForSortering(hendelsePayload);
 
-
-        if (HendelseOpplysningType.PDL_FALSKIDENT_HENDELSE.equals(inngåendeHendelse.getHendelseType().getOpplysningType())) {
-            // Logikk i FP-sak ikke klart for å sende inn ennå
-            inngåendeHendelseTjeneste.markerHendelseSomHåndtertOgFjernPayload(inngåendeHendelse);
-            inngåendeHendelseTjeneste.fjernPayloadTidligereHendelser(inngåendeHendelse);
-            return;
-        }
 
         var filtrertAktørIdList = hendelser.grovsorterAktørIder(aktørIderForSortering);
         if (!hendelseErRelevant(aktørIderForSortering, filtrertAktørIdList)) {
