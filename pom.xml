@@ -20,7 +20,7 @@
 
         <felles.version>7.8.4</felles.version>
         <prosesstask.version>5.2.7</prosesstask.version>
-        <fp-kontrakter.version>9.4.36</fp-kontrakter.version>
+        <fp-kontrakter.version>9.4.37</fp-kontrakter.version>
 
         <!-- Eksterne -->
         <avro.version>1.12.1</avro.version>

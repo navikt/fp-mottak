@@ -7,7 +7,6 @@ import static no.nav.foreldrepenger.mottak.leesah.domene.HendelseEndringType.OPP
 import static no.nav.foreldrepenger.mottak.leesah.domene.HendelseEndringType.OPPRETTET;
 import static no.nav.foreldrepenger.mottak.leesah.domene.HendelseOpplysningType.PDL_DØDFØDSEL_HENDELSE;
 import static no.nav.foreldrepenger.mottak.leesah.domene.HendelseOpplysningType.PDL_DØD_HENDELSE;
-import static no.nav.foreldrepenger.mottak.leesah.domene.HendelseOpplysningType.PDL_FALSKIDENT_HENDELSE;
 import static no.nav.foreldrepenger.mottak.leesah.domene.HendelseOpplysningType.PDL_FØDSEL_HENDELSE;
 import static no.nav.foreldrepenger.mottak.leesah.domene.HendelseOpplysningType.PDL_UTFLYTTING_HENDELSE;
 
@@ -46,10 +45,6 @@ public enum HendelseType implements Kodeverdi {
     PDL_UTFLYTTING_ANNULLERT("PDL_UTFLYTTING_ANNULLERT", PDL_UTFLYTTING_HENDELSE, ANNULLERT),
     PDL_UTFLYTTING_OPPHØRT("PDL_UTFLYTTING_OPPHOERT", PDL_UTFLYTTING_HENDELSE, OPPHOERT),
 
-    PDL_FALSKIDENT_OPPRETTET("PDL_FALSKIDENT_OPPRETTET", PDL_FALSKIDENT_HENDELSE, OPPRETTET),
-    PDL_FALSKIDENT_KORRIGERT("PDL_FALSKIDENT_KORRIGERT", PDL_FALSKIDENT_HENDELSE, KORRIGERT),
-    PDL_FALSKIDENT_ANNULLERT("PDL_FALSKIDENT_ANNULLERT", PDL_FALSKIDENT_HENDELSE, ANNULLERT),
-    PDL_FALSKIDENT_OPPHØRT("PDL_FALSKIDENT_OPPHOERT", PDL_FALSKIDENT_HENDELSE, OPPHOERT),
     /**
      * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden gjør samme nytten.
      */
