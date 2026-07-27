@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import io.confluent.kafka.serializers.subject.TopicNameStrategy;
+
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
@@ -243,6 +245,8 @@ public class PdlLeesahHendelseHåndterer implements KafkaMessageHandler<String, 
             return Map.of(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl,
                 AbstractKafkaSchemaSerDeConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO",
                 AbstractKafkaSchemaSerDeConfig.USER_INFO_CONFIG, KafkaProperties.getAvroSchemaRegistryBasicAuth(),
+                AbstractKafkaSchemaSerDeConfig.KEY_SUBJECT_NAME_STRATEGY, TopicNameStrategy.class.getName(),
+                AbstractKafkaSchemaSerDeConfig.VALUE_SUBJECT_NAME_STRATEGY, TopicNameStrategy.class.getName(),
                 SPECIFIC_AVRO_READER_CONFIG, true);
         } else {
             return Map.of();
