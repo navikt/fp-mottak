@@ -14,7 +14,7 @@ import jakarta.ws.rs.ApplicationPath;
 import no.nav.foreldrepenger.mottak.journalføring.api.FerdigstillJournalføringRestTjeneste;
 import no.nav.foreldrepenger.mottak.journalføring.api.JournalføringRestTjeneste;
 import no.nav.vedtak.server.rest.AuthenticationFilter;
-import no.nav.vedtak.server.rest.FpRestJackson2Feature;
+import no.nav.vedtak.server.rest.FpRestJacksonFeature;
 
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends ResourceConfig {
@@ -23,7 +23,7 @@ public class ApiConfig extends ResourceConfig {
 
     public ApiConfig() {
         register(AuthenticationFilter.class);
-        register(FpRestJackson2Feature.class);
+        register(FpRestJacksonFeature.class);
         register(MultiPartFeature.class); // Multipart upload mellomlagring
         registerClasses(getApplicationClasses());
         setProperties(getApplicationProperties());
