@@ -39,6 +39,8 @@ public class JettyServer {
         MetricsUtil.init(); // Sett opp registry før andre kobler seg på
         konfigurerLogging();
         System.setProperty("task.manager.runner.threads", "4");
+        // Må gjøres for å fungere med Avro 1.12.2 og senere - alternativt bruke ClassSecurityValidator
+        System.setProperty("org.apache.avro.SERIALIZABLE_PACKAGES", "no.nav.joarkjournalfoeringhendelser,no.nav.person.pdl.leesah");
         var dataSource = DatasourceUtil.postgresDataSource(ENV.getRequiredProperty("DB_JDBC_URL"), null, null, 12);
         DataSourceHolder.initialize(dataSource);
         FlywayUtil.migrate(dataSource, "classpath:/db/postgres/defaultDS");
