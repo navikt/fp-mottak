@@ -23,8 +23,8 @@
         <fp-kontrakter.version>9.4.37</fp-kontrakter.version>
 
         <!-- Eksterne -->
-        <avro.version>1.12.2</avro.version>
-        <confluent.version>8.3.1</confluent.version>
+        <avro.version>1.12.1</avro.version>
+        <confluent.version>8.3.0</confluent.version>
     </properties>
 
     <dependencyManagement>
