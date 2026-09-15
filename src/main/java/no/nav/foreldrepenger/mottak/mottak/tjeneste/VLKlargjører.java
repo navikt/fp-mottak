@@ -12,7 +12,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.mottak.klient.DokumentmottakKlient;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
@@ -43,13 +42,12 @@ public class VLKlargjører {
                          String arkivId,
                          DokumentTypeId dokumenttypeId,
                          LocalDateTime forsendelseMottatt,
-                         BehandlingTema behandlingsTema, DokumentKategori dokumentKategori,
+                         BehandlingTema behandlingsTema,
                          String journalFørendeEnhet,
                          String eksternReferanseId) {
         String behandlingTemaString = (behandlingsTema == null) || BehandlingTema.UDEFINERT.equals(
             behandlingsTema) ? BehandlingTema.UDEFINERT.getKode() : behandlingsTema.getOffisiellKode();
         String dokumentTypeIdOffisiellKode = dokumenttypeId.getOffisiellKode();
-        String dokumentKategoriOffisiellKode = dokumentKategori.getOffisiellKode();
 
         fagsak.knyttSakOgJournalpost(new JournalpostKnyttningDto(saksnummer, arkivId));
 
@@ -57,13 +55,11 @@ public class VLKlargjører {
         if (DokumentTypeId.TILBAKEKREV_UTTALELSE.equals(dokumenttypeId) || DokumentTypeId.TILBAKEBETALING_UTTALSELSE.equals(dokumenttypeId)) {
             var tilbakeMottakDto = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString, dokumentTypeIdOffisiellKode,
                 forsendelseMottatt, null);
-            tilbakeMottakDto.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
             tilbakeMottakDto.setJournalForendeEnhet(journalFørendeEnhet);
             Optional.ofNullable(eksternReferanseId).flatMap(VLKlargjører::asUUID).ifPresent(tilbakeMottakDto::setForsendelseId);
             tilbakeJournalpostSender.send(tilbakeMottakDto);
         } else {
             var journalpost = new JournalpostMottakDto(saksnummer, arkivId, behandlingTemaString, dokumentTypeIdOffisiellKode, forsendelseMottatt, xml);
-            journalpost.setDokumentKategoriOffisiellKode(dokumentKategoriOffisiellKode);
             journalpost.setJournalForendeEnhet(journalFørendeEnhet);
             journalpost.setEksternReferanseId(eksternReferanseId);
             Optional.ofNullable(eksternReferanseId).flatMap(VLKlargjører::asUUID).ifPresent(journalpost::setForsendelseId);

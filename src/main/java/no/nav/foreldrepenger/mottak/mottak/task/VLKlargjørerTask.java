@@ -54,13 +54,12 @@ public class VLKlargjørerTask extends WrappedProsessTaskHandler {
         String saksnummer = w.getSaksnummer().orElseThrow(() -> new IllegalStateException("Skulle allerede vært sjekket i precondition(...)"));
         String arkivId = w.getArkivId();
         var dokumenttypeId = w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
-        var dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumenttypeId);
         String journalEnhet = w.getJournalførendeEnhet().orElse(null);
         String eksternReferanseId = w.getEksternReferanseId().orElse(null);
         var behandlingsTema = w.getBehandlingTema();
 
         klargjører.klargjør(xml, saksnummer, arkivId, dokumenttypeId, w.getForsendelseMottattTidspunkt().orElseGet(LocalDateTime::now),
-            behandlingsTema, dokumentKategori, journalEnhet, eksternReferanseId);
+            behandlingsTema, journalEnhet, eksternReferanseId);
 
         return null; // Siste steg, fpsak overtar nå
     }

@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.kontrakter.fordel.OpprettSakV2Dto;
 import no.nav.foreldrepenger.kontrakter.fordel.SaksnummerDto;
 import no.nav.foreldrepenger.kontrakter.fordel.YtelseTypeDto;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.Journalposttype;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.Journalstatus;
@@ -114,10 +113,9 @@ public class FerdigstillJournalføringTjeneste {
 
         final var behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
         final var behandlingTema = validerOgVelgBehandlingTema(behandlingTemaFagsak, behandlingTemaDok, dokumentTypeId);
-        final var dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
         var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
 
-        validerKanJournalføreKlageDokument(behandlingTemaFagsak, brukDokumentTypeId, dokumentKategori);
+        validerKanJournalføreKlageDokument(behandlingTemaFagsak, brukDokumentTypeId);
 
         if (Journalstatus.MOTTATT.equals(journalpost.getTilstand())) {
             oppdaterJournalpostMedTittelOgMangler(journalpost, nyJournalpostTittel, dokumenterMedNyTittel, aktørIdFagsak, behandlingTema);
@@ -145,7 +143,7 @@ public class FerdigstillJournalføringTjeneste {
 
         final var xml = hentDokumentSettMetadata(behandlingTema, aktørIdFagsak, journalpost);
         klargjører.klargjør(xml, saksnummer, journalpost.getJournalpostId(), brukDokumentTypeId, mottattTidspunkt, behandlingTema,
-                dokumentKategori, enhetId, eksternReferanseId);
+                enhetId, eksternReferanseId);
 
         opprettFerdigstillOppgaveTask(JournalpostId.fra(journalpost.getJournalpostId()));
     }
@@ -299,10 +297,9 @@ public class FerdigstillJournalføringTjeneste {
         var dokumentTypeId = journalpost.getHovedtype();
         final var behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
         final var behandlingTema = validerOgVelgBehandlingTema(behandlingTemaFagsak, behandlingTemaDok, dokumentTypeId);
-        final var dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
         var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
 
-        validerKanJournalføreKlageDokument(behandlingTemaFagsak, brukDokumentTypeId, dokumentKategori);
+        validerKanJournalføreKlageDokument(behandlingTemaFagsak, brukDokumentTypeId);
 
         manuellOpprettSakValidator.validerKonsistensForKnyttTilAnnenSak(journalpost, behandlingTema.utledYtelseType(), new AktørId(aktørIdFagsak), journalpost.getHovedtype());
 
@@ -318,7 +315,7 @@ public class FerdigstillJournalføringTjeneste {
         }
 
         klargjører.klargjør(xml, saksnummer, nyJournalpostId, brukDokumentTypeId, mottattTidspunkt, behandlingTema,
-                dokumentKategori, enhetId, eksternReferanseId);
+                enhetId, eksternReferanseId);
 
         return Optional.ofNullable(nyJournalpostId).map(JournalpostId::fra).orElse(null);
     }
@@ -332,7 +329,6 @@ public class FerdigstillJournalføringTjeneste {
         var dokumentTypeId = journalpost.getHovedtype();
         final var behandlingTemaDok = ArkivUtil.behandlingTemaFraDokumentType(BehandlingTema.UDEFINERT, dokumentTypeId);
         final var behandlingTema = validerOgVelgBehandlingTema(behandlingTemaFagsak, behandlingTemaDok, dokumentTypeId);
-        final var dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
         var brukDokumentTypeId = DokumentTypeId.UDEFINERT.equals(dokumentTypeId) ? DokumentTypeId.ANNET : dokumentTypeId;
 
         // Bruk fra opprinnelig
@@ -344,7 +340,7 @@ public class FerdigstillJournalføringTjeneste {
         }
 
         klargjører.klargjør(xml, saksnummer, journalpost.getJournalpostId(), brukDokumentTypeId, mottattTidspunkt, behandlingTema,
-                dokumentKategori, null, eksternReferanseId);
+                null, eksternReferanseId);
     }
 
 
@@ -377,10 +373,8 @@ public class FerdigstillJournalføringTjeneste {
     }
 
     private static void validerKanJournalføreKlageDokument(BehandlingTema behandlingTema,
-                                                           DokumentTypeId dokumentTypeId,
-                                                           DokumentKategori dokumentKategori) {
-        if (BehandlingTema.UDEFINERT.equals(behandlingTema) && (DokumentTypeId.KLAGE_DOKUMENT.equals(dokumentTypeId)
-            || DokumentKategori.KLAGE_ELLER_ANKE.equals(dokumentKategori))) {
+                                                           DokumentTypeId dokumentTypeId) {
+        if (BehandlingTema.UDEFINERT.equals(behandlingTema) && DokumentTypeId.KLAGE_DOKUMENT.equals(dokumentTypeId)) {
             throw new FunksjonellException("FP-963074", "Klager må journalføres på sak med tidligere behandling",
                 "Journalføre klagen på sak med avsluttet behandling");
         }

@@ -109,7 +109,6 @@ public class FagsakKlient implements Fagsak {
         var aktørId = w.getAktørId().orElseThrow();
         boolean strukturertSøknad = w.erStrukturertDokument().orElse(Boolean.FALSE);
         var dokumentTypeId = w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
-        var dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
         String behandlingTemaString = BehandlingTema.UDEFINERT.equals(w.getBehandlingTema()) ? w.getBehandlingTema().getKode() : w.getBehandlingTema()
             .getOffisiellKode();
 
@@ -122,7 +121,6 @@ public class FagsakKlient implements Fagsak {
         w.getForsendelseMottattTidspunkt().ifPresent(dto::setForsendelseMottattTidspunkt);
         dto.setForsendelseMottatt(w.getForsendelseMottatt());
         dto.setDokumentTypeIdOffisiellKode(dokumentTypeId.getOffisiellKode());
-        dto.setDokumentKategoriOffisiellKode(dokumentKategori.getOffisiellKode());
 
         if (innhold instanceof SøknadInnhold søknadInnhold) {
             // Denne må enten være null eller ha minst en dato. Validering i kontrakt

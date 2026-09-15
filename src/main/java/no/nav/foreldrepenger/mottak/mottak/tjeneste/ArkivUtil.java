@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.MapNAVSkjemaDokumentTypeId;
 
@@ -60,16 +59,6 @@ public final class ArkivUtil {
 
 
     private ArkivUtil() {
-    }
-
-    public static DokumentKategori utledKategoriFraDokumentType(DokumentTypeId doktype) {
-        if (DokumentTypeId.erSøknadType(doktype)) {
-            return DokumentKategori.SØKNAD;
-        }
-        if (DokumentTypeId.erKlageType(doktype)) {
-            return DokumentKategori.KLAGE_ELLER_ANKE;
-        }
-        return DokumentKategori.IKKE_TOLKBART_SKJEMA;
     }
 
     public static BehandlingTema behandlingTemaFraDokumentType(BehandlingTema behandlingTema, DokumentTypeId dokumentTypeId) {
