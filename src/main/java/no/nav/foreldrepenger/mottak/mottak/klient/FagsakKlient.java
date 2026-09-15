@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.mottak.mottak.felles.DokumentInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.InntektsmeldingInnhold;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.felles.SøknadInnhold;
-import no.nav.foreldrepenger.mottak.mottak.tjeneste.ArkivUtil;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
@@ -109,7 +108,6 @@ public class FagsakKlient implements Fagsak {
         var aktørId = w.getAktørId().orElseThrow();
         boolean strukturertSøknad = w.erStrukturertDokument().orElse(Boolean.FALSE);
         var dokumentTypeId = w.getDokumentTypeId().orElse(DokumentTypeId.UDEFINERT);
-        var dokumentKategori = ArkivUtil.utledKategoriFraDokumentType(dokumentTypeId);
         String behandlingTemaString = BehandlingTema.UDEFINERT.equals(w.getBehandlingTema()) ? w.getBehandlingTema().getKode() : w.getBehandlingTema()
             .getOffisiellKode();
 
@@ -122,7 +120,6 @@ public class FagsakKlient implements Fagsak {
         w.getForsendelseMottattTidspunkt().ifPresent(dto::setForsendelseMottattTidspunkt);
         dto.setForsendelseMottatt(w.getForsendelseMottatt());
         dto.setDokumentTypeIdOffisiellKode(dokumentTypeId.getOffisiellKode());
-        dto.setDokumentKategoriOffisiellKode(dokumentKategori.getOffisiellKode());
 
         if (innhold instanceof SøknadInnhold søknadInnhold) {
             // Denne må enten være null eller ha minst en dato. Validering i kontrakt

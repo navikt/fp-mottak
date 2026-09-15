@@ -64,7 +64,7 @@ class VLKlargjørerTaskTest {
         data.setForsendelseMottattTidspunkt(LocalDateTime.now());
         data.setPayload("pay the load");
         var neste = toTaskWithPrecondition(data);
-        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNull();
     }
 
@@ -78,7 +78,7 @@ class VLKlargjørerTaskTest {
         data.setForsendelseMottattTidspunkt(LocalDateTime.now());
         data.setPayload("<xml>test<xml>");
         var neste = toTaskWithPrecondition(data);
-        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNull();
     }
 
@@ -92,7 +92,7 @@ class VLKlargjørerTaskTest {
         data.setForsendelseMottattTidspunkt(LocalDateTime.now());
         data.setPayload("<xml>test<xml>");
         var neste = toTaskWithPrecondition(data);
-        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any(), any());
+        verify(klargjørForVLTjeneste).klargjør(any(), any(), any(), any(), any(), any(), any(), any());
         assertThat(neste).isNull();
     }
 

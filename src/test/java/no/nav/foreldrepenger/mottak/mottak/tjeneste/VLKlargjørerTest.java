@@ -15,7 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostKnyttningDto;
 import no.nav.foreldrepenger.kontrakter.fordel.JournalpostMottakDto;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.BehandlingTema;
-import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentKategori;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.mottak.klient.DokumentmottakKlient;
 import no.nav.foreldrepenger.mottak.mottak.klient.Fagsak;
@@ -44,7 +43,7 @@ class VLKlargjørerTest {
     void skal_knytte_og_sende() {
 
         klargjørForVLTjeneste.klargjør(null, SAK_ID, ARKIV_ID, DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, LocalDate.now().atStartOfDay(),
-            BehandlingTema.FORELDREPENGER, DokumentKategori.SØKNAD, ENHET_ID, null);
+            BehandlingTema.FORELDREPENGER, ENHET_ID, null);
 
         var captorJ = ArgumentCaptor.forClass(JournalpostKnyttningDto.class);
         verify(mockFagsakRestKlient).knyttSakOgJournalpost(captorJ.capture());

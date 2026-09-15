@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.mottak.tjeneste;
 
-import static no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentKategori.KLAGE_ELLER_ANKE;
 import static no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId.KLAGE_DOKUMENT;
 import static no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId.UDEFINERT;
 
@@ -64,8 +63,7 @@ public class DestinasjonsRuter {
     }
 
     public static boolean erKlageEllerAnke(MottakMeldingDataWrapper data) {
-        return KLAGE_DOKUMENT.equals(data.getDokumentTypeId().orElse(UDEFINERT)) ||
-            KLAGE_ELLER_ANKE.equals(ArkivUtil.utledKategoriFraDokumentType(data.getDokumentTypeId().orElse(UDEFINERT)));
+        return KLAGE_DOKUMENT.equals(data.getDokumentTypeId().orElse(UDEFINERT));
     }
 
     public Destinasjon bestemDestinasjon(MottakMeldingDataWrapper w, DokumentInnhold innhold) {
