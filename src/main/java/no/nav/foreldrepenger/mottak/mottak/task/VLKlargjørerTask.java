@@ -7,7 +7,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId;
 import no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper;
 import no.nav.foreldrepenger.mottak.mottak.felles.WrappedProsessTaskHandler;
-import no.nav.foreldrepenger.mottak.mottak.tjeneste.ArkivUtil;
 import no.nav.foreldrepenger.mottak.mottak.tjeneste.VLKlargjører;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
