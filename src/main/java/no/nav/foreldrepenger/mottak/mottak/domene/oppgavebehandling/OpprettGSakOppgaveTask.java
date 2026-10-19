@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.mottak.domene.oppgavebehandling;
 
-import static no.nav.foreldrepenger.mottak.mottak.behandlendeenhet.EnhetsTjeneste.NK_ENHET_ID;
+import static no.nav.foreldrepenger.mottak.mottak.behandlendeenhet.EnhetsTjeneste.KLAGEINSTANS_ENHETER;
 import static no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper.ARKIV_ID_KEY;
 import static no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper.BEHANDLINGSTEMA_KEY;
 import static no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper.DOKUMENTTYPE_ID_KEY;
@@ -127,6 +127,6 @@ public class OpprettGSakOppgaveTask implements ProsessTaskHandler {
     }
 
     private static boolean erGosysOppgave(String enhet) {
-        return NK_ENHET_ID.equals(enhet);
+        return KLAGEINSTANS_ENHETER.contains(enhet);
     }
 }

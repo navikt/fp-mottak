@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.mottak.mottak.behandlendeenhet;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -10,11 +12,14 @@ import no.nav.vedtak.felles.integrasjon.ruting.RutingResultat;
 @ApplicationScoped
 public class EnhetsTjeneste {
     public static final String NK_ENHET_ID = "4292"; // Enhetsnummer NAV Klageinstans Midt-Norge
+    public static final Set<String> KLAGEINSTANS_ENHETER = Set.of(NK_ENHET_ID, "4295", "4293", "4250", "4294", "4291", "4260", "4270", "4280", "4286");
     public static final String SKJERMET_ENHET_ID = "4883"; // Enhetsnummer NAV Familie og Pensjon Skjermet
     public static final String SF_ENHET_ID = "2103"; // Enhetsnummer NAV K6 enhet
     public static final String UTLAND_ENHET_ID = "4806"; // Enhetsnummer NAV Utland enhet
     public static final String SAMMENSATT_ENHET_ID = "4817"; // Enhetsnummer NAV Utland enhet
-    private static final Set<String> SPESIALENHETER = Set.of(NK_ENHET_ID, SKJERMET_ENHET_ID, SF_ENHET_ID, UTLAND_ENHET_ID, SAMMENSATT_ENHET_ID);
+    private static final Set<String> SPESIALENHETER = Stream.concat(KLAGEINSTANS_ENHETER.stream(),
+        Stream.of(SKJERMET_ENHET_ID, SF_ENHET_ID, UTLAND_ENHET_ID, SAMMENSATT_ENHET_ID))
+            .collect(Collectors.toSet());
     private static final String NASJONAL_ENHET_ID = "4867";
 
     private RutingKlient rutingKlient;

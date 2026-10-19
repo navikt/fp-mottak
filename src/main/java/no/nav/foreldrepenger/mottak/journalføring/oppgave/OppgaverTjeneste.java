@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.journalføring.oppgave;
 
-import static no.nav.foreldrepenger.mottak.mottak.behandlendeenhet.EnhetsTjeneste.NK_ENHET_ID;
+import static no.nav.foreldrepenger.mottak.mottak.behandlendeenhet.EnhetsTjeneste.KLAGEINSTANS_ENHETER;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -192,7 +192,7 @@ class OppgaverTjeneste implements Journalføringsoppgave {
         var alleIdenter = alleOppgaver.stream().map(Oppgave::aktørId).filter(Objects::nonNull).collect(Collectors.toSet());
         var filtrertIdenter = filterKlient.filterIdenter(alleIdenter);
         return alleOppgaver.stream()
-            .filter(o -> !NK_ENHET_ID.equals(o.tildeltEnhetsnr())) // Klager går gjennom gosys
+            .filter(o -> o.tildeltEnhetsnr() == null || !KLAGEINSTANS_ENHETER.contains(o.tildeltEnhetsnr())) // Klager går gjennom gosys
             .filter(o -> o.aktørId() == null || filtrertIdenter.contains(o.aktørId()))
             .filter(o -> harTilgangTilEnhet(o.tildeltEnhetsnr()))
             .sorted(Comparator.nullsLast(Comparator.comparing(Oppgave::fristFerdigstillelse).thenComparing(Oppgave::tildeltEnhetsnr)))
