@@ -9,6 +9,7 @@ import static no.nav.foreldrepenger.mottak.fordel.kodeverdi.DokumentTypeId.erInn
 import static no.nav.foreldrepenger.mottak.fordel.kodeverdi.Journalstatus.MOTTATT;
 import static no.nav.foreldrepenger.mottak.fordel.kodeverdi.Tema.FORELDRE_OG_SVANGERSKAPSPENGER;
 import static no.nav.foreldrepenger.mottak.fordel.konfig.KonfigVerdier.ENDRING_BEREGNING_DATO;
+import static no.nav.foreldrepenger.mottak.mottak.behandlendeenhet.EnhetsTjeneste.KLAGEINSTANS_ENHETER;
 import static no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper.AKTØR_ID_KEY;
 import static no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper.ARKIV_ID_KEY;
 import static no.nav.foreldrepenger.mottak.mottak.felles.MottakMeldingDataWrapper.SAKSNUMMER_KEY;
@@ -180,7 +181,9 @@ public class HentDataFraJoarkTask extends WrappedProsessTaskHandler {
         if (journalpost.getAlleTyper().contains(DokumentTypeId.KLAGE_DOKUMENT) && journalpost.getSaksnummer().isEmpty() && erAnkeRelatert(journalpost)) {
             LOG.info("FPMOTTAK HentFraArkiv ankedokument til KA journalpost {} kanal {} dokumenttype {}", journalpost.getJournalpostId(),
                 journalpost.getKanal(), journalpost.getHovedtype());
-            w.setJournalførendeEnhet(EnhetsTjeneste.NK_ENHET_ID);
+            if (w.getJournalførendeEnhet().filter(KLAGEINSTANS_ENHETER::contains).isEmpty()) {
+                w.setJournalførendeEnhet(EnhetsTjeneste.NK_ENHET_ID);
+            }
             return w.nesteSteg(TASK_GOSYS);
         }
 

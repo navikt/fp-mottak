@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.mottak.klient;
 
-import static no.nav.foreldrepenger.mottak.mottak.behandlendeenhet.EnhetsTjeneste.NK_ENHET_ID;
+import static no.nav.foreldrepenger.mottak.mottak.behandlendeenhet.EnhetsTjeneste.KLAGEINSTANS_ENHETER;
 
 import java.net.URI;
 import java.util.List;
@@ -141,7 +141,7 @@ public class FagsakKlient implements Fagsak {
         LOG.info("Vurderer resultat");
 
         var brukPath = w.getJournalførendeEnhet()
-            .filter(NK_ENHET_ID::equals)
+            .filter(KLAGEINSTANS_ENHETER::contains)
             .isPresent() ? klageinstansEndpoint : fagsystemEndpoint;
 
         var request = RestRequest.newPOSTJson(dto, brukPath, restConfig);
