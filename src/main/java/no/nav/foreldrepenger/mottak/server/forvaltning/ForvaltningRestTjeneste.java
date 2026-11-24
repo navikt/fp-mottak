@@ -100,7 +100,6 @@ public class ForvaltningRestTjeneste {
         if (data == null) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        data.setCallIdFraEksisterende();
         var fra = new MottakMeldingDataWrapper(data);
         if (!fra.getArkivId().equals(dto.getJournalpostIdDto().journalpostId())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
@@ -263,9 +262,7 @@ public class ForvaltningRestTjeneste {
 
     private void startTaskVedBehov(Class<? extends ProsessTaskHandler> taskKlasse) {
         var schedulerType = TaskType.forProsessTask(taskKlasse);
-        var eksisterende = taskTjeneste.finnAlle(ProsessTaskStatus.KLAR).stream()
-            .map(ProsessTaskData::taskType)
-            .anyMatch(schedulerType::equals);
+        var eksisterende = !taskTjeneste.finnAktive(schedulerType, ProsessTaskStatus.KLAR).isEmpty();
         if (!eksisterende) {
             var taskData = ProsessTaskData.forProsessTask(taskKlasse);
             taskTjeneste.lagre(taskData);
